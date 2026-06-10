@@ -1,13 +1,11 @@
-# Outty
-Repository for the Outty Code for SWE 6733 Team 1  
+<h1 align="center"> ⛰️ Outty Adventure-Matching App 🚣 </h1> 
+Outty is an outdoor adventure-matching app for adventure seekers. Whether they're into hiking, kayaking, rock climbing, or just exploring new trails, the app matches them with like-minded adventurers who share their passion for the great outdoors. The app goes beyond basic metrics to ensure people find a partner who truly gets their love for adventure. 
 
-Outty is an outdoor adventure-matching app for adventure seekers.
-
-Team 1 Members:  
+## Team 1 Members 
 Lauren Robbins - Role:  
 Jeffrey McGurk - Role:  
 Kennedy Hemphill - Role:  
 Angel Arnold - Role:  
 Ricardo Hernandez - Role:  
 
-Project Management Tool Link:  
+## Project Management Tool Link 

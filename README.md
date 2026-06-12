@@ -9,4 +9,7 @@ Angel Arnold - Role:
 Ricardo Hernandez - Role:  
 
 ## Project Management Tool Link 
-https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?atlOrigin=eyJpIjoiYWJmNDlkYzhhMDk2NGE0MGE1ZDk3Y2U4YzcwNzBiNjQiLCJwIjoiaiJ9
+https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?atlOrigin=eyJpIjoiYWJmNDlkYzhhMDk2NGE0MGE1ZDk3Y2U4YzcwNzBiNjQiLCJwIjoiaiJ9  
+
+## AI Usage Disclosure
+TBD

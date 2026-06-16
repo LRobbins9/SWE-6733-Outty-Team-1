@@ -3,5 +3,5 @@ The rough estimation of the current working items in the backlog is 26 story poi
 
 <img width="975" height="229" alt="image" src="https://github.com/user-attachments/assets/d6156c3d-dacd-4997-bc28-ea68bea64ef7" />  
 
-<b> Link to the Backlog Items </b>  
+## Link to the Backlog Items    
 https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?selectedIssue=SCRUM-16&atlOrigin=eyJpIjoiZGM5ZjBmNDk5MzZmNDM5ZGI2NTkwNGUyMjIwYmNhZTAiLCJwIjoiaiJ9

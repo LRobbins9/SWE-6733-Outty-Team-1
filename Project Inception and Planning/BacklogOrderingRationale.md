@@ -21,5 +21,5 @@ The backlog items start with the highest priority work items. A breakdown of the
 
 A special note on the medium priority work items, some of these are marked medium priority not due to their importance, but due to their implementation time. Features that are important but take less time fall in the middle range of the list.  
 
-<b> Link to the Backlog Items </b>  
+## Link to the Backlog Items  
 https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?selectedIssue=SCRUM-16&atlOrigin=eyJpIjoiZGM5ZjBmNDk5MzZmNDM5ZGI2NTkwNGUyMjIwYmNhZTAiLCJwIjoiaiJ9

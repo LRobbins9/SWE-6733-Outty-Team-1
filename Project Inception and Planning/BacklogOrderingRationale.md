@@ -6,6 +6,8 @@ The backlog contains 10 work items that are ordered from highest priority to low
 
 The backlog items start with the highest priority work items. A breakdown of the priority and rationale can be seen in the table below.  
 
+### Backlog Odering Table  
+
 | Work Item | Description | Priority | Rationale |
 | :--- | :--- | :--- | :--- |
 | SCRUM-11 | Choose Technology stack | Highest | The technology stack must be the first thing that’s chosen since that’s what the app will be built on. |

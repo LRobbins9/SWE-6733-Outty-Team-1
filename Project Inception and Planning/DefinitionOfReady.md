@@ -14,7 +14,7 @@ The additional features in the backlog item will include any important informati
 <b> 4. Estimated Story Points </b>  
 The estimated story point will determine the not only the effort of the task or feature, but also take into consideration the complexity and the time needed to complete the task or feature. 
 
-<b> Example Definition of Ready </b>  
+## Example Definition of Ready  
 
 <img width="477" height="385" alt="image" src="https://github.com/user-attachments/assets/b08c9b51-750d-42db-9e1b-ce251e036615" />
 

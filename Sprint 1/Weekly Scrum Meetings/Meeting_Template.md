@@ -1,0 +1,17 @@
+# Weekly Scrum Meeting - Date    
+
+### What we did  
+- <b> Lauren Robbins </b>:      
+- <b> Jeffrey McGurk </b> :  
+- <b> Kennedy Hemphill </b>:    
+- <b> Angel Arnold </b>:    
+- <b> Ricardo Hernandez </b>:     
+
+### What we plan to do  
+- <b> Lauren Robbins </b>:    
+- <b> Jeffrey McGurk </b>:  
+- <b> Kennedy Hemphill </b>:    
+- <b> Angel Arnold </b>:    
+- <b> Ricardo Hernandez </b>:  
+
+### Blockers    

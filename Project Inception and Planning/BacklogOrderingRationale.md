@@ -1,7 +1,8 @@
 # Backlog Ordering Rationale  
-The backlog contains 10 work items that are ordered from highest priority to lowest priority. An ordering of the items can be seen in the figure below.  
+The backlog contains 11 work items that are ordered from highest priority to lowest priority. An ordering of the items can be seen in the figure below.  
 
-<img width="975" height="229" alt="image" src="https://github.com/user-attachments/assets/1f39ad6b-b3e4-4396-a931-eb5afc654cb0" />  
+<img width="1825" height="597" alt="image" src="https://github.com/user-attachments/assets/d64010a6-1df1-4bce-899a-c38da603fede" />
+
 
 
 The backlog items start with the highest priority work items. A breakdown of the priority and rationale can be seen in the table below.  
@@ -12,6 +13,7 @@ The backlog items start with the highest priority work items. A breakdown of the
 | :--- | :--- | :--- | :--- |
 | SCRUM-11 | Choose Technology stack | Highest | The technology stack must be the first thing that’s chosen since that’s what the app will be built on. |
 | SCRUM-31 | Setup User Database | Highest | The user database is of high importance since it will contain the account information, adventure preferences, etc. |
+| SCRUM-32 | Create Unit Tests For Features | Highest | Ensures the system is sound and meets desired functionality. |
 | SCRUM-22 | Implement User Adventure Parameters Feature | Highest | The users adventure parameters/preferences are of high importance because that information is needed to feed back to the matching algorithm. |
 | SCRUM-25 | Implement Matching Algorithm Feature | Highest | The matching algorithm is of high importance since that is the foundation of the functionality of the app. |
 | SCRUM-16 | Implement Account Creation and Deletion Feature | High | Account creation/deletion is high since the user will need one to be able to use all the apps features. |

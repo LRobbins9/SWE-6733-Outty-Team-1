@@ -9,6 +9,7 @@ import 'package:outty/main.dart';
 import 'package:outty/providers/auth_provider.dart';
 import 'package:outty/providers/chat_provider.dart';
 import 'package:outty/providers/match_provider.dart';
+import 'package:outty/providers/navigation_notifier.dart';
 import 'package:outty/screens/splash_screen.dart';
 
 void main() {
@@ -25,6 +26,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => AuthProvider()),
           ChangeNotifierProvider(create: (_) => MatchProvider()),
           ChangeNotifierProvider(create: (_) => ChatProvider()),
+          ChangeNotifierProvider(create: (_) => NavigationNotifier()),
         ],
         child: const MaterialApp(
           home: SplashScreen(),

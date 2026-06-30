@@ -4,6 +4,7 @@ import '../models/match_model.dart';
 import '../models/user_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/match_provider.dart';
+import '../providers/navigation_notifier.dart';
 import '../utils/constants.dart';
 import '../widgets/swipe_card.dart';
 
@@ -309,11 +310,10 @@ class _MatchOverlay extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           onDismiss();
-                          // Navigate to matches tab
-                          final homeState = context
-                              .findAncestorStateOfType<
-                                  _DiscoverScreenState>();
-                          homeState?.setState(() {});
+                          // Switch to the Matches tab
+                          context
+                              .read<NavigationNotifier>()
+                              .switchToMatches();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.secondary,

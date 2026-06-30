@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/match_provider.dart';
+import '../providers/navigation_notifier.dart';
 import '../utils/constants.dart';
 import 'discover_screen.dart';
 import 'matches_screen.dart';
@@ -11,12 +12,10 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-
+class HomeScreenState extends State<HomeScreen> {
   static const _pages = [
     DiscoverScreen(),
     MatchesScreen(),
@@ -39,15 +38,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final matchCount = context.watch<MatchProvider>().matches.length;
+    final navNotifier = context.watch<NavigationNotifier>();
+    final currentIndex = navNotifier.currentIndex;
 
     return Scaffold(
       body: IndexedStack(
-        index: _currentIndex,
+        index: currentIndex,
         children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        currentIndex: currentIndex,
+        onTap: (i) => context.read<NavigationNotifier>().switchToIndex(i),
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textSecondary,
         backgroundColor: Colors.white,

@@ -76,7 +76,7 @@ class MatchProvider extends ChangeNotifier {
       UserModel currentUser, UserModel candidate) async {
     await _recordSwipe(currentUser.id, candidate.id);
 
-    // Simulated: ~60 % chance the other user "already liked" you
+    // Simulated: ~60% chance the other user "already liked" you
     final score = computeCompatibilityScore(currentUser, candidate);
     final isMatch = score > 0.3; // threshold for MVP
 

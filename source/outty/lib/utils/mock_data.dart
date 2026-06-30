@@ -1,0 +1,129 @@
+import '../models/user_model.dart';
+
+/// Seeded pool of potential matches shown in the Discover feed.
+final List<UserModel> kMockUsers = [
+  UserModel(
+    id: 'mock_1',
+    name: 'Alex',
+    age: 28,
+    email: 'alex@outty.app',
+    bio:
+        'Weekend warrior who has summited 20 peaks. Looking for a partner to crush the next trail.',
+    location: 'Boulder, CO',
+    adventureTypes: ['Hiking', 'Rock Climbing', 'Backpacking'],
+    skillLevel: 'Advanced',
+    maxDistance: 100,
+  ),
+  UserModel(
+    id: 'mock_2',
+    name: 'Jordan',
+    age: 26,
+    email: 'jordan@outty.app',
+    bio:
+        'Season pass holder, powder chaser. Coffee after the slopes is non-negotiable.',
+    location: 'Denver, CO',
+    adventureTypes: ['Skiing', 'Snowboarding', 'Camping'],
+    skillLevel: 'Intermediate',
+    maxDistance: 75,
+  ),
+  UserModel(
+    id: 'mock_3',
+    name: 'Sam',
+    age: 31,
+    email: 'sam@outty.app',
+    bio:
+        'Climbing is life. I\'ve led routes in Yosemite, Red Rocks, and Smith Rock.',
+    location: 'Salt Lake City, UT',
+    adventureTypes: ['Rock Climbing', 'Bouldering', 'Hiking'],
+    skillLevel: 'Expert',
+    maxDistance: 150,
+  ),
+  UserModel(
+    id: 'mock_4',
+    name: 'Riley',
+    age: 24,
+    email: 'riley@outty.app',
+    bio:
+        'I paddle before sunrise and hike after sunset. Rivers are my happy place.',
+    location: 'Portland, OR',
+    adventureTypes: ['Kayaking', 'Hiking', 'Trail Running'],
+    skillLevel: 'Intermediate',
+    maxDistance: 50,
+  ),
+  UserModel(
+    id: 'mock_5',
+    name: 'Morgan',
+    age: 29,
+    email: 'morgan@outty.app',
+    bio:
+        'Just getting started on my adventure journey. Enthusiastic learner who loves sunrise hikes.',
+    location: 'Seattle, WA',
+    adventureTypes: ['Hiking', 'Camping', 'Kayaking'],
+    skillLevel: 'Beginner',
+    maxDistance: 30,
+  ),
+  UserModel(
+    id: 'mock_6',
+    name: 'Casey',
+    age: 33,
+    email: 'casey@outty.app',
+    bio:
+        'Dirt, sweat, and smiles. MTB is my cardio. Always down for a bikepacking trip.',
+    location: 'Bend, OR',
+    adventureTypes: ['Mountain Biking', 'Hiking', 'Camping'],
+    skillLevel: 'Advanced',
+    maxDistance: 80,
+  ),
+  UserModel(
+    id: 'mock_7',
+    name: 'Taylor',
+    age: 27,
+    email: 'taylor@outty.app',
+    bio:
+        'Climbing and travel go hand in hand. I\'ve climbed on 4 continents.',
+    location: 'Flagstaff, AZ',
+    adventureTypes: ['Rock Climbing', 'Hiking', 'Bouldering', 'Traveling'],
+    skillLevel: 'Advanced',
+    maxDistance: 200,
+  ),
+  UserModel(
+    id: 'mock_8',
+    name: 'Jamie',
+    age: 30,
+    email: 'jamie@outty.app',
+    bio:
+        'Red rock devotee. If you can\'t commit to a multi-day, we might not be a match.',
+    location: 'Moab, UT',
+    adventureTypes: [
+      'Mountain Biking',
+      'Rock Climbing',
+      'Backpacking',
+    ],
+    skillLevel: 'Expert',
+    maxDistance: 100,
+  ),
+  UserModel(
+    id: 'mock_9',
+    name: 'Drew',
+    age: 25,
+    email: 'drew@outty.app',
+    bio:
+        'Après-ski is an adventure too, right? Learning the mountain one blue run at a time.',
+    location: 'South Lake Tahoe, CA',
+    adventureTypes: ['Skiing', 'Snowboarding', 'Hiking'],
+    skillLevel: 'Beginner',
+    maxDistance: 60,
+  ),
+  UserModel(
+    id: 'mock_10',
+    name: 'Avery',
+    age: 32,
+    email: 'avery@outty.app',
+    bio:
+        'Granite walls and starry nights. Yosemite raised me; adventure keeps me sane.',
+    location: 'Yosemite Valley, CA',
+    adventureTypes: ['Rock Climbing', 'Backpacking', 'Hiking', 'Camping'],
+    skillLevel: 'Expert',
+    maxDistance: 150,
+  ),
+];

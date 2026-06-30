@@ -12,4 +12,4 @@ Ricardo Hernandez - Developer
 https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?atlOrigin=eyJpIjoiYWJmNDlkYzhhMDk2NGE0MGE1ZDk3Y2U4YzcwNzBiNjQiLCJwIjoiaiJ9  
 
 ## AI Usage Disclosure
-TBD
+Rovo (JIRA AI) - Used to create some subtasks for user story items as well as clean up the description of the manually created subtasks.

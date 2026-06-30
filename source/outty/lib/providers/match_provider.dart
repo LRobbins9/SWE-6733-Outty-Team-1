@@ -76,7 +76,11 @@ class MatchProvider extends ChangeNotifier {
       UserModel currentUser, UserModel candidate) async {
     await _recordSwipe(currentUser.id, candidate.id);
 
+<<<<<<< HEAD
     // Simulated: ~60% chance the other user "already liked" you
+=======
+    // Simulated: ~60 % chance the other user "already liked" you
+>>>>>>> 9746a2b (feat: implement Outty MVP adventure-matching Flutter app)
     final score = computeCompatibilityScore(currentUser, candidate);
     final isMatch = score > 0.3; // threshold for MVP
 

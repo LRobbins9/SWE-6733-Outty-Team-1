@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "48519164027",
+    "project_id": "outty-firebase-backend",
+    "storage_bucket": "outty-firebase-backend.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:48519164027:android:974d1ad6457d40079732de",
+        "android_client_info": {
+          "package_name": "com.example.outty"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0UBjzlmuFLqUB1kpNx84W0vKj1620i4A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

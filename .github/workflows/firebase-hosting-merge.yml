@@ -23,9 +23,11 @@ jobs:
       # 2. Pull dependencies and build the web app
       - name: Install dependencies
         run: flutter pub get
+        working-directory: ./source/outty
 
       - name: Build Flutter Web
         run: flutter build web --release
+        working-directory: ./source/outty
 
       # 3. Deploy to Firebase
       - name: Deploy to Firebase Hosting

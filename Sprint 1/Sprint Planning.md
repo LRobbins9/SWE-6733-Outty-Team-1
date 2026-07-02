@@ -4,7 +4,7 @@
 June 28th 2026 - July 12th 2026
 
 ## Sprint 1 Forcasted Story Points
-During sprint 1, the team forecasts a completion of <b> 16 story points </b>. Sprint 1 is about a two week sprint, therefor the team feels like there is enough time to tackle some of the higher story point and higher priority items and complete them by end of sprint.
+During sprint 1, the team forecasts a completion of <b> 17 story points </b>. Sprint 1 is about a two week sprint, therefor the team feels like there is enough time to tackle some of the higher story point and higher priority items and complete them by end of sprint.
 
 ## Sprint 1 User Stories and respective SubTasks
 - SCRUM-11 (1 Story Point)   
@@ -26,18 +26,22 @@ During sprint 1, the team forecasts a completion of <b> 16 story points </b>. Sp
   - SCRUM-45
 - SCRUM-35 (1 Story Point) *This User Story was a new addition that was not present during the intial backlog planning.*
   - SCRUM-46
+- SCRUM-47 (1 Story Point) *This User Story was a new addition that was not present during the intial backlog planning.*
+  - SCRUM-48 
 
 ## Sprint 1 Backlog
 A screenshot of the Sprint 1 backlog can be seen below. Note the icons in the highlighted red box are the subtasks/child work items for that user story. 
 
-<img width="2188" height="370" alt="image" src="https://github.com/user-attachments/assets/c20be413-5fa7-4bc5-a22a-051fcc0ec4e5" />
+<img width="1452" height="497" alt="image" src="https://github.com/user-attachments/assets/eec6e1f5-a3d7-4e17-890e-314533ba1e9c" />
+
 
 Clicking on each user story will show the subtasks that can also be clicked on and viewed. 
 
 <img width="708" height="814" alt="image" src="https://github.com/user-attachments/assets/3865dc4d-2d3c-46a8-9586-5291a0b5a632" />
 
 ## Sprint 1 Kanban Board
-<img width="1423" height="1132" alt="image" src="https://github.com/user-attachments/assets/96e720e8-fca4-444a-87e9-c867116dacbc" />
+<img width="1668" height="868" alt="image" src="https://github.com/user-attachments/assets/26bd163c-bcd2-4096-a937-a62e883cf657" />
+
 
 
 ## Sprint Goal

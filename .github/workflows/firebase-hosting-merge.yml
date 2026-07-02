@@ -37,4 +37,4 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_OUTTY_FIREBASE_BACKEND }}
           entryPoint: ./source/outty
           channelId: live
-          usedraft: true
+          force: true

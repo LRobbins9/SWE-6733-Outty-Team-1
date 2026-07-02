@@ -21,3 +21,5 @@ https://outty-app-team-1.firebaseapp.com/
 - Used to help setup the Firebase/Firestore backend in the Flutter Outty project.
 - Used to help setup the CI/CD Pipeline using GitHub actions for the CI and deploying to Firebase Hosting for CD.
 - Used to help learn how to create a custom URL for the Outty App within Firebase Hosting.
+### ChatGPT
+- Used to support requirements elicitation and analysis for the Outty app. 

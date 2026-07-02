@@ -35,6 +35,11 @@ jobs:
       - name: Build Flutter Web
         run: flutter build web --release
         working-directory: ./source/outty
+      
+      - name: Setup Node.js (Fix Firebase Bug)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0' # Pin to an older, stable version before the keep-alive bug
 
       # 3. Deploy to a temporary Firebase Preview Channel
       - name: Deploy to Firebase Hosting Preview

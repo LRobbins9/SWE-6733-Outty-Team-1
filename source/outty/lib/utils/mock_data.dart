@@ -10,6 +10,8 @@ final List<UserModel> kMockUsers = [
     bio:
         'Weekend warrior who has summited 20 peaks. Looking for a partner to crush the next trail.',
     location: 'Boulder, CO',
+    gender: 'Male',
+    interestedIn: 'Female',
     adventureTypes: ['Hiking', 'Rock Climbing', 'Backpacking'],
     skillLevel: 'Advanced',
     maxDistance: 100,
@@ -22,6 +24,8 @@ final List<UserModel> kMockUsers = [
     bio:
         'Season pass holder, powder chaser. Coffee after the slopes is non-negotiable.',
     location: 'Denver, CO',
+    gender: 'Non-Binary',
+    interestedIn: 'Any',
     adventureTypes: ['Skiing', 'Snowboarding', 'Camping'],
     skillLevel: 'Intermediate',
     maxDistance: 75,
@@ -34,6 +38,8 @@ final List<UserModel> kMockUsers = [
     bio:
         'Climbing is life. I\'ve led routes in Yosemite, Red Rocks, and Smith Rock.',
     location: 'Salt Lake City, UT',
+    gender: 'Female',
+    interestedIn: 'Male',
     adventureTypes: ['Rock Climbing', 'Bouldering', 'Hiking'],
     skillLevel: 'Expert',
     maxDistance: 150,
@@ -46,6 +52,8 @@ final List<UserModel> kMockUsers = [
     bio:
         'I paddle before sunrise and hike after sunset. Rivers are my happy place.',
     location: 'Portland, OR',
+    gender: 'Other',
+    interestedIn: 'Any',
     adventureTypes: ['Kayaking', 'Hiking', 'Trail Running'],
     skillLevel: 'Intermediate',
     maxDistance: 50,

@@ -54,6 +54,7 @@ class OuttyApp extends StatelessWidget {
           AppRoutes.register: (_) => const RegisterScreen(),
           AppRoutes.profileSetup: (_) => const ProfileSetupScreen(),
           AppRoutes.home: (_) => const HomeScreen(),
+          AppRoutes.welcome: (_) => const WelcomeScreen(),
         },
       ),
     );

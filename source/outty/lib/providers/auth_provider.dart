@@ -1,13 +1,31 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 
-/// Handles registration, login, and session persistence.
+/// Handles registration, login, and session persistence using Firebase.
 class AuthProvider extends ChangeNotifier {
+  FirebaseAuth? _auth;
+  FirebaseFirestore? _db;
+
   UserModel? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
+
+  AuthProvider() {
+    _initAuthListener();
+  }
+
+  bool _ensureFirebaseReady() {
+    if (_auth != null && _db != null) return true;
+    try {
+      _auth = FirebaseAuth.instance;
+      _db = FirebaseFirestore.instance;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   // ── Getters ────────────────────────────────────────────────────────────────
 
@@ -18,20 +36,50 @@ class AuthProvider extends ChangeNotifier {
 
   // ── Session ────────────────────────────────────────────────────────────────
 
-  /// Called once at startup to restore a persisted session.
+  void _initAuthListener() {
+    if (!_ensureFirebaseReady()) {
+      return;
+    }
+
+    _auth!.authStateChanges().listen((User? user) async {
+      if (user == null) {
+        _currentUser = null;
+        notifyListeners();
+      } else {
+        await _fetchUserProfile(user.uid);
+      }
+    });
+  }
+
+  /// Manually trigger a check/refresh of the current user's profile.
   Future<void> tryRestoreSession() async {
+    if (!_ensureFirebaseReady()) {
+      return;
+    }
+
+    final user = _auth!.currentUser;
+    if (user != null) {
+      await _fetchUserProfile(user.uid);
+    }
+  }
+
+  Future<void> _fetchUserProfile(String uid) async {
+    if (!_ensureFirebaseReady()) {
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString('current_user');
-      if (raw != null) {
-        _currentUser =
-            UserModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+      final doc = await _db!.collection('users').doc(uid).get();
+      if (doc.exists) {
+        _currentUser = UserModel.fromJson(doc.data()!);
       }
-    } catch (_) {
-      _currentUser = null;
+    } catch (e) {
+      print('Error fetching user profile: $e');
     }
 
     _isLoading = false;
@@ -45,45 +93,45 @@ class AuthProvider extends ChangeNotifier {
     required String password,
     required String name,
   }) async {
+    if (!_ensureFirebaseReady()) {
+      return _fail('Firebase is not initialized.');
+    }
+
     _clearError();
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 400));
+    try {
+      // 1. Create user in Firebase Auth
+      final credential = await _auth!.createUserWithEmailAndPassword(
+        email: email.trim().toLowerCase(),
+        password: password,
+      );
 
-    // Basic validation
-    if (email.isEmpty || !email.contains('@')) {
-      return _fail('Please enter a valid email address.');
-    }
-    if (password.length < 6) {
-      return _fail('Password must be at least 6 characters.');
-    }
-    if (name.trim().isEmpty) {
-      return _fail('Please enter your name.');
-    }
+      final uid = credential.user!.uid;
 
-    // Check for duplicate email in persisted store
-    final prefs = await SharedPreferences.getInstance();
-    final existingRaw = prefs.getString('user_${email.toLowerCase()}');
-    if (existingRaw != null) {
-      return _fail('An account with that email already exists.');
+      // 2. Create profile in Firestore
+      final newUser = UserModel(
+        id: uid,
+        name: name.trim(),
+        age: 0,
+        bio: '',
+        email: email.trim().toLowerCase(),
+        adventureTypes: [],
+        skillLevel: 'Beginner',
+      );
+
+      await _db!.collection('users').doc(uid).set(newUser.toJson());
+      _currentUser = newUser;
+      
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      return _fail(e.message ?? 'An error occurred during registration.');
+    } catch (e) {
+      return _fail('An unexpected error occurred.');
     }
-
-    final newUser = UserModel(
-      id: 'user_${DateTime.now().millisecondsSinceEpoch}',
-      name: name.trim(),
-      age: 0, // Completed in ProfileSetupScreen
-      bio: '',
-      email: email.toLowerCase(),
-      adventureTypes: [],
-      skillLevel: 'Beginner',
-    );
-
-    await _persistUser(newUser, prefs);
-    _currentUser = newUser;
-    _isLoading = false;
-    notifyListeners();
-    return true;
   }
 
   // ── Login ──────────────────────────────────────────────────────────────────
@@ -92,57 +140,70 @@ class AuthProvider extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
+    if (!_ensureFirebaseReady()) {
+      return _fail('Firebase is not initialized.');
+    }
+
     _clearError();
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 400));
+    try {
+      final credential = await _auth!.signInWithEmailAndPassword(
+        email: email.trim().toLowerCase(),
+        password: password,
+      );
 
-    if (email.isEmpty || password.isEmpty) {
-      return _fail('Email and password cannot be empty.');
+      await _fetchUserProfile(credential.user!.uid);
+      
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      return _fail(e.message ?? 'Invalid email or password.');
+    } catch (e) {
+      return _fail('An unexpected error occurred.');
     }
-
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString('user_${email.toLowerCase()}');
-    if (raw == null) {
-      return _fail('No account found for that email.');
-    }
-
-    // MVP: passwords are not actually verified — in production use bcrypt/hash
-    _currentUser =
-        UserModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
-    await prefs.setString('current_user', jsonEncode(_currentUser!.toJson()));
-
-    _isLoading = false;
-    notifyListeners();
-    return true;
   }
 
   // ── Update profile ─────────────────────────────────────────────────────────
 
   Future<void> updateCurrentUser(UserModel updated) async {
-    _currentUser = updated;
-    final prefs = await SharedPreferences.getInstance();
-    await _persistUser(updated, prefs);
+    if (!_ensureFirebaseReady()) {
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await _db!.collection('users').doc(updated.id).update(updated.toJson());
+      _currentUser = updated;
+    } catch (e) {
+      print('Error updating profile: $e');
+    }
+
+    _isLoading = false;
     notifyListeners();
   }
 
   // ── Logout ─────────────────────────────────────────────────────────────────
 
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('current_user');
+    if (!_ensureFirebaseReady()) {
+      _currentUser = null;
+      notifyListeners();
+      return;
+    }
+
+    await _auth!.signOut();
     _currentUser = null;
     notifyListeners();
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
-
-  Future<void> _persistUser(UserModel user, SharedPreferences prefs) async {
-    final encoded = jsonEncode(user.toJson());
-    await prefs.setString('user_${user.email}', encoded);
-    await prefs.setString('current_user', encoded);
-  }
 
   bool _fail(String message) {
     _errorMessage = message;

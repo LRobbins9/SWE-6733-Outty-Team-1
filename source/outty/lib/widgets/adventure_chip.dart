@@ -18,6 +18,20 @@ class AdventureChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    IconData? getIconForLabel(String label) {
+      switch (label.toLowerCase()) {
+        case 'hiking': return Icons.terrain;
+        case 'climbing': return Icons.park_outlined;
+        case 'cycling': return Icons.directions_bike;
+        case 'skiing': return Icons.downhill_skiing;
+        case 'surfing': return Icons.surfing;
+        case 'camping': return Icons.shutter_speed;
+        default: return null;
+      }
+    }
+
+    final icon = getIconForLabel(label);
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -27,32 +41,29 @@ class AdventureChip extends StatelessWidget {
           vertical: compact ? 4 : 7,
         ),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : AppColors.primary.withAlpha(20),
+          color: selected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected
-                ? AppColors.primary
-                : AppColors.primary.withAlpha(80),
+            color: selected ? AppColors.primary : Colors.grey[300]!,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (selected)
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Icon(
-                  Icons.check,
-                  size: compact ? 12 : 14,
-                  color: Colors.white,
-                ),
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: compact ? 14 : 16,
+                color: selected ? Colors.white : AppColors.primary,
               ),
+              const SizedBox(width: 6),
+            ],
             Text(
               label,
               style: TextStyle(
                 fontSize: compact ? 11 : 13,
                 fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : AppColors.primary,
+                color: selected ? Colors.white : Colors.black87,
               ),
             ),
           ],

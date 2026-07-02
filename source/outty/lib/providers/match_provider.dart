@@ -1,13 +1,13 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/match_model.dart';
 import '../models/user_model.dart';
 import '../utils/matching_engine.dart';
-import '../utils/mock_data.dart';
 
-/// Manages the discovery feed, swipe actions, and matches.
+/// Manages the discovery feed, swipe actions, and matches using Firestore.
 class MatchProvider extends ChangeNotifier {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+
   final List<MatchModel> _matches = [];
   final Set<String> _swipedIds = {};
   List<UserModel> _feed = [];
@@ -24,46 +24,56 @@ class MatchProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      // 1. Restore swiped ids from Firestore
+      final swipeDocs = await _db
+          .collection('users')
+          .doc(currentUser.id)
+          .collection('swipes')
+          .get();
+      
+      _swipedIds.clear();
+      for (var doc in swipeDocs.docs) {
+        _swipedIds.add(doc.id);
+      }
 
-    // Restore swiped ids
-    final swipedRaw = prefs.getStringList('swiped_${currentUser.id}') ?? [];
-    _swipedIds
-      ..clear()
-      ..addAll(swipedRaw);
+      // 2. Restore matches from Firestore
+      // We query matches where the current user is either userId1 or userId2
+      final matchesQuery1 = await _db
+          .collection('matches')
+          .where('userId1', isEqualTo: currentUser.id)
+          .get();
+      final matchesQuery2 = await _db
+          .collection('matches')
+          .where('userId2', isEqualTo: currentUser.id)
+          .get();
 
-    // Restore matches
-    _matches.clear();
-    final matchesRaw =
-        prefs.getStringList('matches_${currentUser.id}') ?? [];
-    for (final raw in matchesRaw) {
-      try {
-        final m = jsonDecode(raw) as Map<String, dynamic>;
-        _matches.add(MatchModel(
-          id: m['id'] as String,
-          userId1: m['userId1'] as String,
-          userId2: m['userId2'] as String,
-          matchedAt: DateTime.parse(m['matchedAt'] as String),
-          lastMessage: m['lastMessage'] as String?,
-          lastMessageAt: m['lastMessageAt'] != null
-              ? DateTime.parse(m['lastMessageAt'] as String)
-              : null,
-        ));
-      } catch (_) {}
+      _matches.clear();
+      final allMatchDocs = [...matchesQuery1.docs, ...matchesQuery2.docs];
+      
+      for (var doc in allMatchDocs) {
+        _matches.add(MatchModel.fromJson(doc.data()));
+      }
+      _matches.sort((a, b) => b.matchedAt.compareTo(a.matchedAt));
+
+      // 3. Build ranked feed from Firestore
+      // For MVP, we fetch all users and filter locally. 
+      // In production, use geo-queries and more complex Firestore filters.
+      final usersSnapshot = await _db.collection('users').get();
+      final matchedIds = _matches.map((m) => m.otherUserId(currentUser.id)).toSet();
+      
+      final candidates = usersSnapshot.docs
+          .map((doc) => UserModel.fromJson(doc.data()))
+          .where((u) =>
+              u.id != currentUser.id &&
+              !_swipedIds.contains(u.id) &&
+              !matchedIds.contains(u.id))
+          .toList();
+
+      _feed = rankCandidates(currentUser, candidates);
+    } catch (e) {
+      print('Error loading matches/feed: $e');
     }
-
-    // Build ranked feed (exclude already swiped and already matched)
-    final matchedIds = _matches
-        .map((m) => m.otherUserId(currentUser.id))
-        .toSet();
-    final candidates = kMockUsers
-        .where((u) =>
-            u.id != currentUser.id &&
-            !_swipedIds.contains(u.id) &&
-            !matchedIds.contains(u.id))
-        .toList();
-
-    _feed = rankCandidates(currentUser, candidates);
 
     _isLoading = false;
     notifyListeners();
@@ -74,83 +84,127 @@ class MatchProvider extends ChangeNotifier {
   /// Returns the newly created [MatchModel] if a match occurred, else null.
   Future<MatchModel?> swipeRight(
       UserModel currentUser, UserModel candidate) async {
-    await _recordSwipe(currentUser.id, candidate.id);
+    try {
+      // 1. Record the swipe in Firestore
+      await _db
+          .collection('users')
+          .doc(currentUser.id)
+          .collection('swipes')
+          .doc(candidate.id)
+          .set({'type': 'right', 'at': FieldValue.serverTimestamp()});
+      
+      _swipedIds.add(candidate.id);
 
-<<<<<<< HEAD
-    // Simulated: ~60% chance the other user "already liked" you
-=======
-    // Simulated: ~60 % chance the other user "already liked" you
->>>>>>> 9746a2b (feat: implement Outty MVP adventure-matching Flutter app)
-    final score = computeCompatibilityScore(currentUser, candidate);
-    final isMatch = score > 0.3; // threshold for MVP
+      // 2. Check if the other user already swiped right on us (a match!)
+      final otherSwipe = await _db
+          .collection('users')
+          .doc(candidate.id)
+          .collection('swipes')
+          .doc(currentUser.id)
+          .get();
 
-    if (isMatch) {
-      final match = MatchModel(
-        id: 'match_${currentUser.id}_${candidate.id}',
-        userId1: currentUser.id,
-        userId2: candidate.id,
-      );
-      _matches.insert(0, match);
-      await _persistMatches(currentUser.id);
-      notifyListeners();
-      return match;
+      if (otherSwipe.exists && otherSwipe.data()?['type'] == 'right') {
+        // It's a match!
+        final matchId = currentUser.id.hashCode <= candidate.id.hashCode
+            ? '${currentUser.id}_${candidate.id}'
+            : '${candidate.id}_${currentUser.id}';
+        
+        final match = MatchModel(
+          id: matchId,
+          userId1: currentUser.id,
+          userId2: candidate.id,
+        );
+
+        await _db.collection('matches').doc(matchId).set(match.toJson());
+        
+        _matches.insert(0, match);
+        notifyListeners();
+        return match;
+      }
+    } catch (e) {
+      print('Error during swipeRight: $e');
     }
+    
+    notifyListeners();
     return null;
   }
 
   Future<void> swipeLeft(String currentUserId, String candidateId) async {
-    await _recordSwipe(currentUserId, candidateId);
+    try {
+      await _db
+          .collection('users')
+          .doc(currentUserId)
+          .collection('swipes')
+          .doc(candidateId)
+          .set({'type': 'left', 'at': FieldValue.serverTimestamp()});
+      
+      _swipedIds.add(candidateId);
+      notifyListeners();
+    } catch (e) {
+      print('Error during swipeLeft: $e');
+    }
   }
 
   // ── Match helpers ──────────────────────────────────────────────────────────
 
-  UserModel? getUserById(String id) {
-    try {
-      return kMockUsers.firstWhere((u) => u.id == id);
-    } catch (_) {
-      return null;
+  /// Fetches a user profile by ID. Currently checks locally Loaded feed first,
+  /// then falls back to Firestore if needed.
+  Future<UserModel?> getUserById(String id) async {
+    // Check feed first
+    for (final u in _feed) {
+      if (u.id == id) return u;
     }
+    
+    // Check matches or Firestore
+    try {
+      final doc = await _db.collection('users').doc(id).get();
+      if (doc.exists) {
+        return UserModel.fromJson(doc.data()!);
+      }
+    } catch (e) {
+      print('Error fetching user by id: $e');
+    }
+    return null;
   }
 
-  void updateLastMessage(String matchId, String message) {
+  Future<void> updateLastMessage(String matchId, String message) async {
     final idx = _matches.indexWhere((m) => m.id == matchId);
     if (idx >= 0) {
+      final now = DateTime.now();
       _matches[idx].lastMessage = message;
-      _matches[idx].lastMessageAt = DateTime.now();
+      _matches[idx].lastMessageAt = now;
+      
+      try {
+        await _db.collection('matches').doc(matchId).update({
+          'lastMessage': message,
+          'lastMessageAt': now.toIso8601String(),
+        });
+      } catch (e) {
+        print('Error updating last message: $e');
+      }
+      
       notifyListeners();
     }
   }
 
-  // ── Persistence ────────────────────────────────────────────────────────────
-
-  Future<void> _recordSwipe(String userId, String candidateId) async {
-    _swipedIds.add(candidateId);
-    _feed.removeWhere((u) => u.id == candidateId);
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('swiped_$userId', _swipedIds.toList());
-    notifyListeners();
-  }
-
-  Future<void> _persistMatches(String userId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final encoded = _matches.map((m) {
-      return jsonEncode({
-        'id': m.id,
-        'userId1': m.userId1,
-        'userId2': m.userId2,
-        'matchedAt': m.matchedAt.toIso8601String(),
-        'lastMessage': m.lastMessage,
-        'lastMessageAt': m.lastMessageAt?.toIso8601String(),
-      });
-    }).toList();
-    await prefs.setStringList('matches_$userId', encoded);
-  }
-
   /// Resets all swipe history (useful for demo / testing).
   Future<void> resetFeed(UserModel currentUser) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('swiped_${currentUser.id}');
-    await load(currentUser);
+    _isLoading = true;
+    notifyListeners();
+    
+    try {
+      final swipes = await _db.collection('users').doc(currentUser.id).collection('swipes').get();
+      final batch = _db.batch();
+      for (var doc in swipes.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      await load(currentUser);
+    } catch (e) {
+      print('Error resetting feed: $e');
+    }
+    
+    _isLoading = false;
+    notifyListeners();
   }
 }

@@ -8,10 +8,27 @@ import 'constants.dart';
 ///   30 % – skill-level proximity
 ///   20 % – fixed "distance" factor (always 1.0 for MVP)
 double computeCompatibilityScore(UserModel a, UserModel b) {
+  // Check gender preference first
+  if (!_checkPreference(a, b) || !_checkPreference(b, a)) {
+    return 0.0;
+  }
+
   final adventureScore = _adventureScore(a.adventureTypes, b.adventureTypes);
   final skillScore = _skillScore(a.skillLevel, b.skillLevel);
   const distanceScore = 1.0;
   return adventureScore * 0.5 + skillScore * 0.3 + distanceScore * 0.2;
+}
+
+bool _checkPreference(UserModel seeker, UserModel candidate) {
+  // If preference is not set (legacy/null), assume "Any"
+  if (seeker.interestedIn == null || seeker.interestedIn == 'Any') {
+    return true;
+  }
+  // If candidate gender is not set, we can't be sure, so allow it for MVP
+  if (candidate.gender == null) {
+    return true;
+  }
+  return seeker.interestedIn == candidate.gender;
 }
 
 double _adventureScore(List<String> a, List<String> b) {

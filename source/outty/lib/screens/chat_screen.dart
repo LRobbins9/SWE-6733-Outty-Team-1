@@ -29,33 +29,42 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    // Seed the match with an icebreaker if chat is empty
     final chat = context.read<ChatProvider>();
-    final msgs = chat.getMessages(widget.match.id);
-    if (msgs.isEmpty) {
-      chat.seedMatchMessage(
-        matchId: widget.match.id,
-        fromUserId: widget.otherUser.id,
-        fromUserName: widget.otherUser.name,
-      );
-    }
+    // Start listening to Firestore
+    chat.listenToMessages(widget.match.id);
+    
+    // Seed the match with an icebreaker if chat is empty
+    _seedIfNeeded();
+  }
+
+  Future<void> _seedIfNeeded() async {
+    final chat = context.read<ChatProvider>();
+    await chat.seedMatchMessage(
+      matchId: widget.match.id,
+      fromUserId: widget.otherUser.id,
+      fromUserName: widget.otherUser.name,
+    );
   }
 
   @override
   void dispose() {
+    // Unsubscribe from Firestore
+    context.read<ChatProvider>().stopListening(widget.match.id);
     _msgCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
 
-  void _sendMessage() {
+  void _sendMessage() async {
     final text = _msgCtrl.text.trim();
     if (text.isEmpty) return;
 
     final currentUser = context.read<AuthProvider>().currentUser!;
     final chat = context.read<ChatProvider>();
 
-    chat.sendMessage(
+    _msgCtrl.clear();
+    
+    await chat.sendMessage(
       matchId: widget.match.id,
       senderId: currentUser.id,
       content: text,
@@ -66,7 +75,6 @@ class _ChatScreenState extends State<ChatScreen> {
         .read<MatchProvider>()
         .updateLastMessage(widget.match.id, text);
 
-    _msgCtrl.clear();
     _scrollToBottom();
   }
 
@@ -90,29 +98,29 @@ class _ChatScreenState extends State<ChatScreen> {
     final other = widget.otherUser;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0.5,
         leadingWidth: 44,
         title: Row(
           children: [
-            _buildAvatar(other, 18),
-            const SizedBox(width: 10),
+            _buildAvatar(other, 20),
+            const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   other.name,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
+                      fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 Text(
                   other.location ?? other.skillLevel,
-                  style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white.withAlpha(180)),
+                  style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey),
                 ),
               ],
             ),
@@ -213,18 +221,19 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildAvatar(UserModel user, double radius) {
-    final hue = (user.name.codeUnitAt(0) * 37) % 360;
-    final color = HSLColor.fromAHSL(1, hue.toDouble(), 0.5, 0.45).toColor();
     return CircleAvatar(
       radius: radius,
-      backgroundColor: color,
-      child: Text(
-        user.name.substring(0, 1),
-        style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: radius * 0.9),
-      ),
+      backgroundColor: Colors.grey[200],
+      backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
+      child: user.avatarUrl == null
+          ? Text(
+              user.name.substring(0, 1),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: radius * 0.9),
+            )
+          : null,
     );
   }
 

@@ -1,44 +1,102 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/message_model.dart';
 
-/// Holds in-memory chat messages per match.
-///
-/// In a production app this would sync with a backend (e.g. Firebase / WebSocket).
+/// syncs chat messages per match with Firestore.
 class ChatProvider extends ChangeNotifier {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
   final Map<String, List<MessageModel>> _messages = {};
-  int _msgCounter = 0;
+  final Map<String, StreamSubscription> _subscriptions = {};
 
   List<MessageModel> getMessages(String matchId) =>
       List.unmodifiable(_messages[matchId] ?? []);
 
+  // ── Sync ───────────────────────────────────────────────────────────────────
+
+  /// Starts listening to messages for a specific match.
+  void listenToMessages(String matchId) {
+    if (_subscriptions.containsKey(matchId)) return;
+
+    final sub = _db
+        .collection('matches')
+        .doc(matchId)
+        .collection('messages')
+        .orderBy('sentAt', descending: false)
+        .snapshots()
+        .listen((snapshot) {
+      _messages[matchId] = snapshot.docs
+          .map((doc) => MessageModel.fromJson(doc.data()))
+          .toList();
+      notifyListeners();
+    });
+
+    _subscriptions[matchId] = sub;
+  }
+
+  void stopListening(String matchId) {
+    _subscriptions[matchId]?.cancel();
+    _subscriptions.remove(matchId);
+  }
+
+  @override
+  void dispose() {
+    for (var sub in _subscriptions.values) {
+      sub.cancel();
+    }
+    super.dispose();
+  }
+
   // ── Send ───────────────────────────────────────────────────────────────────
 
-  MessageModel sendMessage({
+  Future<void> sendMessage({
     required String matchId,
     required String senderId,
     required String content,
-  }) {
+  }) async {
+    final docRef = _db
+        .collection('matches')
+        .doc(matchId)
+        .collection('messages')
+        .doc();
+
     final msg = MessageModel(
-      id: 'msg_${++_msgCounter}',
+      id: docRef.id,
       matchId: matchId,
       senderId: senderId,
       content: content.trim(),
     );
-    _messages.putIfAbsent(matchId, () => []).add(msg);
-    notifyListeners();
-    return msg;
+
+    try {
+      await docRef.set(msg.toJson());
+      
+      // Update last message in match document
+      await _db.collection('matches').doc(matchId).update({
+        'lastMessage': msg.content,
+        'lastMessageAt': msg.sentAt.toIso8601String(),
+      });
+    } catch (e) {
+      print('Error sending message: $e');
+    }
   }
 
   // ── Seed starter message ───────────────────────────────────────────────────
 
-  /// Called when a new match is created to seed the conversation with an
-  /// icebreaker from the matched user.
-  void seedMatchMessage({
+  Future<void> seedMatchMessage({
     required String matchId,
     required String fromUserId,
     required String fromUserName,
-  }) {
-    if (_messages.containsKey(matchId)) return; // already seeded
+  }) async {
+    // Check if any messages exist
+    final snapshot = await _db
+        .collection('matches')
+        .doc(matchId)
+        .collection('messages')
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) return;
+
     final iceBreakerMessages = [
       "Hey! Looks like we're both into the outdoors. What's your next adventure?",
       "Nice to match with a fellow adventurer! Have any trips planned?",
@@ -46,19 +104,38 @@ class ChatProvider extends ChangeNotifier {
       "Great match! I'd love to hear about your favorite outdoor spot.",
       "Woah, love your adventure profile! We should plan something epic.",
     ];
-    final greeting =
-        iceBreakerMessages[_msgCounter % iceBreakerMessages.length];
-    sendMessage(matchId: matchId, senderId: fromUserId, content: greeting);
+    
+    final greeting = iceBreakerMessages[
+        matchId.hashCode.abs() % iceBreakerMessages.length];
+        
+    await sendMessage(
+      matchId: matchId,
+      senderId: fromUserId,
+      content: greeting,
+    );
   }
 
   // ── Mark read ──────────────────────────────────────────────────────────────
 
-  void markRead(String matchId, String currentUserId) {
-    final msgs = _messages[matchId];
-    if (msgs == null) return;
-    for (final m in msgs) {
-      if (m.senderId != currentUserId) m.isRead = true;
+  Future<void> markRead(String matchId, String currentUserId) async {
+    try {
+      final snapshot = await _db
+          .collection('matches')
+          .doc(matchId)
+          .collection('messages')
+          .where('senderId', isNotEqualTo: currentUserId)
+          .where('isRead', isEqualTo: false)
+          .get();
+
+      if (snapshot.docs.isEmpty) return;
+
+      final batch = _db.batch();
+      for (var doc in snapshot.docs) {
+        batch.update(doc.reference, {'isRead': true});
+      }
+      await batch.commit();
+    } catch (e) {
+      print('Error marking messages as read: $e');
     }
-    notifyListeners();
   }
 }

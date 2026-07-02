@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 
@@ -15,6 +16,7 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _ctrl;
   late Animation<double> _fadeAnim;
   late Animation<double> _scaleAnim;
+  Timer? _navTimer;
 
   @override
   void initState() {
@@ -37,23 +39,24 @@ class _SplashScreenState extends State<SplashScreen>
     final auth = context.read<AuthProvider>();
     await auth.tryRestoreSession();
 
-    await Future.delayed(const Duration(milliseconds: 1400));
-
-    if (!mounted) return;
-    if (auth.isLoggedIn) {
-      final user = auth.currentUser!;
-      if (user.age == 0 || user.adventureTypes.isEmpty) {
-        Navigator.pushReplacementNamed(context, AppRoutes.profileSetup);
+    _navTimer = Timer(const Duration(milliseconds: 1400), () {
+      if (!mounted) return;
+      if (auth.isLoggedIn) {
+        final user = auth.currentUser!;
+        if (user.age == 0 || user.adventureTypes.isEmpty) {
+          Navigator.pushReplacementNamed(context, AppRoutes.profileSetup);
+        } else {
+          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        }
       } else {
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        Navigator.pushReplacementNamed(context, AppRoutes.welcome);
       }
-    } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
-    }
+    });
   }
 
   @override
   void dispose() {
+    _navTimer?.cancel();
     _ctrl.dispose();
     super.dispose();
   }

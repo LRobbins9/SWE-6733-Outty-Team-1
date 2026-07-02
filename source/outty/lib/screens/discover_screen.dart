@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/match_model.dart';
 import '../models/user_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/match_provider.dart';
@@ -47,32 +46,32 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Colors.white,
           appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            backgroundColor: Colors.white,
+            foregroundColor: AppColors.primary,
             elevation: 0,
-            title: const Row(
+            title: Row(
               children: [
-                Icon(Icons.terrain, size: 20),
-                SizedBox(width: 6),
-                Text(
+                const Icon(Icons.terrain, size: 24, color: AppColors.primary),
+                const SizedBox(width: 8),
+                const Text(
                   'Outty',
-                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 24,
+                    color: AppColors.primary,
+                    letterSpacing: 1,
+                  ),
                 ),
               ],
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.refresh),
-                tooltip: 'Reset feed',
-                onPressed: () async {
-                  final auth = context.read<AuthProvider>();
-                  await context
-                      .read<MatchProvider>()
-                      .resetFeed(auth.currentUser!);
-                },
+                icon: const Icon(Icons.tune, color: AppColors.textSecondary),
+                onPressed: () {},
               ),
+              const SizedBox(width: 8),
             ],
           ),
           body: matchProv.isLoading
@@ -168,7 +167,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           children: [
             const Icon(Icons.terrain, size: 80, color: AppColors.primaryLight),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'No more adventurers nearby',
               style: TextStyle(
                 fontSize: 20,
@@ -193,7 +192,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     .resetFeed(auth.currentUser!);
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('Refresh Feed'),
+              label: Text('Refresh Feed'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -258,79 +257,99 @@ class _MatchOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onDismiss,
-      child: DecoratedBox(
-        decoration: const BoxDecoration(color: AppColors.overlay),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+    final currentUser = context.read<AuthProvider>().currentUser;
+
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.9),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "It's a Match!",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            const SizedBox(height: 48),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.favorite,
-                    size: 72, color: AppColors.secondary),
-                const SizedBox(height: 16),
-                const Text(
-                  "It's an Adventure Match! 🏔️",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'You and ${matchedUser.name} both want to explore together!',
-                  style: TextStyle(
-                    color: Colors.white.withAlpha(220),
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: onDismiss,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Text('Keep Exploring'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          onDismiss();
-                          // Switch to the Matches tab
-                          context
-                              .read<NavigationNotifier>()
-                              .switchToMatches();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.secondary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Text('Send Message'),
-                      ),
-                    ),
-                  ],
-                ),
+                _circularAvatar(currentUser?.avatarUrl, -15),
+                _circularAvatar(matchedUser.avatarUrl, 15),
               ],
             ),
-          ),
+            const SizedBox(height: 64),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        onDismiss();
+                        context.read<NavigationNotifier>().switchToMatches();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                      ),
+                      child: Text('Send a message',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: OutlinedButton(
+                      onPressed: onDismiss,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white, width: 2),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                      ),
+                      child: const Text('Keep Swiping',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _circularAvatar(String? url, double offsetX) {
+    return Transform.translate(
+      offset: Offset(offsetX, 0),
+      child: Container(
+        width: 120,
+        height: 120,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 4),
+          image: url != null
+              ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover)
+              : null,
+          color: Colors.grey[800],
+        ),
+        child: url == null
+            ? const Icon(Icons.person, size: 60, color: Colors.white)
+            : null,
       ),
     );
   }

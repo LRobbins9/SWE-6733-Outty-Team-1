@@ -55,8 +55,8 @@ class HomeScreenState extends State<HomeScreen> {
         elevation: 12,
         items: [
           const BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
+            icon: Icon(Icons.terrain_outlined),
+            activeIcon: Icon(Icons.terrain),
             label: 'Discover',
           ),
           BottomNavigationBarItem(

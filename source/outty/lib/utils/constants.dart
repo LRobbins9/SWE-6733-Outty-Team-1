@@ -4,18 +4,18 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  static const Color primary = Color(0xFF2D6A4F); // Forest green
-  static const Color primaryLight = Color(0xFF52B788);
-  static const Color secondary = Color(0xFFF4A261); // Earth orange
-  static const Color background = Color(0xFFF0F4F0);
+  static const Color primary = Color(0xFFF05A22); // Vibrant Orange
+  static const Color primaryLight = Color(0xFFFF8A50);
+  static const Color secondary = Color(0xFF2D6A4F); // Forest green as secondary
+  static const Color background = Color(0xFFFAFAFA);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF1B2432);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color like = Color(0xFF40C057);
-  static const Color pass = Color(0xFFFF6B6B);
+  static const Color textPrimary = Color(0xFF212121);
+  static const Color textSecondary = Color(0xFF757575);
+  static const Color like = Color(0xFF4CAF50);
+  static const Color pass = Color(0xFFF44336);
   static const Color overlay = Color(0x80000000);
-  static const Color messageSent = Color(0xFF52B788);
-  static const Color messageReceived = Color(0xFFE9ECEF);
+  static const Color messageSent = Color(0xFFF05A22);
+  static const Color messageReceived = Color(0xFFE0E0E0);
 }
 
 // ─── Adventure types ─────────────────────────────────────────────────────────
@@ -49,6 +49,7 @@ class AppRoutes {
   AppRoutes._();
 
   static const String splash = '/';
+  static const String welcome = '/welcome';
   static const String login = '/login';
   static const String register = '/register';
   static const String profileSetup = '/profile-setup';

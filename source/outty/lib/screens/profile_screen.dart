@@ -111,6 +111,20 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
+              // Identity Info
+              if (user.gender != null || user.interestedIn != null)
+                _InfoSection(
+                  title: 'Details',
+                  child: Row(
+                    children: [
+                      if (user.gender != null)
+                        Expanded(child: _DetailChip(label: 'Identity', value: user.gender!, icon: Icons.person)),
+                      if (user.interestedIn != null)
+                        Expanded(child: _DetailChip(label: 'Seeking', value: user.interestedIn!, icon: Icons.favorite)),
+                    ],
+                  ),
+                ),
+
               // Bio
               _InfoSection(
                 title: 'About',
@@ -297,6 +311,40 @@ class _StatCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DetailChip extends StatelessWidget {
+  const _DetailChip({required this.label, required this.value, required this.icon});
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+              Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ],
       ),
     );
   }

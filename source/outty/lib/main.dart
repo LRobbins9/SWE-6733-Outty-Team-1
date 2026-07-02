@@ -11,8 +11,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  print('Firebase initialized successfully!');
-
   runApp(const MyApp());
 }
 

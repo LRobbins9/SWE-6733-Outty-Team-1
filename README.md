@@ -11,6 +11,13 @@ Ricardo Hernandez - Developer
 ## Project Management Tool Link 
 https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?atlOrigin=eyJpIjoiYWJmNDlkYzhhMDk2NGE0MGE1ZDk3Y2U4YzcwNzBiNjQiLCJwIjoiaiJ9  
 
+## Outty App Link
+https://outty-app-team-1.firebaseapp.com/
+
 ## AI Usage Disclosure
-<b> Rovo (JIRA AI) </b> - Used to create some subtasks for user story items as well as clean up the description of the manually created subtasks.  
-<b> Gemini </b> - Used to help setup the Firebase/Firestore backend in the Flutter Outty project.
+### Rovo (JIRA AI)  
+- Used to create some subtasks for user story items as well as clean up the description of the manually created subtasks.  
+### Gemini  
+- Used to help setup the Firebase/Firestore backend in the Flutter Outty project.
+- Used to help setup the CI/CD Pipeline using GitHub actions for the CI and deploying to Firebase Hosting for CD.
+- Used to help learn how to create a custom URL for the Outty App within Firebase Hosting.

@@ -14,6 +14,8 @@ Pulled the following User Stories and respective subtasks from the backlog to be
 ## Sprint 1 Status
 
 ## Sprint 1 Demo
+### Outty Prototype (Figma)
+https://www.figma.com/proto/9USRvux9izOHhfWNX1edFw/OUTTY-Prototype?node-id=5-6&t=0L8tyzrC7nBwPTHH-1
 
 ## Sprint 1 Statistics 
 

@@ -88,39 +88,42 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFF2F4F4F),
-              const Color(0xFF4CAF50).withValues(alpha: 0.8),
-              const Color(0xFF1E88E5).withValues(alpha: 0.7),
-            ],
-          ),
-          image: DecorationImage(
-            image: const NetworkImage(
-              'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80',
-            ),
-            fit: BoxFit.cover,
-            onError: (_, _) {},
-            colorFilter: ColorFilter.mode(
-              const Color(0xFF11181C).withValues(alpha: 0.45),
-              BlendMode.darken,
-            ),
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
+      body: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF2F4F4F),
+                    const Color(0xFF4CAF50).withValues(alpha: 0.8),
+                    const Color(0xFF1E88E5).withValues(alpha: 0.7),
+                  ],
+                ),
+                image: DecorationImage(
+                  image: const NetworkImage(
+                    'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80',
+                  ),
+                  fit: BoxFit.cover,
+                  onError: (_, _) {},
+                  colorFilter: ColorFilter.mode(
+                    const Color(0xFF11181C).withValues(alpha: 0.45),
+                    BlendMode.darken,
+                  ),
+                ),
+              ),
+              child: SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
                     const Icon(Icons.explore, size: 56, color: Colors.white),
                     const SizedBox(height: 12),
                     const Text(
@@ -265,6 +268,9 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ),
       ),
+      ),
+    ],
+    ),
     );
   }
 }

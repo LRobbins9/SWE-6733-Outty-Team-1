@@ -119,6 +119,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Icon(Icons.explore, size: 56, color: Colors.white),
                     const SizedBox(height: 12),
@@ -142,8 +143,11 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    SizedBox(
-                      width: 400,
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 400,
+                        minWidth: 300,
+                      ),
                       child: Card(
                         color: const Color(0xFF1B2A2A),
                         child: Padding(

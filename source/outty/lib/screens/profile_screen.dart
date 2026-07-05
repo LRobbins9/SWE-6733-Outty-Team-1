@@ -131,9 +131,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               // ── Header ──────────────────────────────────────
               Card(
                 child: Padding(
@@ -266,6 +269,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 32),
             ],
+              ),
+            ),
           ),
         );
       },

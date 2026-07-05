@@ -109,9 +109,11 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                   const Icon(Icons.explore, size: 56, color: Colors.white),
                   const SizedBox(height: 12),
                   const Text(
@@ -218,8 +220,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ),
                 ],
-              ),
-            ),
+              ),              ),            ),
           ),
         ),
       ),

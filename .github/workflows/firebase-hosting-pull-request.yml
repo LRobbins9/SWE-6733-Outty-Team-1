@@ -41,7 +41,12 @@ jobs:
         with:
           node-version: '22.16.0' # Pin to an older, stable version before the keep-alive bug
 
-      # 3. Deploy to a temporary Firebase Preview Channel
+      # 3. Run Unit Tests
+      - name: Run Flutter Unit Tests
+        run: flutter test
+        working-directory: ./source/outty
+
+      # 4. Deploy to a temporary Firebase Preview Channel
       - name: Deploy to Firebase Hosting Preview
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:

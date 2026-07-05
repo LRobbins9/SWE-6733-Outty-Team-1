@@ -34,7 +34,12 @@ jobs:
         with:
           node-version: '22.16.0' # Pin to an older, stable version before the keep-alive bug
 
-      # 3. Deploy to Firebase
+      # 3. Run Unit Tests
+      - name: Run Flutter Unit Tests
+        run: flutter test
+        working-directory: ./source/outty
+
+      # 4. Deploy to Firebase
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:

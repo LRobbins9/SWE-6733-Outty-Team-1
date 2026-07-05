@@ -46,20 +46,24 @@ class _AuthScreenState extends State<AuthScreen> {
           );
         }
 
-        final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+        final credential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text,
+            );
 
         final displayName = _emailController.text.trim().split('@').first;
-        await FirebaseFirestore.instance.collection('users').doc(credential.user!.uid).set({
-          'uid': credential.user!.uid,
-          'email': credential.user!.email,
-          'displayName': displayName,
-          'onboardingComplete': false,
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(credential.user!.uid)
+            .set({
+              'uid': credential.user!.uid,
+              'email': credential.user!.email,
+              'displayName': displayName,
+              'onboardingComplete': false,
+              'createdAt': FieldValue.serverTimestamp(),
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
       }
     } on FirebaseAuthException catch (error) {
       _showMessage(error.message ?? 'Authentication failed.');
@@ -76,7 +80,9 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -98,7 +104,7 @@ class _AuthScreenState extends State<AuthScreen> {
               'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80',
             ),
             fit: BoxFit.cover,
-            onError: (_, __) {}, // silently ignored when network is unavailable (e.g. tests)
+            onError: (_, _) {},
             colorFilter: ColorFilter.mode(
               const Color(0xFF11181C).withValues(alpha: 0.45),
               BlendMode.darken,
@@ -114,113 +120,144 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                  const Icon(Icons.explore, size: 56, color: Colors.white),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'OUTTY',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 40,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 2.5,
+                    const Icon(Icons.explore, size: 56, color: Colors.white),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'OUTTY',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2.5,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Find Your Adventure Partner',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Find Your Adventure Partner',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  Card(
-                    color: const Color(0xFF1B2A2A),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'Account Information',
-                              style: Theme.of(context).textTheme.titleLarge,
-                              textAlign: TextAlign.center,
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: 400,
+                      child: Card(
+                        color: const Color(0xFF1B2A2A),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  'Account Information',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  _isLogin
+                                      ? 'Sign in to Outty'
+                                      : 'Create account',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall,
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _emailController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Email',
+                                  ),
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (value) {
+                                    if (value == null ||
+                                        value.trim().isEmpty) {
+                                      return 'Please enter your email.';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: true,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Password',
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your password.';
+                                    }
+                                    if (!_isLogin && value.length < 6) {
+                                      return 'Password must be at least 6 characters.';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                if (!_isLogin) ...[
+                                  const SizedBox(height: 12),
+                                  TextFormField(
+                                    controller: _confirmPasswordController,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Confirm password',
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please confirm your password.';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                                const SizedBox(height: 20),
+                                FilledButton.icon(
+                                  onPressed: _isSubmitting ? null : _submit,
+                                  icon: _isSubmitting
+                                      ? const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child:
+                                              CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Icon(Icons.lock_open),
+                                  label: Text(
+                                    _isLogin
+                                        ? 'Sign in'
+                                        : 'Create account',
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isLogin = !_isLogin;
+                                    });
+                                  },
+                                  child: Text(
+                                    _isLogin
+                                        ? 'Create account'
+                                        : 'Already have an account?',
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _isLogin ? 'Sign in to Outty' : 'Create account',
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _emailController,
-                              decoration: const InputDecoration(labelText: 'Email'),
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter your email.';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              decoration: const InputDecoration(labelText: 'Password'),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your password.';
-                                }
-                                if (!_isLogin && value.length < 6) {
-                                  return 'Password must be at least 6 characters.';
-                                }
-                                return null;
-                              },
-                            ),
-                            if (!_isLogin) ...[
-                              const SizedBox(height: 12),
-                              TextFormField(
-                                controller: _confirmPasswordController,
-                                obscureText: true,
-                                decoration: const InputDecoration(labelText: 'Confirm password'),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please confirm your password.';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ],
-                            const SizedBox(height: 20),
-                            FilledButton.icon(
-                              onPressed: _isSubmitting ? null : _submit,
-                              icon: _isSubmitting
-                                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                                  : const Icon(Icons.lock_open),
-                              label: Text(_isLogin ? 'Sign in' : 'Create account'),
-                            ),
-                            const SizedBox(height: 12),
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isLogin = !_isLogin;
-                                });
-                              },
-                              child: Text(_isLogin ? 'Create account' : 'Already have an account?'),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),              ),            ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

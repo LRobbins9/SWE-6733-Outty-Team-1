@@ -52,8 +52,11 @@ void main() {
         'Then the confirm-password field becomes visible',
         (tester) async {
           await tester.pumpWidget(buildSubject());
+          await tester.ensureVisible(
+            find.widgetWithText(TextButton, 'Create account'),
+          );
           await tester.tap(find.widgetWithText(TextButton, 'Create account'));
-          await tester.pump();
+          await tester.pumpAndSettle();
           expect(find.text('Confirm password'), findsOneWidget);
         },
       );
@@ -65,14 +68,17 @@ void main() {
         (tester) async {
           await tester.pumpWidget(buildSubject());
           // Switch to create mode
+          await tester.ensureVisible(
+            find.widgetWithText(TextButton, 'Create account'),
+          );
           await tester.tap(find.widgetWithText(TextButton, 'Create account'));
-          await tester.pump();
+          await tester.pumpAndSettle();
           // Scroll to bring the toggle button on screen before tapping
           await tester.ensureVisible(
             find.widgetWithText(TextButton, 'Already have an account?'),
           );
           await tester.tap(find.widgetWithText(TextButton, 'Already have an account?'));
-          await tester.pump();
+          await tester.pumpAndSettle();
           expect(find.text('Confirm password'), findsNothing);
         },
       );
@@ -86,8 +92,11 @@ void main() {
         'Then an email validation error is shown',
         (tester) async {
           await tester.pumpWidget(buildSubject());
+          await tester.ensureVisible(
+            find.widgetWithText(FilledButton, 'Sign in'),
+          );
           await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
-          await tester.pump();
+          await tester.pumpAndSettle();
           expect(find.text('Please enter your email.'), findsOneWidget);
         },
       );
@@ -105,8 +114,11 @@ void main() {
             find.widgetWithText(TextFormField, 'Email'),
             'user@example.com',
           );
+          await tester.ensureVisible(
+            find.widgetWithText(FilledButton, 'Sign in'),
+          );
           await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
-          await tester.pump();
+          await tester.pumpAndSettle();
           expect(find.text('Please enter your password.'), findsOneWidget);
         },
       );
@@ -121,8 +133,11 @@ void main() {
         (tester) async {
           await tester.pumpWidget(buildSubject());
           // Switch to create-account mode
+          await tester.ensureVisible(
+            find.widgetWithText(TextButton, 'Create account'),
+          );
           await tester.tap(find.widgetWithText(TextButton, 'Create account'));
-          await tester.pump();
+          await tester.pumpAndSettle();
 
           await tester.enterText(
             find.widgetWithText(TextFormField, 'Email'),
@@ -132,8 +147,11 @@ void main() {
             find.widgetWithText(TextFormField, 'Password'),
             'abc',
           );
+          await tester.ensureVisible(
+            find.widgetWithText(FilledButton, 'Create account'),
+          );
           await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
-          await tester.pump();
+          await tester.pumpAndSettle();
           expect(
             find.text('Password must be at least 6 characters.'),
             findsOneWidget,
@@ -150,8 +168,11 @@ void main() {
         'Then a confirm-password validation error is shown',
         (tester) async {
           await tester.pumpWidget(buildSubject());
+          await tester.ensureVisible(
+            find.widgetWithText(TextButton, 'Create account'),
+          );
           await tester.tap(find.widgetWithText(TextButton, 'Create account'));
-          await tester.pump();
+          await tester.pumpAndSettle();
 
           await tester.enterText(
             find.widgetWithText(TextFormField, 'Email'),
@@ -161,8 +182,11 @@ void main() {
             find.widgetWithText(TextFormField, 'Password'),
             'password123',
           );
+          await tester.ensureVisible(
+            find.widgetWithText(FilledButton, 'Create account'),
+          );
           await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
-          await tester.pump();
+          await tester.pumpAndSettle();
           expect(
             find.text('Please confirm your password.'),
             findsOneWidget,

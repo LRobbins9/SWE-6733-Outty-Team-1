@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import '../widgets/centered_content.dart';
 
 class AccountManagementScreen extends StatefulWidget {
   const AccountManagementScreen({super.key, required this.user, this.profileData});
@@ -176,62 +177,65 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Signed in as', style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 4),
-                    Text(widget.user.email ?? 'No email', style: Theme.of(context).textTheme.bodyLarge),
-                    const SizedBox(height: 16),
-                    TextField(controller: _displayNameController, decoration: const InputDecoration(labelText: 'Display name')),
-                    const SizedBox(height: 12),
-                    TextField(controller: _emailController, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
-                    const SizedBox(height: 12),
-                    TextField(controller: _currentPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Current password (required for changes)')),
-                    const SizedBox(height: 12),
-                    TextField(controller: _passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'New password')),
-                    const SizedBox(height: 12),
-                    TextField(controller: _confirmPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Confirm new password')),
-                    const SizedBox(height: 16),
-                    FilledButton.icon(
-                      onPressed: _isSaving ? null : _saveAccount,
-                      icon: _isSaving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
-                      label: const Text('Save changes'),
-                    ),
-                  ],
+        child: CenteredContent(
+          maxWidth: 640,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Signed in as', style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 4),
+                      Text(widget.user.email ?? 'No email', style: Theme.of(context).textTheme.bodyLarge),
+                      const SizedBox(height: 16),
+                      TextField(controller: _displayNameController, decoration: const InputDecoration(labelText: 'Display name')),
+                      const SizedBox(height: 12),
+                      TextField(controller: _emailController, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
+                      const SizedBox(height: 12),
+                      TextField(controller: _currentPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Current password (required for changes)')),
+                      const SizedBox(height: 12),
+                      TextField(controller: _passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'New password')),
+                      const SizedBox(height: 12),
+                      TextField(controller: _confirmPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Confirm new password')),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        onPressed: _isSaving ? null : _saveAccount,
+                        icon: _isSaving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
+                        label: const Text('Save changes'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Delete account', style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 8),
-                    const Text('This permanently removes your Firebase auth account and the matching Firestore profile document.'),
-                    const SizedBox(height: 12),
-                    TextField(controller: _deletePasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Password to confirm deletion')),
-                    const SizedBox(height: 16),
-                    OutlinedButton.icon(
-                      onPressed: _isDeleting ? null : _deleteAccount,
-                      icon: _isDeleting ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.delete_forever),
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent),
-                      label: const Text('Delete account'),
-                    ),
-                  ],
+              const SizedBox(height: 20),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Delete account', style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      const Text('This permanently removes your Firebase auth account and the matching Firestore profile document.'),
+                      const SizedBox(height: 12),
+                      TextField(controller: _deletePasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Password to confirm deletion')),
+                      const SizedBox(height: 16),
+                      OutlinedButton.icon(
+                        onPressed: _isDeleting ? null : _deleteAccount,
+                        icon: _isDeleting ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.delete_forever),
+                        style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent),
+                        label: const Text('Delete account'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

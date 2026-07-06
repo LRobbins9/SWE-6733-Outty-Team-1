@@ -6,6 +6,7 @@ import '../providers/match_provider.dart';
 import '../providers/navigation_notifier.dart';
 import '../utils/constants.dart';
 import '../widgets/swipe_card.dart';
+import '../widgets/centered_content.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -98,62 +99,66 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   Widget _buildFeed(List<UserModel> feed) {
     final topCandidate = feed.first;
 
-    return Column(
-      children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Stack(
-              children: [
-                // Background card shadow (next card peek)
-                if (feed.length > 1)
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    right: 8,
-                    bottom: 0,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(200),
-                        borderRadius: BorderRadius.circular(20),
+    return CenteredContent(
+      maxWidth: 460,
+      child: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 0.72,
+                  child: Stack(
+                    children: [
+                      if (feed.length > 1)
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          right: 8,
+                          bottom: 0,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withAlpha(200),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                      SwipeCard(
+                        key: ValueKey(topCandidate.id),
+                        user: topCandidate,
+                        controller: _cardCtrl,
+                        onLike: () => _onLike(topCandidate),
+                        onPass: () => _onPass(topCandidate),
                       ),
-                    ),
+                    ],
                   ),
-                // Top card
-                SwipeCard(
-                  key: ValueKey(topCandidate.id),
-                  user: topCandidate,
-                  controller: _cardCtrl,
-                  onLike: () => _onLike(topCandidate),
-                  onPass: () => _onPass(topCandidate),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _ActionButton(
+                  icon: Icons.close,
+                  color: AppColors.pass,
+                  onTap: _cardCtrl.pass,
+                  size: 56,
+                ),
+                _ActionButton(
+                  icon: Icons.favorite,
+                  color: AppColors.like,
+                  onTap: _cardCtrl.like,
+                  size: 66,
                 ),
               ],
             ),
           ),
-        ),
-
-        // Action buttons
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _ActionButton(
-                icon: Icons.close,
-                color: AppColors.pass,
-                onTap: _cardCtrl.pass,
-                size: 56,
-              ),
-              _ActionButton(
-                icon: Icons.favorite,
-                color: AppColors.like,
-                onTap: _cardCtrl.like,
-                size: 66,
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -322,43 +327,46 @@ class _MatchOverlay extends StatelessWidget {
                   const SizedBox(height: 64),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              onDismiss();
-                              context.read<NavigationNotifier>().switchToMatches();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
+                    child: CenteredContent(
+                      maxWidth: 360,
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                onDismiss();
+                                context.read<NavigationNotifier>().switchToMatches();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30)),
+                              ),
+                              child: const Text('Send a message',
+                                  style: TextStyle(fontWeight: FontWeight.bold)),
                             ),
-                            child: const Text('Send a message',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: OutlinedButton(
-                            onPressed: onDismiss,
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(color: Colors.white, width: 2),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: OutlinedButton(
+                              onPressed: onDismiss,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: const BorderSide(color: Colors.white, width: 2),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30)),
+                              ),
+                              child: const Text('Keep Swiping',
+                                  style: TextStyle(fontWeight: FontWeight.bold)),
                             ),
-                            child: const Text('Keep Swiping',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -371,6 +379,8 @@ class _MatchOverlay extends StatelessWidget {
   }
 
   Widget _circularAvatar(String? url, double offsetX) {
+    final hasAvatar = url != null && url.trim().isNotEmpty;
+
     return Transform.translate(
       offset: Offset(offsetX, 0),
       child: Container(
@@ -379,14 +389,14 @@ class _MatchOverlay extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: 4),
-          image: url != null
+          image: hasAvatar
               ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover)
               : null,
           color: Colors.grey[800],
         ),
-        child: url == null
-            ? const Icon(Icons.person, size: 60, color: Colors.white)
-            : null,
+        child: hasAvatar
+            ? null
+            : const Icon(Icons.person, size: 60, color: Colors.white),
       ),
     );
   }

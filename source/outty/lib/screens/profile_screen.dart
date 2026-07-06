@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:provider/provider.dart';
+import 'account_management_screen.dart';
 import '../providers/auth_provider.dart';
 import '../providers/match_provider.dart';
 import '../utils/constants.dart';
+import '../widgets/centered_content.dart';
 import '../widgets/adventure_chip.dart';
 import 'profile_setup_screen.dart';
 
@@ -36,12 +39,14 @@ class ProfileScreen extends StatelessWidget {
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ProfileSetupScreen(),
+                    builder: (_) => const ProfileSetupScreen(isEditing: true),
                   ),
                 ),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
+              centerTitle: true,
+              titlePadding: const EdgeInsets.only(bottom: 16),
               title: Text(
                 user.name,
                 style: const TextStyle(
@@ -80,158 +85,182 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
 
-          SliverList(
-            delegate: SliverChildListDelegate([
-              const SizedBox(height: 16),
+          SliverToBoxAdapter(
+            child: CenteredContent(
+              maxWidth: 760,
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
 
-              // Stats row
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    _StatCard(
-                      label: 'Matches',
-                      value: '$matchCount',
-                      icon: Icons.favorite,
-                    ),
-                    const SizedBox(width: 12),
-                    _StatCard(
-                      label: 'Adventures',
-                      value: '${user.adventureTypes.length}',
-                      icon: Icons.terrain,
-                    ),
-                    const SizedBox(width: 12),
-                    _StatCard(
-                      label: 'Skill',
-                      value: user.skillLevel,
-                      icon: Icons.bar_chart,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Identity Info
-              if (user.gender != null || user.interestedIn != null)
-                _InfoSection(
-                  title: 'Details',
-                  child: Row(
-                    children: [
-                      if (user.gender != null)
-                        Expanded(child: _DetailChip(label: 'Identity', value: user.gender!, icon: Icons.person)),
-                      if (user.interestedIn != null)
-                        Expanded(child: _DetailChip(label: 'Seeking', value: user.interestedIn!, icon: Icons.favorite)),
-                    ],
-                  ),
-                ),
-
-              // Bio
-              _InfoSection(
-                title: 'About',
-                child: Text(
-                  user.bio.isEmpty ? 'No bio yet. Tap ✏️ to add one!' : user.bio,
-                  style: TextStyle(
-                    color: user.bio.isEmpty
-                        ? AppColors.textSecondary
-                        : AppColors.textPrimary,
-                    fontSize: 14,
-                    fontStyle: user.bio.isEmpty
-                        ? FontStyle.italic
-                        : FontStyle.normal,
-                  ),
-                ),
-              ),
-
-              // Location
-              if (user.location != null)
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.location_on,
-                          size: 16, color: AppColors.primary),
-                      const SizedBox(width: 6),
-                      Text(user.location!,
-                          style: const TextStyle(
-                              color: AppColors.textPrimary, fontSize: 14)),
-                    ],
-                  ),
-                ),
-
-              if (user.instagramHandle != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 4),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.camera_alt_outlined,
-                          size: 16, color: AppColors.primary),
-                      const SizedBox(width: 6),
-                      Text('@${user.instagramHandle}',
-                          style: const TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ),
-
-              const SizedBox(height: 16),
-
-              // Adventure types
-              _InfoSection(
-                title: 'Adventure Types',
-                child: user.adventureTypes.isEmpty
-                    ? Text(
-                        'None selected yet.',
-                        style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontStyle: FontStyle.italic,
-                            fontSize: 13),
-                      )
-                    : Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: user.adventureTypes
-                            .map((a) => AdventureChip(
-                                  label: a,
-                                  selected: true,
-                                ))
-                            .toList(),
-                      ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Settings / logout
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    _SettingsTile(
-                      icon: Icons.edit,
-                      label: 'Edit Profile',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ProfileSetupScreen(),
+                  // Stats row
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: [
+                        _StatCard(
+                          label: 'Matches',
+                          value: '$matchCount',
+                          icon: Icons.favorite,
                         ),
+                        const SizedBox(width: 12),
+                        _StatCard(
+                          label: 'Adventures',
+                          value: '${user.adventureTypes.length}',
+                          icon: Icons.terrain,
+                        ),
+                        const SizedBox(width: 12),
+                        _StatCard(
+                          label: 'Skill',
+                          value: user.skillLevel,
+                          icon: Icons.bar_chart,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Identity Info
+                  if (user.gender != null || user.interestedIn != null)
+                    _InfoSection(
+                      title: 'Details',
+                      child: Row(
+                        children: [
+                          if (user.gender != null)
+                            Expanded(child: _DetailChip(label: 'Identity', value: user.gender!, icon: Icons.person)),
+                          if (user.interestedIn != null)
+                            Expanded(child: _DetailChip(label: 'Seeking', value: user.interestedIn!, icon: Icons.favorite)),
+                        ],
                       ),
                     ),
-                    _SettingsTile(
-                      icon: Icons.logout,
-                      label: 'Log Out',
-                      onTap: () => _confirmLogout(context),
-                      isDestructive: true,
+
+                  _InfoSection(
+                    title: 'About',
+                    child: Text(
+                      user.bio.isEmpty ? 'No bio yet. Tap ✏️ to add one!' : user.bio,
+                      style: TextStyle(
+                        color: user.bio.isEmpty
+                            ? AppColors.textSecondary
+                            : AppColors.textPrimary,
+                        fontSize: 14,
+                        fontStyle: user.bio.isEmpty
+                            ? FontStyle.italic
+                            : FontStyle.normal,
+                      ),
                     ),
-                  ],
+                  ),
+
+                  if (user.location != null)
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.location_on,
+                              size: 16, color: AppColors.primary),
+                          const SizedBox(width: 6),
+                          Text(user.location!,
+                              style: const TextStyle(
+                                  color: AppColors.textPrimary, fontSize: 14)),
+                        ],
+                      ),
+                    ),
+
+                  if (user.instagramHandle != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 4),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.camera_alt_outlined,
+                              size: 16, color: AppColors.primary),
+                          const SizedBox(width: 6),
+                          Text('@${user.instagramHandle}',
+                              style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+
+                  const SizedBox(height: 16),
+
+                  _InfoSection(
+                    title: 'Adventure Types',
+                    child: user.adventureTypes.isEmpty
+                        ? Text(
+                            'None selected yet.',
+                            style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontStyle: FontStyle.italic,
+                                fontSize: 13),
+                          )
+                        : Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: user.adventureTypes
+                                .map((a) => AdventureChip(
+                                      label: a,
+                                      selected: true,
+                                    ))
+                                .toList(),
+                          ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        _SettingsTile(
+                          icon: Icons.edit,
+                          label: 'Edit Profile',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ProfileSetupScreen(isEditing: true),
+                            ),
+                          ),
+                        ),
+                        _SettingsTile(
+                          icon: Icons.delete_forever,
+                          label: 'Delete Account',
+                          onTap: () => _openAccountManagement(context),
+                          isDestructive: true,
+                        ),
+                        _SettingsTile(
+                          icon: Icons.logout,
+                          label: 'Log Out',
+                          onTap: () => _confirmLogout(context),
+                          isDestructive: true,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
                 ),
               ),
-              const SizedBox(height: 32),
-            ]),
           ),
         ],
+      ),
+    );
+  }
+
+  void _openAccountManagement(BuildContext context) {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No signed-in account is available.')),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AccountManagementScreen(user: firebaseUser),
       ),
     );
   }

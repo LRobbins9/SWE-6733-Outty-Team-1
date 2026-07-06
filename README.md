@@ -23,3 +23,7 @@ https://outty-app-team-1.firebaseapp.com/
 - Used to help learn how to create a custom URL for the Outty App within Firebase Hosting.
 ### ChatGPT
 - Used to support requirements elicitation and analysis for the Outty app. 
+### GitHub Copilot
+- Used for tab-completion code suggestions
+- 'Ask' mode for providing stack traces and requesting bug fixes
+- 'Agent' mode for requesting new screens or code changes to existing screens.

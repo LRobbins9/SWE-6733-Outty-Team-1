@@ -46,6 +46,7 @@ dependencies:
 
   # Local key-value storage (session persistence)
   shared_preferences: ^2.3.2
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

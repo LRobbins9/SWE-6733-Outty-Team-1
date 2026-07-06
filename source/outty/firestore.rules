@@ -1,8 +1,22 @@
-rules_version = '2';
+rules_version = '3';
 service cloud.firestore {
-  match /databases/{database}/documents {
+  match /databases/outty-firebase-backend/documents {
+    // Allow users to see everyone's basic profile for discovery
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow users to manage their own swipes
+      match /swipes/{targetId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Allow users to see matches they are part of
+    match /matches/{matchId} {
+      allow read: if request.auth != null && 
+        (request.auth.uid == resource.data.userId1 || request.auth.uid == resource.data.userId2);
+      allow create: if request.auth != null;
     }
   }
 }

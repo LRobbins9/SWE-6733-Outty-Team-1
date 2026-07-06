@@ -1,5 +1,5 @@
 name: outty
-description: "A new Flutter project."
+description: "Find your adventure partner."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -38,6 +38,14 @@ dependencies:
   cloud_firestore: ^6.6.0
   firebase_storage: ^13.4.3
   firebase_auth: ^6.5.4
+  vector_math: ^2.2.0
+  flutter_glow: ^0.3.2
+
+  # State management
+  provider: ^6.1.2
+
+  # Local key-value storage (session persistence)
+  shared_preferences: ^2.3.2
   image_picker: ^1.1.2
 
 dev_dependencies:
@@ -46,6 +54,8 @@ dev_dependencies:
   mocktail: ^1.0.4
   flutter_lints: ^6.0.0
   flutterfire_cli: ^1.4.0
+  fake_cloud_firestore: ^4.1.1
+  mockito: ^5.5.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

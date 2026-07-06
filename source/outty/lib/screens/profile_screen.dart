@@ -1,328 +1,408 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/match_provider.dart';
+import '../utils/constants.dart';
+import '../widgets/adventure_chip.dart';
+import 'profile_setup_screen.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key, required this.user});
-
-  final User user;
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  late Future<Map<String, dynamic>?> _profileFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _profileFuture = _loadProfile();
-  }
-
-  Future<Map<String, dynamic>?> _loadProfile() async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.user.uid)
-          .get();
-      return doc.exists ? doc.data() : null;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<void> _signOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
-  Future<void> _deleteAccount() async {
-    final passwordController = TextEditingController();
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete account'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'This permanently removes your account and all profile data. Enter your password to confirm.',
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
-              autofocus: true,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) return;
-
-    if (passwordController.text.isEmpty) {
-      _showMessage('Password is required to delete your account.');
-      return;
-    }
-
-    try {
-      final credential = EmailAuthProvider.credential(
-        email: widget.user.email ?? '',
-        password: passwordController.text,
-      );
-      await widget.user.reauthenticateWithCredential(credential);
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.user.uid)
-          .delete();
-      await widget.user.delete();
-    } on FirebaseAuthException catch (e) {
-      if (mounted) _showMessage(e.message ?? 'Could not delete account.');
-    } catch (e) {
-      if (mounted) _showMessage(e.toString());
-    }
-  }
-
-  void _showMessage(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: _profileFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final user = context.watch<AuthProvider>().currentUser!;
+    final matchCount = context.watch<MatchProvider>().matches.length;
 
-        final data = snapshot.data ?? {};
-        final displayName = (data['displayName'] as String?) ??
-            widget.user.displayName ??
-            'Adventurer';
-        final email = widget.user.email ?? '';
-        final pictureUrl = data['pictureUrl'] as String?;
-        final bio = (data['bio'] as String?) ?? '';
-        final adventureLikes =
-            (data['adventureLikes'] as List?)?.cast<String>() ?? [];
-        final distanceMiles =
-            (data['distancePreferenceMiles'] as int?) ?? 0;
-        final ageRange =
-            data['agePreferenceRange'] as Map<String, dynamic>?;
-        final minAge = (ageRange?['min'] as int?) ?? 18;
-        final maxAge = (ageRange?['max'] as int?) ?? 70;
+    final hue = (user.name.codeUnitAt(0) * 37) % 360;
+    final color1 =
+        HSLColor.fromAHSL(1, hue.toDouble(), 0.5, 0.35).toColor();
+    final color2 =
+        HSLColor.fromAHSL(1, (hue + 40) % 360, 0.5, 0.45).toColor();
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-              // ── Header ──────────────────────────────────────
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          // Collapsible header
+          SliverAppBar(
+            expandedHeight: 220,
+            pinned: true,
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ProfileSetupScreen(),
+                  ),
+                ),
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                user.name,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              background: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [color1, color2],
+                  ),
+                ),
+                child: Center(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      const SizedBox(height: 16),
                       CircleAvatar(
-                        radius: 52,
+                        radius: 50,
                         backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        backgroundImage: (pictureUrl != null &&
-                                pictureUrl.isNotEmpty)
-                            ? NetworkImage(pictureUrl)
-                            : null,
-                        onBackgroundImageError: (pictureUrl != null &&
-                                pictureUrl.isNotEmpty)
-                            ? (e, stack) {}
-                            : null,
-                        child: (pictureUrl == null || pictureUrl.isEmpty)
-                            ? const Icon(Icons.person, size: 52)
-                            : null,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        displayName,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        email,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                        textAlign: TextAlign.center,
+                            Colors.white.withAlpha(80),
+                        child: Text(
+                          user.name.substring(0, 1).toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 44,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
+            ),
+          ),
 
+          SliverList(
+            delegate: SliverChildListDelegate([
               const SizedBox(height: 16),
 
-              // ── About ────────────────────────────────────────
-              if (bio.isNotEmpty) ...[
-                const _SectionHeader(label: 'About'),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      bio,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              // ── Adventure ────────────────────────────────────
-              const _SectionHeader(label: 'Adventure'),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (adventureLikes.isNotEmpty) ...[
-                        Text(
-                          'Interests',
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: adventureLikes
-                              .map(
-                                (like) => Chip(
-                                  label: Text(like),
-                                  avatar: const Icon(Icons.hiking, size: 16),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      _InfoRow(
-                        icon: Icons.place,
-                        label: 'Distance preference',
-                        value: '$distanceMiles miles',
-                      ),
-                      const SizedBox(height: 8),
-                      _InfoRow(
-                        icon: Icons.people,
-                        label: 'Age preference',
-                        value: '$minAge – $maxAge years',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // ── Account Settings ─────────────────────────────
-              const _SectionHeader(label: 'Account Settings'),
-              Card(
-                child: Column(
+              // Stats row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.logout),
-                      title: const Text('Sign out'),
-                      onTap: _signOut,
+                    _StatCard(
+                      label: 'Matches',
+                      value: '$matchCount',
+                      icon: Icons.favorite,
                     ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(
-                        Icons.delete_forever,
-                        color: Colors.redAccent,
-                      ),
-                      title: const Text(
-                        'Delete account',
-                        style: TextStyle(color: Colors.redAccent),
-                      ),
-                      onTap: _deleteAccount,
+                    const SizedBox(width: 12),
+                    _StatCard(
+                      label: 'Adventures',
+                      value: '${user.adventureTypes.length}',
+                      icon: Icons.terrain,
+                    ),
+                    const SizedBox(width: 12),
+                    _StatCard(
+                      label: 'Skill',
+                      value: user.skillLevel,
+                      icon: Icons.bar_chart,
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 20),
 
-              const SizedBox(height: 32),
-            ],
+              // Identity Info
+              if (user.gender != null || user.interestedIn != null)
+                _InfoSection(
+                  title: 'Details',
+                  child: Row(
+                    children: [
+                      if (user.gender != null)
+                        Expanded(child: _DetailChip(label: 'Identity', value: user.gender!, icon: Icons.person)),
+                      if (user.interestedIn != null)
+                        Expanded(child: _DetailChip(label: 'Seeking', value: user.interestedIn!, icon: Icons.favorite)),
+                    ],
+                  ),
+                ),
+
+              // Bio
+              _InfoSection(
+                title: 'About',
+                child: Text(
+                  user.bio.isEmpty ? 'No bio yet. Tap ✏️ to add one!' : user.bio,
+                  style: TextStyle(
+                    color: user.bio.isEmpty
+                        ? AppColors.textSecondary
+                        : AppColors.textPrimary,
+                    fontSize: 14,
+                    fontStyle: user.bio.isEmpty
+                        ? FontStyle.italic
+                        : FontStyle.normal,
+                  ),
+                ),
               ),
-            ),
+
+              // Location
+              if (user.location != null)
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_on,
+                          size: 16, color: AppColors.primary),
+                      const SizedBox(width: 6),
+                      Text(user.location!,
+                          style: const TextStyle(
+                              color: AppColors.textPrimary, fontSize: 14)),
+                    ],
+                  ),
+                ),
+
+              if (user.instagramHandle != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 4),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.camera_alt_outlined,
+                          size: 16, color: AppColors.primary),
+                      const SizedBox(width: 6),
+                      Text('@${user.instagramHandle}',
+                          style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                ),
+
+              const SizedBox(height: 16),
+
+              // Adventure types
+              _InfoSection(
+                title: 'Adventure Types',
+                child: user.adventureTypes.isEmpty
+                    ? Text(
+                        'None selected yet.',
+                        style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                            fontSize: 13),
+                      )
+                    : Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: user.adventureTypes
+                            .map((a) => AdventureChip(
+                                  label: a,
+                                  selected: true,
+                                ))
+                            .toList(),
+                      ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Settings / logout
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    _SettingsTile(
+                      icon: Icons.edit,
+                      label: 'Edit Profile',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ProfileSetupScreen(),
+                        ),
+                      ),
+                    ),
+                    _SettingsTile(
+                      icon: Icons.logout,
+                      label: 'Log Out',
+                      onTap: () => _confirmLogout(context),
+                      isDestructive: true,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+            ]),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
-}
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.label});
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        label.toUpperCase(),
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              letterSpacing: 1.2,
-            ),
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Log Out'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await context.read<AuthProvider>().logout();
+              if (context.mounted) {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, AppRoutes.login, (_) => false);
+              }
+            },
+            child: const Text('Log Out',
+                style: TextStyle(color: AppColors.pass)),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.icon,
+class _StatCard extends StatelessWidget {
+  const _StatCard({
     required this.label,
     required this.value,
+    required this.icon,
   });
 
-  final IconData icon;
   final String label;
   final String value;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: Theme.of(context).colorScheme.secondary),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
-              ),
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0F000000),
+              blurRadius: 6,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
-        Text(value, style: Theme.of(context).textTheme.bodyMedium),
-      ],
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.primary, size: 22),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            Text(
+              label,
+              style: const TextStyle(
+                  fontSize: 11, color: AppColors.textSecondary),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
+class _DetailChip extends StatelessWidget {
+  const _DetailChip({required this.label, required this.value, required this.icon});
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+              Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoSection extends StatelessWidget {
+  const _InfoSection({required this.title, required this.child});
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textSecondary,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  const _SettingsTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isDestructive = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isDestructive;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isDestructive ? AppColors.pass : AppColors.textPrimary;
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+      leading: Icon(icon, color: color, size: 22),
+      title: Text(label, style: TextStyle(color: color, fontSize: 15)),
+      trailing: const Icon(Icons.chevron_right,
+          color: AppColors.textSecondary),
+      onTap: onTap,
+    );
+  }
+}

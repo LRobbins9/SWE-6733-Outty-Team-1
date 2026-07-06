@@ -116,8 +116,13 @@ class UserModel {
       targetAgeEnd: json['targetAgeEnd'] as int?,
       interestedIn: json['interestedIn'] as String?,
       location: json['location'] as String?,
-      adventureTypes: List<String>.from(
-          (json['adventureTypes'] as List?)?.map((e) => e as String) ?? []),
+      adventureTypes: (json['adventureTypes'] is Map)
+          ? (json['adventureTypes'] as Map<String, dynamic>)
+              .values
+              .map((e) => e.toString())
+              .toList()
+          : List<String>.from(
+              (json['adventureTypes'] as List?)?.map((e) => e as String) ?? []),
       skillLevel: json['skillLevel'] as String? ?? 'Beginner',
       maxDistance: json['maxDistance'] as int? ?? 50,
       instagramHandle: json['instagramHandle'] as String?,

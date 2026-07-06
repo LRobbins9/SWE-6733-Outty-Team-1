@@ -74,6 +74,7 @@ class ChatProvider extends ChangeNotifier {
       await _db.collection('matches').doc(matchId).update({
         'lastMessage': msg.content,
         'lastMessageAt': msg.sentAt.toIso8601String(),
+        'hasUnreadMessages': true,
       });
     } catch (e) {
       debugPrint('Error sending message: $e');
@@ -119,6 +120,11 @@ class ChatProvider extends ChangeNotifier {
 
   Future<void> markRead(String matchId, String currentUserId) async {
     try {
+      // Update hasUnreadMessages on the match document
+      await _db.collection('matches').doc(matchId).update({
+        'hasUnreadMessages': false,
+      });
+
       final snapshot = await _db
           .collection('matches')
           .doc(matchId)

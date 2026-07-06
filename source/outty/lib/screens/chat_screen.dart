@@ -33,6 +33,10 @@ class _ChatScreenState extends State<ChatScreen> {
     // Start listening to Firestore
     chat.listenToMessages(widget.match.id);
     
+    // Mark messages as read
+    final auth = context.read<AuthProvider>();
+    chat.markRead(widget.match.id, auth.currentUser!.id);
+
     // Seed the match with an icebreaker if chat is empty
     _seedIfNeeded();
   }

@@ -5,7 +5,12 @@ import '../models/message_model.dart';
 
 /// syncs chat messages per match with Firestore.
 class ChatProvider extends ChangeNotifier {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseFirestore _db;
+
+  // Add a constructor to allow injecting a Firestore instance for testing
+  ChatProvider({FirebaseFirestore? firestore})
+      : _db = firestore ?? FirebaseFirestore.instance;
+
   final Map<String, List<MessageModel>> _messages = {};
   final Map<String, StreamSubscription> _subscriptions = {};
 

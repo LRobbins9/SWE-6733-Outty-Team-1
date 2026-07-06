@@ -41,7 +41,7 @@ void main() {
     skillLevel: 'Advanced',
   );
 
-  final userD_age_mismatch = UserModel(
+  final userdAgeMismatch = UserModel(
     id: 'd',
     name: 'User D',
     age: 40,
@@ -52,7 +52,7 @@ void main() {
     skillLevel: 'Intermediate',
   );
 
-  final userE_gender_mismatch = UserModel(
+  final usereGenderMismatch = UserModel(
     id: 'e',
     name: 'User E',
     age: 30,
@@ -81,12 +81,12 @@ void main() {
     });
 
     test('returns 0.0 for age preference mismatch', () {
-      final score = computeCompatibilityScore(userA, userD_age_mismatch);
+      final score = computeCompatibilityScore(userA, userdAgeMismatch);
       expect(score, 0.0);
     });
 
     test('returns 0.0 for gender preference mismatch', () {
-      final score = computeCompatibilityScore(userA, userE_gender_mismatch);
+      final score = computeCompatibilityScore(userA, usereGenderMismatch);
       expect(score, 0.0);
     });
   });
@@ -94,9 +94,9 @@ void main() {
   group('rankCandidates', () {
     test('correctly sorts candidates by score', () {
       final candidates = [
-        userD_age_mismatch, // score 0
+        userdAgeMismatch, // score 0
         userC, // score ~0.59
-        userE_gender_mismatch, // score 0
+        usereGenderMismatch, // score 0
         userB, // score 1.0
       ];
 

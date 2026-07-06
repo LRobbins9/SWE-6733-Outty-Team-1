@@ -38,6 +38,8 @@ dependencies:
   cloud_firestore: ^6.6.0
   firebase_storage: ^13.4.3
   firebase_auth: ^6.5.4
+  vector_math: ^2.2.0
+  flutter_glow: ^0.3.2
 
   # State management
   provider: ^6.1.2

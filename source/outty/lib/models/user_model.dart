@@ -5,6 +5,8 @@ class UserModel {
   String bio;
   String? photoUrl;
   String? gender;
+  int ? targetAgeStart;
+  int ? targetAgeEnd;
   String? interestedIn;
   String? location;
   List<String> adventureTypes;
@@ -23,6 +25,8 @@ class UserModel {
     required this.bio,
     this.photoUrl,
     this.gender,
+    this.targetAgeStart,
+    this.targetAgeEnd,
     this.interestedIn,
     this.location,
     required this.adventureTypes,
@@ -39,6 +43,8 @@ class UserModel {
     String? bio,
     String? photoUrl,
     String? gender,
+    int? targetAgeStart,
+    int? targetAgeEnd,
     String? interestedIn,
     String? location,
     List<String>? adventureTypes,
@@ -53,6 +59,8 @@ class UserModel {
       bio: bio ?? this.bio,
       photoUrl: photoUrl ?? this.photoUrl,
       gender: gender ?? this.gender,
+      targetAgeStart: targetAgeStart ?? this.targetAgeStart,
+      targetAgeEnd: targetAgeEnd ?? this.targetAgeEnd,
       interestedIn: interestedIn ?? this.interestedIn,
       location: location ?? this.location,
       adventureTypes: adventureTypes ?? List.from(this.adventureTypes),
@@ -71,6 +79,11 @@ class UserModel {
         'bio': bio,
         'photoUrl': photoUrl,
         'gender': gender,
+      // Store both legacy and explicit keys for compatibility.
+      'targetAgeStart': targetAgeStart,
+      'targetAgeEnd': targetAgeEnd,
+        'minTargetAge': targetAgeStart,
+        'maxTargetAge': targetAgeEnd,
         'interestedIn': interestedIn,
         'location': location,
         'adventureTypes': adventureTypes,
@@ -102,6 +115,8 @@ class UserModel {
       bio: json['bio'] as String? ?? '',
       photoUrl: json['photoUrl'] as String?,
       gender: json['gender'] as String?,
+      targetAgeStart: (json['targetAgeStart'] ?? json['minTargetAge']) as int?,
+      targetAgeEnd: (json['targetAgeEnd'] ?? json['maxTargetAge']) as int?,
       interestedIn: json['interestedIn'] as String?,
       location: json['location'] as String?,
       adventureTypes: List<String>.from(

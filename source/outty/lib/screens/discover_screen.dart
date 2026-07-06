@@ -15,7 +15,7 @@ class DiscoverScreen extends StatefulWidget {
 }
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
-  SwipeCardController? _cardCtrl;
+  final SwipeCardController _cardCtrl = SwipeCardController();
   bool _showMatchDialog = false;
   UserModel? _matchedUser;
 
@@ -96,7 +96,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Widget _buildFeed(List<UserModel> feed) {
-    _cardCtrl = SwipeCardController();
     final topCandidate = feed.first;
 
     return Column(
@@ -142,13 +141,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               _ActionButton(
                 icon: Icons.close,
                 color: AppColors.pass,
-                onTap: () => _cardCtrl?.pass(),
+                onTap: _cardCtrl.pass,
                 size: 56,
               ),
               _ActionButton(
                 icon: Icons.favorite,
                 color: AppColors.like,
-                onTap: () => _cardCtrl?.like(),
+                onTap: _cardCtrl.like,
                 size: 66,
               ),
             ],
@@ -207,7 +206,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 }
 
-class _ActionButton extends StatelessWidget {
+class _ActionButton extends StatefulWidget {
   const _ActionButton({
     required this.icon,
     required this.color,
@@ -221,24 +220,51 @@ class _ActionButton extends StatelessWidget {
   final double size;
 
   @override
+  State<_ActionButton> createState() => _ActionButtonState();
+}
+
+class _ActionButtonState extends State<_ActionButton> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withAlpha(60),
-              blurRadius: 12,
-              spreadRadius: 2,
+    final glowColor = widget.color.withAlpha(_isHovered ? 130 : 60);
+    final blur = _isHovered ? 22.0 : 12.0;
+    final spread = _isHovered ? 5.0 : 2.0;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          scale: _isHovered ? 1.06 : 1.0,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOut,
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: glowColor,
+                  blurRadius: blur,
+                  spreadRadius: spread,
+                ),
+              ],
             ),
-          ],
+            child: Icon(
+              widget.icon,
+              color: widget.color,
+              size: widget.size * 0.45,
+            ),
+          ),
         ),
-        child: Icon(icon, color: color, size: size * 0.45),
       ),
     );
   }

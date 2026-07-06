@@ -22,6 +22,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _bioCtrl = TextEditingController();
 
   int _age = 25;
+  int _targetAgeStart = 18;
+  int _targetAgeEnd = 75;
   String? _gender;
   String? _interestedIn;
   final Set<String> _selectedAdventures = {};
@@ -38,6 +40,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       _locationCtrl.text = user.location ?? '';
       _bioCtrl.text = user.bio;
       _age = user.age > 0 ? user.age : 25;
+      _targetAgeStart = user.targetAgeStart ?? 18;
+      _targetAgeEnd = user.targetAgeEnd ?? 75;
       _gender = user.gender;
       _interestedIn = user.interestedIn;
       _selectedAdventures.addAll(user.adventureTypes);
@@ -80,6 +84,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final updated = auth.currentUser!.copyWith(
       name: '${_firstNameCtrl.text} ${_lastNameCtrl.text}'.trim(),
       age: _age,
+      targetAgeStart: _targetAgeStart,
+      targetAgeEnd: _targetAgeEnd,
       gender: _gender,
       interestedIn: _interestedIn,
       bio: _bioCtrl.text.trim(),
@@ -94,6 +100,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     if (!mounted) return;
     await context.read<MatchProvider>().load(updated);
 
+    if (!mounted) return;
     setState(() => _saving = false);
     Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
@@ -222,8 +229,38 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             selected: _interestedIn,
             onSelected: (val) => setState(() => _interestedIn = val),
           ),
+          const SizedBox(height: 32),
+          _buildTargetAgeRow(),
         ],
       ),
+    );
+  }
+
+  Widget _buildTargetAgeRow() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Target Age Range', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('$_targetAgeStart - $_targetAgeEnd', 
+                      style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+                RangeSlider(
+                  values: RangeValues(_targetAgeStart.toDouble(), _targetAgeEnd.toDouble()),
+                  min: 18,
+                  max: 75,
+                  divisions: 57,
+                  activeColor: AppColors.primary,
+                  inactiveColor: Colors.grey[200],
+                  onChanged: (range) => setState(() {
+                    _targetAgeStart = range.start.toInt();
+                    _targetAgeEnd = range.end.toInt();
+                  }),
+                ),
+      ],
     );
   }
 

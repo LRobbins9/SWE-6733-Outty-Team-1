@@ -6,20 +6,37 @@ import 'constants.dart';
 /// Breakdown:
 ///   50 % – shared adventure types
 ///   30 % – skill-level proximity
-///   20 % – fixed "distance" factor (always 1.0 for MVP)
+///   20 % – fixed "distance" factor (always 1.0 for MVP1)
 double computeCompatibilityScore(UserModel a, UserModel b) {
-  // Check gender preference first
+  // Check gender and age preferences first
   if (!_checkPreference(a, b) || !_checkPreference(b, a)) {
     return 0.0;
   }
 
   final adventureScore = _adventureScore(a.adventureTypes, b.adventureTypes);
   final skillScore = _skillScore(a.skillLevel, b.skillLevel);
-  const distanceScore = 1.0;
+  const distanceScore = 1.0; // this would require an api call to compute distance, so we just use a fixed value for MVP1
   return adventureScore * 0.5 + skillScore * 0.3 + distanceScore * 0.2;
 }
 
 bool _checkPreference(UserModel seeker, UserModel candidate) {
+  // Only return candidates that match age restrictions.
+  if (seeker.targetAgeStart != null && seeker.targetAgeEnd != null) {
+    final age = candidate.age;
+    if (age < seeker.targetAgeStart! ||
+        age > seeker.targetAgeEnd!) {
+      return false;
+    }
+  }
+
+  if (candidate.targetAgeStart != null && candidate.targetAgeEnd != null) {
+    final age = seeker.age;
+    if (age < candidate.targetAgeStart! ||
+        age > candidate.targetAgeEnd!) {
+      return false;
+    }
+  }
+
   // If preference is not set (legacy/null), assume "Any"
   if (seeker.interestedIn == null || seeker.interestedIn == 'Any') {
     return true;
@@ -60,7 +77,7 @@ double _skillScore(String a, String b) {
 List<UserModel> rankCandidates(UserModel user, List<UserModel> candidates) {
   final scored = candidates.map((c) {
     return _ScoredUser(c, computeCompatibilityScore(user, c));
-  }).toList()
+  }).where((s) => s.score > 0).toList()
     ..sort((a, b) => b.score.compareTo(a.score));
   return scored.map((s) => s.user).toList();
 }

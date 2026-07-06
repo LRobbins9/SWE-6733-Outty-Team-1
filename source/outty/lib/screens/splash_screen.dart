@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.terrain, size: 80, color: Colors.white),
+                const Icon(Icons.explore, size: 80, color: Colors.white),
                 const SizedBox(height: 16),
                 const Text(
                   'Outty',

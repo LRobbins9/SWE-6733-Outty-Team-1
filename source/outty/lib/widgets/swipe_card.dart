@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math_64.dart' show Vector3;
 import '../models/user_model.dart';
 import '../utils/constants.dart';
 import 'adventure_chip.dart';
@@ -124,7 +125,7 @@ class SwipeCardState extends State<SwipeCard>
       onPanEnd: _onPanEnd,
       child: Transform(
         transform: Matrix4.identity()
-          ..translate(_position.dx, _position.dy)
+          ..translateByVector3(Vector3(_position.dx, _position.dy, 0))
           ..rotateZ(_rotation),
         alignment: Alignment.bottomCenter,
         child: Stack(

@@ -76,7 +76,7 @@ class ChatProvider extends ChangeNotifier {
         'lastMessageAt': msg.sentAt.toIso8601String(),
       });
     } catch (e) {
-      print('Error sending message: $e');
+      debugPrint('Error sending message: $e');
     }
   }
 
@@ -135,7 +135,7 @@ class ChatProvider extends ChangeNotifier {
       }
       await batch.commit();
     } catch (e) {
-      print('Error marking messages as read: $e');
+      debugPrint('Error marking messages as read: $e');
     }
   }
 }

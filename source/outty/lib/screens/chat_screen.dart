@@ -70,6 +70,8 @@ class _ChatScreenState extends State<ChatScreen> {
       content: text,
     );
 
+    if (!mounted) return;
+
     // Update last message preview in matches list
     context
         .read<MatchProvider>()

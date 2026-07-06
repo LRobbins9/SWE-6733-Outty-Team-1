@@ -79,7 +79,7 @@ class AuthProvider extends ChangeNotifier {
         _currentUser = UserModel.fromJson(doc.data()!);
       }
     } catch (e) {
-      print('Error fetching user profile: $e');
+      debugPrint('Error fetching user profile: $e');
     }
 
     _isLoading = false;
@@ -182,7 +182,7 @@ class AuthProvider extends ChangeNotifier {
       await _db!.collection('users').doc(updated.id).update(updated.toJson());
       _currentUser = updated;
     } catch (e) {
-      print('Error updating profile: $e');
+      debugPrint('Error updating profile: $e');
     }
 
     _isLoading = false;

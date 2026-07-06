@@ -72,7 +72,7 @@ class MatchProvider extends ChangeNotifier {
 
       _feed = rankCandidates(currentUser, candidates);
     } catch (e) {
-      print('Error loading matches/feed: $e');
+      debugPrint('Error loading matches/feed: $e');
     }
 
     _isLoading = false;
@@ -94,6 +94,7 @@ class MatchProvider extends ChangeNotifier {
           .set({'type': 'right', 'at': FieldValue.serverTimestamp()});
       
       _swipedIds.add(candidate.id);
+      _feed.removeWhere((u) => u.id == candidate.id);
 
       // 2. Check if the other user already swiped right on us (a match!)
       final otherSwipe = await _db
@@ -122,7 +123,7 @@ class MatchProvider extends ChangeNotifier {
         return match;
       }
     } catch (e) {
-      print('Error during swipeRight: $e');
+      debugPrint('Error during swipeRight: $e');
     }
     
     notifyListeners();
@@ -139,9 +140,10 @@ class MatchProvider extends ChangeNotifier {
           .set({'type': 'left', 'at': FieldValue.serverTimestamp()});
       
       _swipedIds.add(candidateId);
+      _feed.removeWhere((u) => u.id == candidateId);
       notifyListeners();
     } catch (e) {
-      print('Error during swipeLeft: $e');
+      debugPrint('Error during swipeLeft: $e');
     }
   }
 
@@ -162,7 +164,7 @@ class MatchProvider extends ChangeNotifier {
         return UserModel.fromJson(doc.data()!);
       }
     } catch (e) {
-      print('Error fetching user by id: $e');
+      debugPrint('Error fetching user by id: $e');
     }
     return null;
   }
@@ -180,7 +182,7 @@ class MatchProvider extends ChangeNotifier {
           'lastMessageAt': now.toIso8601String(),
         });
       } catch (e) {
-        print('Error updating last message: $e');
+        debugPrint('Error updating last message: $e');
       }
       
       notifyListeners();
@@ -201,7 +203,7 @@ class MatchProvider extends ChangeNotifier {
       await batch.commit();
       await load(currentUser);
     } catch (e) {
-      print('Error resetting feed: $e');
+      debugPrint('Error resetting feed: $e');
     }
     
     _isLoading = false;

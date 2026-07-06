@@ -194,5 +194,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(fakeNavigationNotifier.currentIndex, 2);
     });
+
+    testWidgets('shows a loading state when auth user becomes null',
+        (WidgetTester tester) async {
+      fakeAuthProvider.currentUser = null;
+      fakeAuthProvider.notifyListeners();
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pump();
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
   });
 }

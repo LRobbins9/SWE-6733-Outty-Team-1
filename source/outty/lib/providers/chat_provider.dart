@@ -134,16 +134,16 @@ class ChatProvider extends ChangeNotifier {
           .collection('matches')
           .doc(matchId)
           .collection('messages')
-          .where('senderId', isNotEqualTo: currentUserId)
           .where('isRead', isEqualTo: false)
           .get();
 
-      if (snapshot.docs.isEmpty) return;
-
       final batch = _db.batch();
       for (var doc in snapshot.docs) {
-        batch.update(doc.reference, {'isRead': true});
+        if (doc.data()['senderId'] != currentUserId) {
+          batch.update(doc.reference, {'isRead': true});
+        }
       }
+
       await batch.commit();
     } catch (e) {
       debugPrint('Error marking messages as read: $e');

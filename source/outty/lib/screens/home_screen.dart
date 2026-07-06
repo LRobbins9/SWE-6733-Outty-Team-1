@@ -37,9 +37,18 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = context.watch<AuthProvider>().currentUser;
     final matchCount = context.watch<MatchProvider>().matches.length;
     final navNotifier = context.watch<NavigationNotifier>();
     final currentIndex = navNotifier.currentIndex;
+
+    if (currentUser == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
 
     return Scaffold(
       body: IndexedStack(

@@ -78,9 +78,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           body: matchProv.isLoading
               ? const Center(
                   child: CircularProgressIndicator(color: AppColors.primary))
-              : feed.isEmpty
-                  ? _buildEmptyState()
-                  : _buildFeed(feed),
+              : Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _buildScenicBackdrop(),
+                    feed.isEmpty ? _buildEmptyState() : _buildFeed(feed),
+                  ],
+                ),
         ),
 
         // Match overlay
@@ -162,6 +166,60 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     );
   }
 
+  Widget _buildScenicBackdrop() {
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFF8F6EF),
+                    Color(0xFFF4F3EC),
+                    Color(0xFFF7F8F3),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -70,
+            left: -10,
+            child: _BackdropAccent(
+              size: 260,
+              color: const Color(0xFFF05A22).withAlpha(24),
+            ),
+          ),
+          Positioned(
+            top: 110,
+            right: -60,
+            child: _BackdropAccent(
+              size: 240,
+              color: const Color(0xFF2D6A4F).withAlpha(22),
+            ),
+          ),
+          Positioned(
+            bottom: 10,
+            left: -40,
+            child: _BackdropAccent(
+              size: 220,
+              color: const Color(0xFF4A90A4).withAlpha(20),
+            ),
+          ),
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _BackdropHorizon(),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -206,6 +264,113 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _BackdropAccent extends StatelessWidget {
+  const _BackdropAccent({
+    required this.size,
+    required this.color,
+  });
+
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [color, Colors.transparent],
+        ),
+      ),
+    );
+  }
+}
+
+class _BackdropHorizon extends StatelessWidget {
+  const _BackdropHorizon();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 220,
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 120,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0x002D6A4F),
+                    Color(0x142D6A4F),
+                    Color(0x1F2D6A4F),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Container(
+              width: 320,
+              height: 120,
+              decoration: const BoxDecoration(
+                color: Color(0x122D6A4F),
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.elliptical(220, 110),
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              width: 360,
+              height: 150,
+              decoration: const BoxDecoration(
+                color: Color(0x104A90A4),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.elliptical(260, 120),
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: 420,
+              height: 96,
+              decoration: const BoxDecoration(
+                color: Color(0x16F05A22),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.elliptical(240, 80),
+                  topRight: Radius.elliptical(240, 80),
+                ),
+              ),
+            ),
+          ),
+          const Align(
+            alignment: Alignment(0, 0.52),
+            child: Opacity(
+              opacity: 0.08,
+              child: Icon(
+                Icons.terrain_rounded,
+                size: 190,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

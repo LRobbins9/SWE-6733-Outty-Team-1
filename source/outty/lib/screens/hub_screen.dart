@@ -48,7 +48,7 @@ class _HubScreenState extends State<HubScreen> {
     const DiscoverScreen(),
     const MatchesScreen(),
     const MessagesScreen(),
-    ProfileScreen(user: widget.user),
+    const ProfileScreen(),
   ];
 
   @override

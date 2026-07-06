@@ -22,7 +22,7 @@ class MatchProvider extends ChangeNotifier {
 
   Future<void> load(UserModel currentUser) async {
     _isLoading = true;
-    notifyListeners();
+    Future.microtask(() => notifyListeners());
 
     try {
       // 1. Restore swiped ids from Firestore

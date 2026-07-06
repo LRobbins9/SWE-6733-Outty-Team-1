@@ -29,6 +29,8 @@ bool _checkPreference(UserModel seeker, UserModel candidate) {
     }
   }
 
+  // keep checking if an exclusion hasn't been found yet
+
   if (candidate.targetAgeStart != null && candidate.targetAgeEnd != null) {
     final age = seeker.age;
     if (age < candidate.targetAgeStart! ||
@@ -37,11 +39,13 @@ bool _checkPreference(UserModel seeker, UserModel candidate) {
     }
   }
 
+  // keep checking if an exclusion hasn't been found yet
+
   // If preference is not set (legacy/null), assume "Any"
   if (seeker.interestedIn == null || seeker.interestedIn == 'Any') {
     return true;
   }
-  // If candidate gender is not set, we can't be sure, so allow it for MVP
+  // If candidate gender is not set, we can't be sure, so allow it for MVP1
   if (candidate.gender == null) {
     return true;
   }

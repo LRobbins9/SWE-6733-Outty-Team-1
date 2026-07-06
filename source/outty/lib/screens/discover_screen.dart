@@ -281,79 +281,90 @@ class _MatchOverlay extends StatelessWidget {
   final UserModel matchedUser;
   final VoidCallback onDismiss;
 
-  @override
+    @override
   Widget build(BuildContext context) {
     final currentUser = context.read<AuthProvider>().currentUser;
 
     return Material(
       color: Colors.transparent,
       child: Container(
+        // Ensure the background covers the entire stack
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           color: Colors.black.withValues(alpha: 0.9),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "It's a Match!",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            const SizedBox(height: 48),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _circularAvatar(currentUser?.avatarUrl, -15),
-                _circularAvatar(matchedUser.avatarUrl, 15),
-              ],
-            ),
-            const SizedBox(height: 64),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              // Vertical padding ensures content doesn't touch screen edges on small devices
+              padding: const EdgeInsets.symmetric(vertical: 40),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        onDismiss();
-                        context.read<NavigationNotifier>().switchToMatches();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30)),
-                      ),
-                      child: Text('Send a message',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    "It's a Match!",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: OutlinedButton(
-                      onPressed: onDismiss,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white, width: 2),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30)),
-                      ),
-                      child: const Text('Keep Swiping',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 48),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _circularAvatar(currentUser?.avatarUrl, -15),
+                      _circularAvatar(matchedUser.avatarUrl, 15),
+                    ],
+                  ),
+                  const SizedBox(height: 64),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              onDismiss();
+                              context.read<NavigationNotifier>().switchToMatches();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                            ),
+                            child: const Text('Send a message',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: OutlinedButton(
+                            onPressed: onDismiss,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white, width: 2),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                            ),
+                            child: const Text('Keep Swiping',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

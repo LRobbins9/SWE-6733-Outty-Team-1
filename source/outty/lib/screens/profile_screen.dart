@@ -14,8 +14,16 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().currentUser!;
+    final user = context.watch<AuthProvider>().currentUser;
     final matchCount = context.watch<MatchProvider>().matches.length;
+
+    if (user == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
 
     final hue = (user.name.codeUnitAt(0) * 37) % 360;
     final color1 =
@@ -136,7 +144,7 @@ class ProfileScreen extends StatelessWidget {
                   _InfoSection(
                     title: 'About',
                     child: Text(
-                      user.bio.isEmpty ? 'No bio yet. Tap ✏️ to add one!' : user.bio,
+                      user.bio.isEmpty ? 'No bio yet. Tap Edit Profile to add one.' : user.bio,
                       style: TextStyle(
                         color: user.bio.isEmpty
                             ? AppColors.textSecondary

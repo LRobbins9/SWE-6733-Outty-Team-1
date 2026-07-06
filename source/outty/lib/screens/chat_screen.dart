@@ -189,7 +189,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       textCapitalization: TextCapitalization.sentences,
                       onSubmitted: (_) => _sendMessage(),
                       decoration: InputDecoration(
-                        hintText: 'Message ${other.name}…',
+                        hintText: 'Message ${other.name}...',
                         hintStyle: const TextStyle(
                             color: AppColors.textSecondary),
                         filled: true,

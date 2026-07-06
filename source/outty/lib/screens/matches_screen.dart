@@ -202,7 +202,7 @@ class _MatchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lastMsg = match.lastMessage ?? 'Say hello! 👋';
+    final lastMsg = match.lastMessage ?? 'Say hello!';
 
     return ListTile(
       onTap: () {

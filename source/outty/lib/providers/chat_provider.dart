@@ -106,7 +106,7 @@ class ChatProvider extends ChangeNotifier {
     final iceBreakerMessages = [
       "Hey! Looks like we're both into the outdoors. What's your next adventure?",
       "Nice to match with a fellow adventurer! Have any trips planned?",
-      "Hey there! Ready to find our next trail together? 🏔️",
+      "Hey there! Ready to find our next trail together?",
       "Great match! I'd love to hear about your favorite outdoor spot.",
       "Woah, love your adventure profile! We should plan something epic.",
     ];

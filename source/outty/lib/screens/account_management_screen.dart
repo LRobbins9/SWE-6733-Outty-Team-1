@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import '../utils/constants.dart';
 import '../widgets/centered_content.dart';
 
 class AccountManagementScreen extends StatefulWidget {
@@ -129,26 +132,51 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     try {
       final user = widget.user;
       final credential = EmailAuthProvider.credential(email: user.email ?? '', password: _deletePasswordController.text);
-      await user.reauthenticateWithCredential(credential);
-      try {
-        final profilePictures = FirebaseStorage.instance.ref().child('profile_pictures/${user.uid}');
-        final result = await profilePictures.listAll();
-        for (final item in result.items) {
-          await item.delete();
-        }
-      } catch (_) {}
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-      await user.delete();
+      await user.reauthenticateWithCredential(credential).timeout(
+        const Duration(seconds: 12),
+      );
+
+      // Best-effort cleanup for profile pictures should not block account deletion.
+      unawaited(_deleteProfilePicturesBestEffort(user.uid));
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .delete()
+          .timeout(const Duration(seconds: 12));
+      await user.delete().timeout(const Duration(seconds: 12));
+
       if (!mounted) return;
       _showMessage('Account deleted.');
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (_) => false);
     } on FirebaseAuthException catch (error) {
       _showMessage(error.message ?? 'Unable to delete account.');
+    } on TimeoutException {
+      _showMessage('Delete request timed out. Please try again.');
     } catch (error) {
       _showMessage(error.toString());
     } finally {
       if (mounted) {
         setState(() => _isDeleting = false);
       }
+    }
+  }
+
+  Future<void> _deleteProfilePicturesBestEffort(String uid) async {
+    try {
+      final profilePictures =
+          FirebaseStorage.instance.ref().child('profile_pictures/$uid');
+      final result = await profilePictures
+          .listAll()
+          .timeout(const Duration(seconds: 4));
+
+      await Future.wait(
+        result.items.map(
+          (item) => item.delete().timeout(const Duration(seconds: 4)),
+        ),
+      );
+    } catch (_) {
+      // Ignore cleanup failures so account deletion can still complete quickly.
     }
   }
 

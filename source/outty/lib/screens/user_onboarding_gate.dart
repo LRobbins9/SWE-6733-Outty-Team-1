@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'hub_screen.dart';
+import 'home_screen.dart';
 import 'onboarding_screen.dart';
 
 class UserOnboardingGate extends StatefulWidget {
@@ -56,7 +56,7 @@ class _UserOnboardingGateState extends State<UserOnboardingGate> {
             ((profileData?['name'] as String?)?.isNotEmpty == true) ||
             (freshUser?.displayName?.isNotEmpty == true);
         if (completedOnboarding) {
-          return HubScreen(user: freshUser ?? widget.user);
+          return const HomeScreen();
         }
 
         return OnboardingScreen(

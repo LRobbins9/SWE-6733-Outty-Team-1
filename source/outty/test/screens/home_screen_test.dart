@@ -7,7 +7,6 @@ import 'package:outty/providers/navigation_notifier.dart';
 import 'package:outty/screens/home_screen.dart';
 import 'package:outty/models/user_model.dart';
 import 'package:outty/models/match_model.dart';
-import 'package:outty/screens/discover_screen.dart';
 
 class FakeAuthProvider extends ChangeNotifier implements AuthProvider {
   @override

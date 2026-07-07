@@ -220,7 +220,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                       const SizedBox(height: 4),
                       Text(widget.user.email ?? 'No email', style: Theme.of(context).textTheme.bodyLarge),
                       const SizedBox(height: 16),
-                      TextField(controller: _displayNameController, decoration: const InputDecoration(labelText: 'Display name')),
+                      TextField(controller: _displayNameController, decoration: const InputDecoration(labelText: 'name')),
                       const SizedBox(height: 12),
                       TextField(controller: _emailController, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
                       const SizedBox(height: 12),
@@ -248,7 +248,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                     children: [
                       Text('Delete account', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
-                      const Text('This permanently removes your Firebase auth account and the matching Firestore profile document.'),
+                      const Text('This permanently removes your Outty account and all profile data.'),
                       const SizedBox(height: 12),
                       TextField(controller: _deletePasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Password to confirm deletion')),
                       const SizedBox(height: 16),

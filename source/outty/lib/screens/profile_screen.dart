@@ -233,7 +233,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         _SettingsTile(
                           icon: Icons.delete_forever,
-                          label: 'Delete Account',
+                          label: 'Manage Account',
                           onTap: () => _openAccountManagement(context),
                           isDestructive: true,
                         ),

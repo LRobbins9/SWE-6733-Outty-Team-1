@@ -10,10 +10,14 @@ import 'chat_screen.dart';
 class MatchesScreen extends StatelessWidget {
   const MatchesScreen({super.key});
 
+  static const _loadingBody = Center(
+    child: CircularProgressIndicator(color: AppColors.primary),
+  );
+
   @override
   Widget build(BuildContext context) {
     final matches = context.watch<MatchProvider>().matches;
-    final currentUser = context.watch<AuthProvider>().currentUser!;
+    final currentUser = context.watch<AuthProvider>().currentUser;
     final matchProv = context.read<MatchProvider>();
 
     return Scaffold(
@@ -31,7 +35,9 @@ class MatchesScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: false,
       ),
-      body: Column(
+      body: currentUser == null
+          ? _loadingBody
+          : Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -151,6 +157,13 @@ class _NewMatchCircle extends StatelessWidget {
   const _NewMatchCircle({required this.user});
   final UserModel user;
 
+  String get _displayName {
+    final trimmedName = user.name.trim();
+    return trimmedName.isEmpty ? 'Adventurer' : trimmedName;
+  }
+
+  bool get _hasAvatar => (user.avatarUrl?.trim().isNotEmpty ?? false);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -160,12 +173,12 @@ class _NewMatchCircle extends StatelessWidget {
           CircleAvatar(
             radius: 32,
             backgroundColor: Colors.grey[200],
-            backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
-            child: user.avatarUrl == null ? const Icon(Icons.person, color: Colors.white) : null,
+            backgroundImage: _hasAvatar ? NetworkImage(user.avatarUrl!) : null,
+            child: _hasAvatar ? null : const Icon(Icons.person, color: Colors.white),
           ),
           const SizedBox(height: 4),
           Text(
-            user.name.split(' ')[0],
+            _displayName.split(' ')[0],
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
           ),
         ],
@@ -180,9 +193,16 @@ class _MatchTile extends StatelessWidget {
   final MatchModel match;
   final UserModel other;
 
+  String get _displayName {
+    final trimmedName = other.name.trim();
+    return trimmedName.isEmpty ? 'Adventurer' : trimmedName;
+  }
+
+  bool get _hasAvatar => (other.avatarUrl?.trim().isNotEmpty ?? false);
+
   @override
   Widget build(BuildContext context) {
-    final lastMsg = match.lastMessage ?? 'Say hello! 👋';
+    final lastMsg = match.lastMessage ?? 'Say hello!';
 
     return ListTile(
       onTap: () {
@@ -197,11 +217,11 @@ class _MatchTile extends StatelessWidget {
       leading: CircleAvatar(
         radius: 30,
         backgroundColor: Colors.grey[200],
-        backgroundImage: other.avatarUrl != null ? NetworkImage(other.avatarUrl!) : null,
-        child: other.avatarUrl == null ? const Icon(Icons.person, color: Colors.white) : null,
+        backgroundImage: _hasAvatar ? NetworkImage(other.avatarUrl!) : null,
+        child: _hasAvatar ? null : const Icon(Icons.person, color: Colors.white),
       ),
       title: Text(
-        '${other.name}, ${other.age}',
+        '$_displayName, ${other.age}',
         style: const TextStyle(
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,

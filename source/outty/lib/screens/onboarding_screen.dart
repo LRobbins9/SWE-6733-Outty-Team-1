@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../widgets/centered_content.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key, required this.user, required this.onComplete});
@@ -61,7 +62,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       await FirebaseFirestore.instance.collection('users').doc(widget.user.uid).set({
         'uid': widget.user.uid,
         'email': widget.user.email,
-        'displayName': _nameController.text.trim(),
         'name': _nameController.text.trim(),
         'age': age,
         'pictureUrl': _pictureUrlController.text.trim(),
@@ -117,61 +117,66 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              LinearProgressIndicator(value: (_step + 1) / 3),
-              const SizedBox(height: 20),
-              Expanded(
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: _step == 0
-                        ? _buildProfileStep()
-                        : _step == 1
-                            ? _buildAdventureLikesStep()
-                            : _buildMatchingStep(),
+          child: CenteredContent(
+            maxWidth: 720,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LinearProgressIndicator(value: (_step + 1) / 3),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: _step == 0
+                          ? _buildProfileStep()
+                          : _step == 1
+                              ? _buildAdventureLikesStep()
+                              : _buildMatchingStep(),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  if (_step > 0)
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    if (_step > 0)
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => setState(() => _step--),
+                          child: const Text('Back'),
+                        ),
+                      ),
+                    if (_step > 0) const SizedBox(width: 12),
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => setState(() => _step--),
-                        child: const Text('Back'),
+                      child: FilledButton(
+                        onPressed: _isSaving
+                            ? null
+                            : () {
+                                if (_step == 2) {
+                                  _finishOnboarding();
+                                } else if (_step == 0) {
+                                  if (_nameController.text.trim().isEmpty || _ageController.text.trim().isEmpty) {
+                                    _showMessage('Please enter your name and age.');
+                                  } else {
+                                    setState(() => _step++);
+                                  }
+                                } else if (_step == 1) {
+                                  if (_selectedAdventureLikes.isEmpty) {
+                                    _showMessage('Select at least one adventure like.');
+                                  } else {
+                                    setState(() => _step++);
+                                  }
+                                } else {
+                                  setState(() => _step++);
+                                }
+                              },
+                        child: Text(_step == 2 ? 'Start Exploring' : 'Continue'),
                       ),
                     ),
-                  if (_step > 0) const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _isSaving
-                          ? null
-                          : () {
-                              if (_step == 2) {
-                                _finishOnboarding();
-                              } else if (_step == 0) {
-                                if (_nameController.text.trim().isEmpty || _ageController.text.trim().isEmpty) {
-                                  _showMessage('Please enter your name and age.');
-                                } else {
-                                  setState(() => _step++);
-                                }
-                              } else if (_step == 1) {
-                                if (_selectedAdventureLikes.isEmpty) {
-                                  _showMessage('Select at least one adventure like.');
-                                } else {
-                                  setState(() => _step++);
-                                }
-                              }
-                            },
-                      child: Text(_step == 2 ? 'Start Exploring' : 'Continue'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -116,7 +116,7 @@ Widget _buildProfileContent({
                   ListTile(
                     leading: const Icon(Icons.delete_forever,
                         color: Colors.redAccent),
-                    title: const Text('Delete account',
+                    title: const Text('Manage account',
                         style: TextStyle(color: Colors.redAccent)),
                     onTap: () {},
                   ),
@@ -247,7 +247,7 @@ void main() {
       testWidgets(
         'Given any profile is rendered, '
         'When the user scrolls to the bottom, '
-        'Then Sign out and Delete account options are visible',
+        'Then Sign out and Manage account options are visible',
         (tester) async {
           await tester.pumpWidget(_buildProfileContent());
           await tester.scrollUntilVisible(
@@ -255,7 +255,7 @@ void main() {
             50,
           );
           expect(find.text('Sign out'), findsOneWidget);
-          expect(find.text('Delete account'), findsOneWidget);
+          expect(find.text('Manage account'), findsOneWidget);
         },
       );
     });

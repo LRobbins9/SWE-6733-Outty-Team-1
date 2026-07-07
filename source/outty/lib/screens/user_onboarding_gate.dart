@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' show User;
 import 'package:flutter/material.dart';
 
-import 'hub_screen.dart';
+import 'home_screen.dart';
 import 'onboarding_screen.dart';
 
 class UserOnboardingGate extends StatefulWidget {
@@ -24,10 +24,6 @@ class _UserOnboardingGateState extends State<UserOnboardingGate> {
   }
 
   Future<Map<String, dynamic>?> _loadProfile() async {
-    // Reload auth profile so displayName is fresh after a sign-in.
-    try {
-      await widget.user.reload();
-    } catch (_) {}
     try {
       final doc = await FirebaseFirestore.instance
           .collection('users')
@@ -49,14 +45,11 @@ class _UserOnboardingGateState extends State<UserOnboardingGate> {
         }
 
         final profileData = snapshot.data;
-        // Use multiple signals: Firestore flag, Firestore name field, or Auth displayName.
-        final freshUser = FirebaseAuth.instance.currentUser;
         final completedOnboarding =
             (profileData?['onboardingComplete'] == true) ||
-            ((profileData?['name'] as String?)?.isNotEmpty == true) ||
-            (freshUser?.displayName?.isNotEmpty == true);
+            ((profileData?['name'] as String?)?.isNotEmpty == true);
         if (completedOnboarding) {
-          return HubScreen(user: freshUser ?? widget.user);
+          return const HomeScreen();
         }
 
         return OnboardingScreen(

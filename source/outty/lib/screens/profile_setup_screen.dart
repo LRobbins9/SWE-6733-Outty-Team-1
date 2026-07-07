@@ -3,10 +3,13 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/match_provider.dart';
 import '../utils/constants.dart';
+import '../widgets/centered_content.dart';
 import '../widgets/adventure_chip.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key});
+  const ProfileSetupScreen({super.key, this.isEditing = false});
+
+  final bool isEditing;
 
   @override
   State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
@@ -67,6 +70,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
+  void _previousPage() {
+    if (_currentStep == 0) {
+      if (widget.isEditing) {
+        Navigator.pop(context);
+      }
+      return;
+    }
+
+    _pageCtrl.previousPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   Future<void> _save() async {
     if (_selectedAdventures.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -102,6 +119,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     if (!mounted) return;
     setState(() => _saving = false);
+    if (widget.isEditing) {
+      Navigator.pop(context);
+      return;
+    }
+
     Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
@@ -110,29 +132,48 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Create Your Profile', 
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        title: Text(
+          widget.isEditing ? 'Edit Your Profile' : 'Create Your Profile',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,
+        leading: widget.isEditing || _currentStep > 0
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: _saving ? null : _previousPage,
+              )
+            : null,
       ),
       body: Column(
         children: [
-          _buildProgressBar(),
           Expanded(
-            child: PageView(
-              controller: _pageCtrl,
-              physics: const NeverScrollableScrollPhysics(),
-              onPageChanged: (i) => setState(() => _currentStep = i),
-              children: [
-                _buildStep1(),
-                _buildStepIdentity(),
-                _buildStep2(),
-              ],
+            child: SafeArea(
+              child: CenteredContent(
+                maxWidth: 720,
+                child: Column(
+                  children: [
+                    _buildProgressBar(),
+                    Expanded(
+                      child: PageView(
+                        controller: _pageCtrl,
+                        physics: const NeverScrollableScrollPhysics(),
+                        onPageChanged: (i) => setState(() => _currentStep = i),
+                        children: [
+                          _buildStep1(),
+                          _buildStepIdentity(),
+                          _buildStep2(),
+                        ],
+                      ),
+                    ),
+                    _buildBottomButton(),
+                  ],
+                ),
+              ),
             ),
           ),
-          _buildBottomButton(),
         ],
       ),
     );
@@ -380,21 +421,50 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Widget _buildBottomButton() {
     return Padding(
       padding: const EdgeInsets.all(28.0),
-      child: SizedBox(
-        width: double.infinity,
-        height: 56,
-        child: ElevatedButton(
-          onPressed: _saving ? null : _nextPage,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      child: Row(
+        children: [
+          if (_currentStep > 0) ...[
+            Expanded(
+              child: SizedBox(
+                height: 56,
+                child: OutlinedButton(
+                  onPressed: _saving ? null : _previousPage,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text(
+                    'BACK',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
+          Expanded(
+            child: SizedBox(
+              height: 56,
+              child: ElevatedButton(
+                onPressed: _saving ? null : _nextPage,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                ),
+                child: _saving
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        _currentStep == 2 ? 'FINISH' : 'NEXT',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+              ),
+            ),
           ),
-          child: _saving
-              ? const CircularProgressIndicator(color: Colors.white)
-              : Text(_currentStep == 0 ? 'NEXT' : 'FINISH', 
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        ),
+        ],
       ),
     );
   }

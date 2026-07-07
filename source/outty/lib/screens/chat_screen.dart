@@ -25,25 +25,28 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _msgCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
+  late final ChatProvider _chatProvider;
+  late final AuthProvider _authProvider;
+  late final MatchProvider _matchProvider;
 
   @override
   void initState() {
     super.initState();
-    final chat = context.read<ChatProvider>();
+    _chatProvider = context.read<ChatProvider>();
+    _authProvider = context.read<AuthProvider>();
+    _matchProvider = context.read<MatchProvider>();
     // Start listening to Firestore
-    chat.listenToMessages(widget.match.id);
+    _chatProvider.listenToMessages(widget.match.id);
     
     // Mark messages as read
-    final auth = context.read<AuthProvider>();
-    chat.markRead(widget.match.id, auth.currentUser!.id);
+    _chatProvider.markRead(widget.match.id, _authProvider.currentUser!.id);
 
     // Seed the match with an icebreaker if chat is empty
     _seedIfNeeded();
   }
 
   Future<void> _seedIfNeeded() async {
-    final chat = context.read<ChatProvider>();
-    await chat.seedMatchMessage(
+    await _chatProvider.seedMatchMessage(
       matchId: widget.match.id,
       fromUserId: widget.otherUser.id,
       fromUserName: widget.otherUser.name,
@@ -53,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     // Unsubscribe from Firestore
-    context.read<ChatProvider>().stopListening(widget.match.id);
+    _chatProvider.stopListening(widget.match.id);
     _msgCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
@@ -63,12 +66,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final text = _msgCtrl.text.trim();
     if (text.isEmpty) return;
 
-    final currentUser = context.read<AuthProvider>().currentUser!;
-    final chat = context.read<ChatProvider>();
+    final currentUser = _authProvider.currentUser!;
 
     _msgCtrl.clear();
     
-    await chat.sendMessage(
+    await _chatProvider.sendMessage(
       matchId: widget.match.id,
       senderId: currentUser.id,
       content: text,
@@ -77,9 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!mounted) return;
 
     // Update last message preview in matches list
-    context
-        .read<MatchProvider>()
-        .updateLastMessage(widget.match.id, text);
+    _matchProvider.updateLastMessage(widget.match.id, text);
 
     _scrollToBottom();
   }
@@ -189,7 +189,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       textCapitalization: TextCapitalization.sentences,
                       onSubmitted: (_) => _sendMessage(),
                       decoration: InputDecoration(
-                        hintText: 'Message ${other.name}…',
+                        hintText: 'Message ${other.name}...',
                         hintStyle: const TextStyle(
                             color: AppColors.textSecondary),
                         filled: true,

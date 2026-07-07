@@ -106,7 +106,7 @@ class ChatProvider extends ChangeNotifier {
     final iceBreakerMessages = [
       "Hey! Looks like we're both into the outdoors. What's your next adventure?",
       "Nice to match with a fellow adventurer! Have any trips planned?",
-      "Hey there! Ready to find our next trail together? 🏔️",
+      "Hey there! Ready to find our next trail together?",
       "Great match! I'd love to hear about your favorite outdoor spot.",
       "Woah, love your adventure profile! We should plan something epic.",
     ];
@@ -134,16 +134,16 @@ class ChatProvider extends ChangeNotifier {
           .collection('matches')
           .doc(matchId)
           .collection('messages')
-          .where('senderId', isNotEqualTo: currentUserId)
           .where('isRead', isEqualTo: false)
           .get();
 
-      if (snapshot.docs.isEmpty) return;
-
       final batch = _db.batch();
       for (var doc in snapshot.docs) {
-        batch.update(doc.reference, {'isRead': true});
+        if (doc.data()['senderId'] != currentUserId) {
+          batch.update(doc.reference, {'isRead': true});
+        }
       }
+
       await batch.commit();
     } catch (e) {
       debugPrint('Error marking messages as read: $e');

@@ -84,6 +84,11 @@ class MatchProvider extends ChangeNotifier {
   /// Returns the newly created [MatchModel] if a match occurred, else null.
   Future<MatchModel?> swipeRight(
       UserModel currentUser, UserModel candidate) async {
+    // Optimistic UI update: advance the feed immediately and sync to Firestore after.
+    _swipedIds.add(candidate.id);
+    _feed.removeWhere((u) => u.id == candidate.id);
+    notifyListeners();
+
     try {
       // 1. Record the swipe in Firestore
       await _db
@@ -92,9 +97,6 @@ class MatchProvider extends ChangeNotifier {
           .collection('swipes')
           .doc(candidate.id)
           .set({'type': 'right', 'at': FieldValue.serverTimestamp()});
-      
-      _swipedIds.add(candidate.id);
-      _feed.removeWhere((u) => u.id == candidate.id);
 
       // 2. Check if the other user already swiped right on us (a match!)
       final otherSwipe = await _db
@@ -125,12 +127,16 @@ class MatchProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error during swipeRight: $e');
     }
-    
-    notifyListeners();
+
     return null;
   }
 
   Future<void> swipeLeft(String currentUserId, String candidateId) async {
+    // Optimistic UI update: remove card first, persist swipe after.
+    _swipedIds.add(candidateId);
+    _feed.removeWhere((u) => u.id == candidateId);
+    notifyListeners();
+
     try {
       await _db
           .collection('users')
@@ -138,10 +144,6 @@ class MatchProvider extends ChangeNotifier {
           .collection('swipes')
           .doc(candidateId)
           .set({'type': 'left', 'at': FieldValue.serverTimestamp()});
-      
-      _swipedIds.add(candidateId);
-      _feed.removeWhere((u) => u.id == candidateId);
-      notifyListeners();
     } catch (e) {
       debugPrint('Error during swipeLeft: $e');
     }

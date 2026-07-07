@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import '../utils/constants.dart';
+import '../widgets/centered_content.dart';
 
 class AccountManagementScreen extends StatefulWidget {
   const AccountManagementScreen({super.key, required this.user, this.profileData});
@@ -20,14 +24,40 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
   final _confirmPasswordController = TextEditingController();
   final _currentPasswordController = TextEditingController();
   final _deletePasswordController = TextEditingController();
+  String _initialName = '';
   bool _isSaving = false;
   bool _isDeleting = false;
 
   @override
   void initState() {
     super.initState();
-    _displayNameController.text = widget.profileData?['displayName'] ?? widget.user.displayName ?? '';
+    _initialName = (widget.profileData?['name'] as String?) ?? '';
+    _displayNameController.text = _initialName;
     _emailController.text = widget.user.email ?? '';
+
+    if (_initialName.isEmpty) {
+      _loadNameFromProfile();
+    }
+  }
+
+  Future<void> _loadNameFromProfile() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.user.uid)
+          .get();
+      final name = (doc.data()?['name'] as String?)?.trim();
+      if (!mounted || name == null || name.isEmpty) {
+        return;
+      }
+
+      setState(() {
+        _initialName = name;
+        _displayNameController.text = name;
+      });
+    } catch (_) {
+      // Keep the field editable even if profile lookup fails.
+    }
   }
 
   @override
@@ -48,8 +78,10 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
       final user = widget.user;
       final changes = <Future<void>>[];
 
-      if (_displayNameController.text.trim() != (user.displayName ?? '')) {
-        changes.add(user.updateDisplayName(_displayNameController.text.trim()));
+      final trimmedName = _displayNameController.text.trim();
+      if (trimmedName != _initialName) {
+        // Keep Firebase Auth profile in sync, but Firestore `name` is source of truth.
+        changes.add(user.updateDisplayName(trimmedName));
       }
 
       if (_emailController.text.trim() != (user.email ?? '')) {
@@ -75,11 +107,13 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
 
       await Future.wait(changes);
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'displayName': _displayNameController.text.trim(),
+        'name': trimmedName,
         'email': _emailController.text.trim(),
         'onboardingComplete': true,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+
+      _initialName = trimmedName;
 
       if (!mounted) return;
       _showMessage('Account updated successfully.');
@@ -128,26 +162,51 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     try {
       final user = widget.user;
       final credential = EmailAuthProvider.credential(email: user.email ?? '', password: _deletePasswordController.text);
-      await user.reauthenticateWithCredential(credential);
-      try {
-        final profilePictures = FirebaseStorage.instance.ref().child('profile_pictures/${user.uid}');
-        final result = await profilePictures.listAll();
-        for (final item in result.items) {
-          await item.delete();
-        }
-      } catch (_) {}
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-      await user.delete();
+      await user.reauthenticateWithCredential(credential).timeout(
+        const Duration(seconds: 12),
+      );
+
+      // Best-effort cleanup for profile pictures should not block account deletion.
+      unawaited(_deleteProfilePicturesBestEffort(user.uid));
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .delete()
+          .timeout(const Duration(seconds: 12));
+      await user.delete().timeout(const Duration(seconds: 12));
+
       if (!mounted) return;
       _showMessage('Account deleted.');
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (_) => false);
     } on FirebaseAuthException catch (error) {
       _showMessage(error.message ?? 'Unable to delete account.');
+    } on TimeoutException {
+      _showMessage('Delete request timed out. Please try again.');
     } catch (error) {
       _showMessage(error.toString());
     } finally {
       if (mounted) {
         setState(() => _isDeleting = false);
       }
+    }
+  }
+
+  Future<void> _deleteProfilePicturesBestEffort(String uid) async {
+    try {
+      final profilePictures =
+          FirebaseStorage.instance.ref().child('profile_pictures/$uid');
+      final result = await profilePictures
+          .listAll()
+          .timeout(const Duration(seconds: 4));
+
+      await Future.wait(
+        result.items.map(
+          (item) => item.delete().timeout(const Duration(seconds: 4)),
+        ),
+      );
+    } catch (_) {
+      // Ignore cleanup failures so account deletion can still complete quickly.
     }
   }
 
@@ -176,62 +235,65 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Signed in as', style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 4),
-                    Text(widget.user.email ?? 'No email', style: Theme.of(context).textTheme.bodyLarge),
-                    const SizedBox(height: 16),
-                    TextField(controller: _displayNameController, decoration: const InputDecoration(labelText: 'Display name')),
-                    const SizedBox(height: 12),
-                    TextField(controller: _emailController, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
-                    const SizedBox(height: 12),
-                    TextField(controller: _currentPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Current password (required for changes)')),
-                    const SizedBox(height: 12),
-                    TextField(controller: _passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'New password')),
-                    const SizedBox(height: 12),
-                    TextField(controller: _confirmPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Confirm new password')),
-                    const SizedBox(height: 16),
-                    FilledButton.icon(
-                      onPressed: _isSaving ? null : _saveAccount,
-                      icon: _isSaving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
-                      label: const Text('Save changes'),
-                    ),
-                  ],
+        child: CenteredContent(
+          maxWidth: 640,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Signed in as', style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 4),
+                      Text(widget.user.email ?? 'No email', style: Theme.of(context).textTheme.bodyLarge),
+                      const SizedBox(height: 16),
+                      TextField(controller: _displayNameController, decoration: const InputDecoration(labelText: 'name')),
+                      const SizedBox(height: 12),
+                      TextField(controller: _emailController, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
+                      const SizedBox(height: 12),
+                      TextField(controller: _currentPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Current password (required for changes)')),
+                      const SizedBox(height: 12),
+                      TextField(controller: _passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'New password')),
+                      const SizedBox(height: 12),
+                      TextField(controller: _confirmPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Confirm new password')),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        onPressed: _isSaving ? null : _saveAccount,
+                        icon: _isSaving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
+                        label: const Text('Save changes'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Delete account', style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 8),
-                    const Text('This permanently removes your Firebase auth account and the matching Firestore profile document.'),
-                    const SizedBox(height: 12),
-                    TextField(controller: _deletePasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Password to confirm deletion')),
-                    const SizedBox(height: 16),
-                    OutlinedButton.icon(
-                      onPressed: _isDeleting ? null : _deleteAccount,
-                      icon: _isDeleting ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.delete_forever),
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent),
-                      label: const Text('Delete account'),
-                    ),
-                  ],
+              const SizedBox(height: 20),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Delete account', style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      const Text('This permanently removes your Outty account and all profile data.'),
+                      const SizedBox(height: 12),
+                      TextField(controller: _deletePasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Password to confirm deletion')),
+                      const SizedBox(height: 16),
+                      OutlinedButton.icon(
+                        onPressed: _isDeleting ? null : _deleteAccount,
+                        icon: _isDeleting ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.delete_forever),
+                        style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent),
+                        label: const Text('Delete account'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

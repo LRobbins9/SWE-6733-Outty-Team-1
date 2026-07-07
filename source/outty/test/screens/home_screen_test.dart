@@ -7,7 +7,6 @@ import 'package:outty/providers/navigation_notifier.dart';
 import 'package:outty/screens/home_screen.dart';
 import 'package:outty/models/user_model.dart';
 import 'package:outty/models/match_model.dart';
-import 'package:outty/screens/discover_screen.dart';
 
 class FakeAuthProvider extends ChangeNotifier implements AuthProvider {
   @override
@@ -194,6 +193,17 @@ void main() {
       await tester.tap(find.byIcon(Icons.person_outline));
       await tester.pumpAndSettle();
       expect(fakeNavigationNotifier.currentIndex, 2);
+    });
+
+    testWidgets('shows a loading state when auth user becomes null',
+        (WidgetTester tester) async {
+      fakeAuthProvider.currentUser = null;
+      fakeAuthProvider.notifyListeners();
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pump();
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });
 }

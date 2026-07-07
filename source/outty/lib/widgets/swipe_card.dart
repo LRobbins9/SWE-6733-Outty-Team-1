@@ -113,6 +113,13 @@ class SwipeCardState extends State<SwipeCard>
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
+  String get _displayName {
+    final trimmedName = widget.user.name.trim();
+    return trimmedName.isEmpty ? 'Adventurer' : trimmedName;
+  }
+
+  String get _displayInitial => _displayName.substring(0, 1).toUpperCase();
+
   double get _rotation => (_position.dx / 400) * 0.25;
 
   @override
@@ -159,6 +166,7 @@ class SwipeCardState extends State<SwipeCard>
 
   Widget _buildCard() {
     final user = widget.user;
+    final displayName = _displayName;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -194,7 +202,7 @@ class SwipeCardState extends State<SwipeCard>
                   children: [
                     Expanded(
                       child: Text(
-                        '${user.name}, ${user.age}',
+                        '$displayName, ${user.age}',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -255,7 +263,7 @@ class SwipeCardState extends State<SwipeCard>
 
   Widget _buildAvatar(UserModel user) {
     // Use a gradient placeholder with initials since we have no real photos
-    final hue = (user.name.codeUnitAt(0) * 37) % 360;
+    final hue = (_displayInitial.codeUnitAt(0) * 37) % 360;
     final color1 = HSLColor.fromAHSL(1, hue.toDouble(), 0.5, 0.35).toColor();
     final color2 =
         HSLColor.fromAHSL(1, (hue + 40) % 360, 0.5, 0.45).toColor();
@@ -288,7 +296,7 @@ class SwipeCardState extends State<SwipeCard>
         ),
         Center(
           child: Text(
-            user.name.substring(0, 1).toUpperCase(),
+            _displayInitial,
             style: const TextStyle(
               fontSize: 96,
               fontWeight: FontWeight.bold,

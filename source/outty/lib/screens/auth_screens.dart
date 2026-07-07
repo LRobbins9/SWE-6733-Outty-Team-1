@@ -197,6 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: 'Password',
                       icon: Icons.lock_outline,
                       obscureText: _obscurePassword,
+                      onSubmitted: (_) => _login(),
                       suffix: IconButton(
                         icon: Icon(_obscurePassword
                             ? Icons.visibility_outlined
@@ -472,6 +473,7 @@ class _OuttyTextField extends StatelessWidget {
     this.keyboardType,
     this.validator,
     this.suffix,
+    this.onSubmitted,
   });
 
   final TextEditingController controller;
@@ -481,6 +483,7 @@ class _OuttyTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
   final Widget? suffix;
+  final Function(String)? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -489,6 +492,7 @@ class _OuttyTextField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
+      onFieldSubmitted: onSubmitted,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: AppColors.primary, size: 20),

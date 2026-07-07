@@ -7,17 +7,22 @@ import '../widgets/centered_content.dart';
 import '../widgets/adventure_chip.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key, this.isEditing = false});
+  const ProfileSetupScreen({
+    super.key,
+    this.isEditing = false,
+    this.initialStep = 0,
+  });
 
   final bool isEditing;
+  final int initialStep;
 
   @override
   State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
 }
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
-  final _pageCtrl = PageController();
-  int _currentStep = 0;
+  late final PageController _pageCtrl; // Change to late final
+  late int _currentStep; // Change to late
 
   final _firstNameCtrl = TextEditingController();
   final _lastNameCtrl = TextEditingController();
@@ -35,6 +40,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize controller and step with the new widget property
+    _pageCtrl = PageController(initialPage: widget.initialStep);
+    _currentStep = widget.initialStep;
+
     final user = context.read<AuthProvider>().currentUser;
     if (user != null) {
       final parts = user.name.split(' ');

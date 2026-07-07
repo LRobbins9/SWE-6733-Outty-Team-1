@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outty/screens/profile_setup_screen.dart';
 import 'package:provider/provider.dart';
 import '../models/user_model.dart';
 import '../providers/auth_provider.dart';
@@ -70,7 +71,14 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.tune, color: AppColors.textSecondary),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => const ProfileSetupScreen(initialStep: 1),
+                    ),
+                  );
+                },
               ),
               const SizedBox(width: 8),
             ],

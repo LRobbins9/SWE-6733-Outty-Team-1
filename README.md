@@ -24,6 +24,9 @@ https://outty-app-team-1.firebaseapp.com/
 ### ChatGPT
 - Used to support requirements elicitation and analysis for the Outty app. 
 ### GitHub Copilot
-- Used for tab-completion code suggestions
-- 'Ask' mode for providing stack traces and requesting bug fixes
-- 'Agent' mode for requesting new screens or code changes to existing screens.
+Used for tab-completion code suggestions, 'Ask' mode for providing stack traces and requesting bug fixes, and 'Agent' mode for requesting new screens or code changes to existing screens. AI code generation was used for the features listed below. The team verified and validated all AI code generation by running <b> Flutter Analyze </b> to perform static code analysis, generating BDD unit tests and running exhaustive manual testing via the website of all feature behaviors. The prototype developed in Figma was also used as a guide to provide Copilot with the correct prompts that ensure functionality aligned with the already defined product vision. 
+- Create/Delete/Manage account
+- Profile feature (which includes the selection of specific adventure parameters)
+- UI color scheming
+- Matching Algorithm
+- BDD Test Suite with Unit Tests (currently have 48 unit tests)

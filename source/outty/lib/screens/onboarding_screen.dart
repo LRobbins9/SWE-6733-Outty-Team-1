@@ -62,7 +62,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       await FirebaseFirestore.instance.collection('users').doc(widget.user.uid).set({
         'uid': widget.user.uid,
         'email': widget.user.email,
-        'displayName': _nameController.text.trim(),
         'name': _nameController.text.trim(),
         'age': age,
         'pictureUrl': _pictureUrlController.text.trim(),

@@ -52,14 +52,14 @@ class _AuthScreenState extends State<AuthScreen> {
               password: _passwordController.text,
             );
 
-        final displayName = _emailController.text.trim().split('@').first;
+        final initialName = _emailController.text.trim().split('@').first;
         await FirebaseFirestore.instance
             .collection('users')
             .doc(credential.user!.uid)
             .set({
               'uid': credential.user!.uid,
               'email': credential.user!.email,
-              'displayName': displayName,
+              'name': initialName,
               'onboardingComplete': false,
               'createdAt': FieldValue.serverTimestamp(),
               'updatedAt': FieldValue.serverTimestamp(),

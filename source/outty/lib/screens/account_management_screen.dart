@@ -24,14 +24,40 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
   final _confirmPasswordController = TextEditingController();
   final _currentPasswordController = TextEditingController();
   final _deletePasswordController = TextEditingController();
+  String _initialName = '';
   bool _isSaving = false;
   bool _isDeleting = false;
 
   @override
   void initState() {
     super.initState();
-    _displayNameController.text = widget.profileData?['displayName'] ?? widget.user.displayName ?? '';
+    _initialName = (widget.profileData?['name'] as String?) ?? '';
+    _displayNameController.text = _initialName;
     _emailController.text = widget.user.email ?? '';
+
+    if (_initialName.isEmpty) {
+      _loadNameFromProfile();
+    }
+  }
+
+  Future<void> _loadNameFromProfile() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.user.uid)
+          .get();
+      final name = (doc.data()?['name'] as String?)?.trim();
+      if (!mounted || name == null || name.isEmpty) {
+        return;
+      }
+
+      setState(() {
+        _initialName = name;
+        _displayNameController.text = name;
+      });
+    } catch (_) {
+      // Keep the field editable even if profile lookup fails.
+    }
   }
 
   @override
@@ -52,8 +78,10 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
       final user = widget.user;
       final changes = <Future<void>>[];
 
-      if (_displayNameController.text.trim() != (user.displayName ?? '')) {
-        changes.add(user.updateDisplayName(_displayNameController.text.trim()));
+      final trimmedName = _displayNameController.text.trim();
+      if (trimmedName != _initialName) {
+        // Keep Firebase Auth profile in sync, but Firestore `name` is source of truth.
+        changes.add(user.updateDisplayName(trimmedName));
       }
 
       if (_emailController.text.trim() != (user.email ?? '')) {
@@ -79,11 +107,13 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
 
       await Future.wait(changes);
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'displayName': _displayNameController.text.trim(),
+        'name': trimmedName,
         'email': _emailController.text.trim(),
         'onboardingComplete': true,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+
+      _initialName = trimmedName;
 
       if (!mounted) return;
       _showMessage('Account updated successfully.');

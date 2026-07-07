@@ -234,7 +234,7 @@ class ProfileScreen extends StatelessWidget {
                         _SettingsTile(
                           icon: Icons.delete_forever,
                           label: 'Manage Account',
-                          onTap: () => _openAccountManagement(context),
+                          onTap: () => _openAccountManagement(context, user.name),
                           isDestructive: true,
                         ),
                         _SettingsTile(
@@ -256,7 +256,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _openAccountManagement(BuildContext context) {
+  void _openAccountManagement(BuildContext context, String profileName) {
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -268,7 +268,10 @@ class ProfileScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AccountManagementScreen(user: firebaseUser),
+        builder: (_) => AccountManagementScreen(
+          user: firebaseUser,
+          profileData: {'name': profileName},
+        ),
       ),
     );
   }

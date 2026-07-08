@@ -17,6 +17,18 @@ Removed the following user story. this is regarding unit testing which has been 
 - SCRUM-32
 
 ## Sprint 1 Status
+The following items were completed during sprint 1.  
+- Functional, non-functional and project requirements created.
+- Feature Design Diagram for Account management.
+- Feature Design Diagram for Selecting Adventure Parameters.
+- Figma Prototype for Selecting Adventure Parameters.
+- Figma Prototype for the overall Outty App design.
+- Selection of the Technology Stack (Flutter/Firebase/Firestore).
+- Implementation of the User Login feature.
+- Implementation of the Account Management feature.
+- Implementation of the Adventure Parameter Selection feature.
+- Implementation of the Matching Algorithm feature.
+- BDD Suite and Unit tests for implemented features.
 
 ## Sprint 1 Demo
 ### Outty Prototype (Figma)
@@ -30,3 +42,10 @@ There was also a plateau between July 2nd and July 6th due to the 4th of July we
 We also changed the sprint start date to June 30th instead of the 28th to reflect when the tickets were added to the sprint and the sprint was officially kicked off. The sprint 1 date was originally selected at 6/28 during planning to align with the class schedule but in actuality we added items to sprint 1 on June 30th.
 
 ## Sprint 1 Collaboration
+During the AI assisted development of the account creation/deletion/managing feature, paired/mob programming was conducted via teams chat to fully test out the feature for completeness and bugs. Below are the screenshots of that collaboration. There was a bug in the account deletion where when the user attempted to delete their account, the action stalled and did not delete. This was found due to team member testing and ultimately resolved. Furthermore, quality of life/housekeeping items were suggested to complete the feature to it's best version. 
+
+<img width="1270" height="852" alt="image" src="https://github.com/user-attachments/assets/1397d003-3dfa-4a7d-9c3d-f80e82928f4d" />  
+<img width="1282" height="702" alt="image" src="https://github.com/user-attachments/assets/af0053cb-6992-43bd-b109-1806d11a2afa" />  
+<img width="1232" height="746" alt="image" src="https://github.com/user-attachments/assets/bfe1c4fd-5c80-4f11-a93e-5930916884b2" />  
+
+

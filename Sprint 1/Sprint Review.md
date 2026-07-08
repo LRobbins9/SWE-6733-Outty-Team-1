@@ -34,6 +34,9 @@ The following items were completed during sprint 1.
 ### Outty Prototype (Figma)
 https://www.figma.com/proto/9USRvux9izOHhfWNX1edFw/OUTTY-Prototype?node-id=5-6&t=0L8tyzrC7nBwPTHH-1
 
+### Outty Website Link 
+https://outty-app-team-1.firebaseapp.com/
+
 ## Sprint 1 Statistics   
 Sprint burn down chart looks unstable at first start, this is due to the general learning curve of using JIRA to manage a sprint as a group. This was also due to pulling two items from the backlog into sprint one. This happened when the team started talking about the design/flow of the adventure and matching algorithm features and realized we needed to complete the sign in and account creation tickets first.
 

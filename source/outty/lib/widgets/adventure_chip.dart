@@ -20,12 +20,21 @@ class AdventureChip extends StatelessWidget {
   Widget build(BuildContext context) {
     IconData? getIconForLabel(String label) {
       switch (label.toLowerCase()) {
-        case 'hiking': return Icons.terrain;
-        case 'climbing': return Icons.park_outlined;
+        case 'backpacking': return Icons.backpack;
+        case 'bouldering': return Icons.back_hand;
+        case 'camping': return Icons.park;
         case 'cycling': return Icons.directions_bike;
+        case 'hiking': return Icons.hiking;
+        case 'kayaking': return Icons.rowing;
+        case 'mountain biking': return Icons.pedal_bike;
+        case 'rock climbing': return Icons.terrain;
+        case 'scuba diving': return Icons.scuba_diving;
         case 'skiing': return Icons.downhill_skiing;
+        case 'snowboarding': return Icons.snowboarding;
         case 'surfing': return Icons.surfing;
-        case 'camping': return Icons.shutter_speed;
+        case 'trail running': return Icons.directions_run;
+        case 'traveling': return Icons.flight_takeoff;
+        case 'white water rafting': return Icons.water;
         default: return null;
       }
     }

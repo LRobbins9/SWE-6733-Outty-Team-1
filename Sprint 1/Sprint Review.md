@@ -30,7 +30,7 @@ The following items were completed during sprint 1.
 - Implementation of the Matching Algorithm feature.
 - BDD Suite and Unit tests for implemented features.
 
-Screenshots showing the completion of sprint 1 are shown below. 
+Screenshots showing the completion of sprint 1 are shown below. Additionally, the Sprint 1 Report can be viewed here -> [Sprint 1 Report](https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/reports/burndown?source=overview)
 
 <img width="1452" height="555" alt="image" src="https://github.com/user-attachments/assets/37f0028d-020a-4315-8342-8d588e7786f6" />
 

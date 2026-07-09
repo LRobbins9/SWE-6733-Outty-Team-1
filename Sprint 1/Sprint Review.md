@@ -34,7 +34,9 @@ The following items were completed during sprint 1.
 ### Outty Prototype (Figma)
 https://www.figma.com/proto/9USRvux9izOHhfWNX1edFw/OUTTY-Prototype?node-id=5-6&t=0L8tyzrC7nBwPTHH-1
 
-### Outty Website Link 
+### Outty Website Link
+This link will direct you to the working deployed version of all the features implemented in sprint 1.  
+
 https://outty-app-team-1.firebaseapp.com/
 
 ### Matching Algorithm Feature 

@@ -20,21 +20,21 @@ class AppColors {
 
 // ─── Adventure types ─────────────────────────────────────────────────────────
 const List<String> kAdventureTypes = [
-  'Hiking',
   'Backpacking',
-  'Rock Climbing',
   'Bouldering',
-  'Kayaking',
-  'White Water Rafting',
   'Camping',
+  'Cycling',
+  'Hiking',
+  'Kayaking',
+  'Mountain Biking',
+  'Rock Climbing',
+  'Scuba Diving',
   'Skiing',
   'Snowboarding',
-  'Mountain Biking',
-  'Cycling',
-  'Trail Running',
   'Surfing',
-  'Scuba Diving',
+  'Trail Running',
   'Traveling',
+  'White Water Rafting',
 ];
 
 const List<String> kSkillLevels = [

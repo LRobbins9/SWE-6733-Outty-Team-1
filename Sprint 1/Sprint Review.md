@@ -30,6 +30,15 @@ The following items were completed during sprint 1.
 - Implementation of the Matching Algorithm feature.
 - BDD Suite and Unit tests for implemented features.
 
+Screenshots showing the completion of sprint 1 are shown below. 
+
+<img width="1452" height="555" alt="image" src="https://github.com/user-attachments/assets/37f0028d-020a-4315-8342-8d588e7786f6" />
+
+<img width="1887" height="877" alt="image" src="https://github.com/user-attachments/assets/8e6481ab-f7f6-4a51-a75e-98605ca15ef9" />
+
+<img width="1467" height="606" alt="image" src="https://github.com/user-attachments/assets/6c08d624-ba3a-484c-b702-4d75d16d413a" />
+
+
 ## Sprint 1 Demo
 ### Outty Prototype (Figma)
 https://www.figma.com/proto/9USRvux9izOHhfWNX1edFw/OUTTY-Prototype?node-id=5-6&t=0L8tyzrC7nBwPTHH-1
@@ -48,6 +57,9 @@ Sprint burn down chart looks unstable at first start, this is due to the general
 There was also a plateau between July 2nd and July 6th due to the 4th of July weekend/holiday.
 
 We also changed the sprint start date to June 30th instead of the 28th to reflect when the tickets were added to the sprint and the sprint was officially kicked off. The sprint 1 date was originally selected at 6/28 during planning to align with the class schedule but in actuality we added items to sprint 1 on June 30th.
+
+<img width="1412" height="832" alt="image" src="https://github.com/user-attachments/assets/1021514c-518b-4e5a-9232-2436b47d2cc8" />
+
 
 ## Sprint 1 Collaboration
 During the AI assisted development of the account creation/deletion/managing feature, paired/mob programming was conducted via teams chat to fully test out the feature for completeness and bugs. Below are the screenshots of that collaboration. There was a bug in the account deletion where when the user attempted to delete their account, the action stalled and did not delete. This was found due to team member testing and ultimately resolved. Furthermore, quality of life/housekeeping items were suggested to complete the feature to it's best version. 

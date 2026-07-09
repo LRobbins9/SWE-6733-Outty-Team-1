@@ -20,7 +20,7 @@ The UX flow adventure parameters diagrams offer a simplistic guideline of the in
 <img width="1135" height="462" alt="image" src="https://github.com/user-attachments/assets/a23883a0-2dee-42b1-91a5-dfe9e6dea297" />
 <img width="1507" height="677" alt="image" src="https://github.com/user-attachments/assets/b9726d6f-e850-49f6-ae5e-2474bb3b0e00" />
 
-The following images outline the intended procedure for account creation and deletion.
+The following images outline the intended procedure and expected results (display, confirmation, and actions) for account creation and deletion.
 
 
 

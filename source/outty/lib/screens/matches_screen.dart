@@ -5,6 +5,7 @@ import '../models/user_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/match_provider.dart';
 import '../utils/constants.dart';
+import '../widgets/user_avatar.dart';
 import 'chat_screen.dart';
 
 class MatchesScreen extends StatelessWidget {
@@ -38,94 +39,104 @@ class MatchesScreen extends StatelessWidget {
       body: currentUser == null
           ? _loadingBody
           : Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search for partners',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search for partners',
+                      prefixIcon: const Icon(Icons.search),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          if (matches.isEmpty)
-            Expanded(child: _buildEmptyState())
-          else
-            Expanded(
-              child: ListView(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(
-                      'Matches',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 100,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: matches.length,
-                      itemBuilder: (ctx, i) {
-                        final otherId = matches[i].otherUserId(currentUser.id);
-                        return FutureBuilder<UserModel?>(
-                          future: matchProv.getUserById(otherId),
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData || snapshot.data == null) {
-                              return const SizedBox.shrink();
-                            }
-                            return _NewMatchCircle(user: snapshot.data!);
+                if (matches.isEmpty)
+                  Expanded(child: _buildEmptyState())
+                else
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Text(
+                            'Matches',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            itemCount: matches.length,
+                            itemBuilder: (ctx, i) {
+                              final otherId = matches[i].otherUserId(
+                                currentUser.id,
+                              );
+                              return FutureBuilder<UserModel?>(
+                                future: matchProv.getUserById(otherId),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData ||
+                                      snapshot.data == null) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return _NewMatchCircle(user: snapshot.data!);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            'Messages',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: matches.length,
+                          itemBuilder: (ctx, i) {
+                            final match = matches[i];
+                            final otherId = match.otherUserId(currentUser.id);
+
+                            return FutureBuilder<UserModel?>(
+                              future: matchProv.getUserById(otherId),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData ||
+                                    snapshot.data == null) {
+                                  return const SizedBox.shrink();
+                                }
+                                return _MatchTile(
+                                  match: match,
+                                  other: snapshot.data!,
+                                );
+                              },
+                            );
                           },
-                        );
-                      },
+                        ),
+                      ],
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      'Messages',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: matches.length,
-                    itemBuilder: (ctx, i) {
-                      final match = matches[i];
-                      final otherId = match.otherUserId(currentUser.id);
-                      
-                      return FutureBuilder<UserModel?>(
-                        future: matchProv.getUserById(otherId),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData || snapshot.data == null) {
-                            return const SizedBox.shrink();
-                          }
-                          return _MatchTile(match: match, other: snapshot.data!);
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
+              ],
             ),
-        ],
-      ),
     );
   }
 
@@ -136,15 +147,15 @@ class MatchesScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.message_outlined,
-                size: 72, color: Colors.grey[300]),
+            Icon(Icons.message_outlined, size: 72, color: Colors.grey[300]),
             const SizedBox(height: 16),
             const Text(
               'No messages yet',
               style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
+              ),
             ),
           ],
         ),
@@ -170,11 +181,11 @@ class _NewMatchCircle extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 32,
+          UserAvatar(
+            size: 64,
+            photoUrl: _hasAvatar ? user.avatarUrl : null,
             backgroundColor: Colors.grey[200],
-            backgroundImage: _hasAvatar ? NetworkImage(user.avatarUrl!) : null,
-            child: _hasAvatar ? null : const Icon(Icons.person, color: Colors.white),
+            fallback: const Icon(Icons.person, color: Colors.white),
           ),
           const SizedBox(height: 4),
           Text(
@@ -214,11 +225,11 @@ class _MatchTile extends StatelessWidget {
         );
       },
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      leading: CircleAvatar(
-        radius: 30,
+      leading: UserAvatar(
+        size: 60,
+        photoUrl: _hasAvatar ? other.avatarUrl : null,
         backgroundColor: Colors.grey[200],
-        backgroundImage: _hasAvatar ? NetworkImage(other.avatarUrl!) : null,
-        child: _hasAvatar ? null : const Icon(Icons.person, color: Colors.white),
+        fallback: const Icon(Icons.person, color: Colors.white),
       ),
       title: Text(
         '$_displayName, ${other.age}',
@@ -232,8 +243,12 @@ class _MatchTile extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          color: match.lastMessage == null ? AppColors.primary : AppColors.textSecondary,
-          fontStyle: match.lastMessage == null ? FontStyle.italic : FontStyle.normal,
+          color: match.lastMessage == null
+              ? AppColors.primary
+              : AppColors.textSecondary,
+          fontStyle: match.lastMessage == null
+              ? FontStyle.italic
+              : FontStyle.normal,
           fontSize: 13,
         ),
       ),
@@ -243,7 +258,10 @@ class _MatchTile extends StatelessWidget {
         children: [
           Text(
             _formatTime(match.lastMessageAt ?? match.matchedAt),
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+            ),
           ),
           if (match.hasUnreadMessages) ...[
             const SizedBox(height: 4),
@@ -258,7 +276,7 @@ class _MatchTile extends StatelessWidget {
           ],
         ],
       ),
-    ) ;
+    );
   }
 
   String _formatTime(DateTime dt) {

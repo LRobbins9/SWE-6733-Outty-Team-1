@@ -6,14 +6,11 @@ import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/match_provider.dart';
 import '../utils/constants.dart';
+import '../widgets/user_avatar.dart';
 import '../widgets/message_bubble.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({
-    super.key,
-    required this.match,
-    required this.otherUser,
-  });
+  const ChatScreen({super.key, required this.match, required this.otherUser});
 
   final MatchModel match;
   final UserModel otherUser;
@@ -37,7 +34,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _matchProvider = context.read<MatchProvider>();
     // Start listening to Firestore
     _chatProvider.listenToMessages(widget.match.id);
-    
+
     // Mark messages as read
     _chatProvider.markRead(widget.match.id, _authProvider.currentUser!.id);
 
@@ -69,7 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final currentUser = _authProvider.currentUser!;
 
     _msgCtrl.clear();
-    
+
     await _chatProvider.sendMessage(
       matchId: widget.match.id,
       senderId: currentUser.id,
@@ -99,8 +96,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final currentUser = context.watch<AuthProvider>().currentUser!;
-    final messages =
-        context.watch<ChatProvider>().getMessages(widget.match.id);
+    final messages = context.watch<ChatProvider>().getMessages(widget.match.id);
     final other = widget.otherUser;
 
     return Scaffold(
@@ -120,13 +116,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 Text(
                   other.name,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 18),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
                 Text(
                   other.location ?? other.skillLevel,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
@@ -148,7 +144,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Text(
                       'Say hello to ${other.name}!',
                       style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 15),
+                        color: AppColors.textSecondary,
+                        fontSize: 15,
+                      ),
                     ),
                   )
                 : ListView.builder(
@@ -170,15 +168,15 @@ class _ChatScreenState extends State<ChatScreen> {
           // Input bar
           SafeArea(
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                      color: Color(0x14000000),
-                      blurRadius: 8,
-                      offset: Offset(0, -2)),
+                    color: Color(0x14000000),
+                    blurRadius: 8,
+                    offset: Offset(0, -2),
+                  ),
                 ],
               ),
               child: Row(
@@ -191,11 +189,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       decoration: InputDecoration(
                         hintText: 'Message ${other.name}...',
                         hintStyle: const TextStyle(
-                            color: AppColors.textSecondary),
+                          color: AppColors.textSecondary,
+                        ),
                         filled: true,
                         fillColor: AppColors.background,
                         contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
@@ -213,8 +214,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.send,
-                          color: Colors.white, size: 20),
+                      child: const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ],
@@ -227,19 +231,18 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildAvatar(UserModel user, double radius) {
-    return CircleAvatar(
-      radius: radius,
+    return UserAvatar(
+      size: radius * 2,
+      photoUrl: user.avatarUrl,
       backgroundColor: Colors.grey[200],
-      backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
-      child: user.avatarUrl == null
-          ? Text(
-              user.name.substring(0, 1),
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: radius * 0.9),
-            )
-          : null,
+      fallback: Text(
+        user.name.substring(0, 1),
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: radius * 0.9,
+        ),
+      ),
     );
   }
 
@@ -286,42 +289,55 @@ class _ProfilePreviewSheet extends StatelessWidget {
           Text(
             '${user.name}, ${user.age}',
             style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary),
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
           if (user.location != null) ...[
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.location_on,
-                    size: 14, color: AppColors.textSecondary),
+                const Icon(
+                  Icons.location_on,
+                  size: 14,
+                  color: AppColors.textSecondary,
+                ),
                 const SizedBox(width: 4),
-                Text(user.location!,
-                    style: TextStyle(
-                        color: AppColors.textSecondary, fontSize: 13)),
+                Text(
+                  user.location!,
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
           ],
           const SizedBox(height: 10),
-          Text(user.bio,
-              style: TextStyle(
-                  color: AppColors.textSecondary, fontSize: 14)),
+          Text(
+            user.bio,
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 6,
             runSpacing: 6,
             children: user.adventureTypes
-                .map((a) => Chip(
-                      label: Text(a,
-                          style: const TextStyle(
-                              color: AppColors.primary, fontSize: 12)),
-                      backgroundColor:
-                          AppColors.primary.withAlpha(20),
-                      side: BorderSide(
-                          color: AppColors.primary.withAlpha(60)),
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                    ))
+                .map(
+                  (a) => Chip(
+                    label: Text(
+                      a,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 12,
+                      ),
+                    ),
+                    backgroundColor: AppColors.primary.withAlpha(20),
+                    side: BorderSide(color: AppColors.primary.withAlpha(60)),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                )
                 .toList(),
           ),
           const SizedBox(height: 16),

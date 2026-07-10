@@ -7,6 +7,7 @@ import '../providers/match_provider.dart';
 import '../utils/constants.dart';
 import '../widgets/centered_content.dart';
 import '../widgets/adventure_chip.dart';
+import '../widgets/user_avatar.dart';
 import 'profile_setup_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -14,7 +15,8 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().currentUser;
+    final auth = context.watch<AuthProvider>();
+    final user = auth.currentUser;
     final matchCount = context.watch<MatchProvider>().matches.length;
 
     if (user == null) {
@@ -26,10 +28,8 @@ class ProfileScreen extends StatelessWidget {
     }
 
     final hue = (user.name.codeUnitAt(0) * 37) % 360;
-    final color1 =
-        HSLColor.fromAHSL(1, hue.toDouble(), 0.5, 0.35).toColor();
-    final color2 =
-        HSLColor.fromAHSL(1, (hue + 40) % 360, 0.5, 0.45).toColor();
+    final color1 = HSLColor.fromAHSL(1, hue.toDouble(), 0.5, 0.35).toColor();
+    final color2 = HSLColor.fromAHSL(1, (hue + 40) % 360, 0.5, 0.45).toColor();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -58,7 +58,9 @@ class ProfileScreen extends StatelessWidget {
               title: Text(
                 user.name,
                 style: const TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 18),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
               background: DecoratedBox(
                 decoration: BoxDecoration(
@@ -73,11 +75,11 @@ class ProfileScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(height: 16),
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor:
-                            Colors.white.withAlpha(80),
-                        child: Text(
+                      UserAvatar(
+                        size: 100,
+                        photoUrl: user.avatarUrl,
+                        backgroundColor: Colors.white.withAlpha(80),
+                        fallback: Text(
                           user.name.substring(0, 1).toUpperCase(),
                           style: const TextStyle(
                             fontSize: 44,
@@ -99,6 +101,44 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: auth.isLoading
+                              ? null
+                              : () => _uploadPhoto(context),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            side: const BorderSide(color: AppColors.primary),
+                          ),
+                          icon: auth.isLoading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.primary,
+                                  ),
+                                )
+                              : const Icon(Icons.upload_outlined),
+                          label: const Text('Upload Photo'),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'One compressed profile photo',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
                   // Stats row
                   Padding(
@@ -134,9 +174,21 @@ class ProfileScreen extends StatelessWidget {
                       child: Row(
                         children: [
                           if (user.gender != null)
-                            Expanded(child: _DetailChip(label: 'Identity', value: user.gender!, icon: Icons.person)),
+                            Expanded(
+                              child: _DetailChip(
+                                label: 'Identity',
+                                value: user.gender!,
+                                icon: Icons.person,
+                              ),
+                            ),
                           if (user.interestedIn != null)
-                            Expanded(child: _DetailChip(label: 'Seeking', value: user.interestedIn!, icon: Icons.favorite)),
+                            Expanded(
+                              child: _DetailChip(
+                                label: 'Seeking',
+                                value: user.interestedIn!,
+                                icon: Icons.favorite,
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -144,7 +196,9 @@ class ProfileScreen extends StatelessWidget {
                   _InfoSection(
                     title: 'About',
                     child: Text(
-                      user.bio.isEmpty ? 'No bio yet. Tap Edit Profile to add one.' : user.bio,
+                      user.bio.isEmpty
+                          ? 'No bio yet. Tap Edit Profile to add one.'
+                          : user.bio,
                       style: TextStyle(
                         color: user.bio.isEmpty
                             ? AppColors.textSecondary
@@ -159,16 +213,25 @@ class ProfileScreen extends StatelessWidget {
 
                   if (user.location != null)
                     Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 4,
+                      ),
                       child: Row(
                         children: [
-                          const Icon(Icons.location_on,
-                              size: 16, color: AppColors.primary),
+                          const Icon(
+                            Icons.location_on,
+                            size: 16,
+                            color: AppColors.primary,
+                          ),
                           const SizedBox(width: 6),
-                          Text(user.location!,
-                              style: const TextStyle(
-                                  color: AppColors.textPrimary, fontSize: 14)),
+                          Text(
+                            user.location!,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -176,17 +239,25 @@ class ProfileScreen extends StatelessWidget {
                   if (user.instagramHandle != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 4),
+                        horizontal: 20,
+                        vertical: 4,
+                      ),
                       child: Row(
                         children: [
-                          const Icon(Icons.camera_alt_outlined,
-                              size: 16, color: AppColors.primary),
+                          const Icon(
+                            Icons.camera_alt_outlined,
+                            size: 16,
+                            color: AppColors.primary,
+                          ),
                           const SizedBox(width: 6),
-                          Text('@${user.instagramHandle}',
-                              style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500)),
+                          Text(
+                            '@${user.instagramHandle}',
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -199,18 +270,19 @@ class ProfileScreen extends StatelessWidget {
                         ? Text(
                             'None selected yet.',
                             style: TextStyle(
-                                color: AppColors.textSecondary,
-                                fontStyle: FontStyle.italic,
-                                fontSize: 13),
+                              color: AppColors.textSecondary,
+                              fontStyle: FontStyle.italic,
+                              fontSize: 13,
+                            ),
                           )
                         : Wrap(
                             spacing: 8,
                             runSpacing: 8,
                             children: user.adventureTypes
-                                .map((a) => AdventureChip(
-                                      label: a,
-                                      selected: true,
-                                    ))
+                                .map(
+                                  (a) =>
+                                      AdventureChip(label: a, selected: true),
+                                )
                                 .toList(),
                           ),
                   ),
@@ -227,14 +299,16 @@ class ProfileScreen extends StatelessWidget {
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ProfileSetupScreen(isEditing: true),
+                              builder: (_) =>
+                                  const ProfileSetupScreen(isEditing: true),
                             ),
                           ),
                         ),
                         _SettingsTile(
                           icon: Icons.delete_forever,
                           label: 'Manage Account',
-                          onTap: () => _openAccountManagement(context, user.name),
+                          onTap: () =>
+                              _openAccountManagement(context, user.name),
                           isDestructive: true,
                         ),
                         _SettingsTile(
@@ -248,12 +322,26 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                 ],
-                ),
               ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _uploadPhoto(BuildContext context) async {
+    final photoUrl = await context.read<AuthProvider>().uploadProfilePhoto();
+    if (!context.mounted || photoUrl != null) {
+      return;
+    }
+
+    final message = context.read<AuthProvider>().errorMessage;
+    if (message != null && message.isNotEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   void _openAccountManagement(BuildContext context, String profileName) {
@@ -293,11 +381,16 @@ class ProfileScreen extends StatelessWidget {
               await context.read<AuthProvider>().logout();
               if (context.mounted) {
                 Navigator.pushNamedAndRemoveUntil(
-                    context, AppRoutes.login, (_) => false);
+                  context,
+                  AppRoutes.login,
+                  (_) => false,
+                );
               }
             },
-            child: const Text('Log Out',
-                style: TextStyle(color: AppColors.pass)),
+            child: const Text(
+              'Log Out',
+              style: TextStyle(color: AppColors.pass),
+            ),
           ),
         ],
       ),
@@ -347,7 +440,9 @@ class _StatCard extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(
-                  fontSize: 11, color: AppColors.textSecondary),
+                fontSize: 11,
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),
@@ -357,7 +452,11 @@ class _StatCard extends StatelessWidget {
 }
 
 class _DetailChip extends StatelessWidget {
-  const _DetailChip({required this.label, required this.value, required this.icon});
+  const _DetailChip({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
   final String label;
   final String value;
   final IconData icon;
@@ -380,8 +479,17 @@ class _DetailChip extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-              Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 10, color: Colors.grey),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ],
@@ -440,8 +548,7 @@ class _SettingsTile extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
       leading: Icon(icon, color: color, size: 22),
       title: Text(label, style: TextStyle(color: color, fontSize: 15)),
-      trailing: const Icon(Icons.chevron_right,
-          color: AppColors.textSecondary),
+      trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
       onTap: onTap,
     );
   }

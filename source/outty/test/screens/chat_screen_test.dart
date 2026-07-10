@@ -45,7 +45,15 @@ class FakeAuthProvider extends ChangeNotifier implements AuthProvider {
   }
 
   @override
+  Future<void> deleteProfilePhotosForUser(String uid) async {}
+
+  @override
   Future<void> tryRestoreSession() async {}
+
+  @override
+  Future<String?> uploadProfilePhoto() async {
+    return null;
+  }
 
   @override
   Future<void> updateCurrentUser(UserModel updated) async {
@@ -82,7 +90,10 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   Future<void> swipeLeft(String currentUserId, String candidateId) async {}
 
   @override
-  Future<MatchModel?> swipeRight(UserModel currentUser, UserModel candidate) async {
+  Future<MatchModel?> swipeRight(
+    UserModel currentUser,
+    UserModel candidate,
+  ) async {
     return null;
   }
 
@@ -91,8 +102,9 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
 }
 
 void main() {
-  testWidgets('ChatScreen can dispose without provider lookup exceptions',
-      (tester) async {
+  testWidgets('ChatScreen can dispose without provider lookup exceptions', (
+    tester,
+  ) async {
     final fakeFirestore = FakeFirebaseFirestore();
     const matchId = 'match-1';
     await fakeFirestore.collection('matches').doc(matchId).set({

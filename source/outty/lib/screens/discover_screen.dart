@@ -8,6 +8,7 @@ import '../providers/navigation_notifier.dart';
 import '../utils/constants.dart';
 import '../widgets/swipe_card.dart';
 import '../widgets/centered_content.dart';
+import '../widgets/user_avatar.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -75,7 +76,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (context) => const ProfileSetupScreen(initialStep: 1),
+                      builder: (context) =>
+                          const ProfileSetupScreen(initialStep: 1),
                     ),
                   );
                 },
@@ -85,7 +87,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           ),
           body: matchProv.isLoading
               ? const Center(
-                  child: CircularProgressIndicator(color: AppColors.primary))
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                )
               : Stack(
                   fit: StackFit.expand,
                   children: [
@@ -249,17 +252,16 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             const SizedBox(height: 8),
             Text(
               'Check back soon or tap refresh to start over.',
-              style: TextStyle(
-                  fontSize: 14, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () async {
                 final auth = context.read<AuthProvider>();
-                await context
-                    .read<MatchProvider>()
-                    .resetFeed(auth.currentUser!);
+                await context.read<MatchProvider>().resetFeed(
+                  auth.currentUser!,
+                );
               },
               icon: const Icon(Icons.refresh),
               label: Text('Refresh Feed'),
@@ -267,7 +269,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -278,10 +281,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 }
 
 class _BackdropAccent extends StatelessWidget {
-  const _BackdropAccent({
-    required this.size,
-    required this.color,
-  });
+  const _BackdropAccent({required this.size, required this.color});
 
   final double size;
   final Color color;
@@ -293,9 +293,7 @@ class _BackdropAccent extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color, Colors.transparent],
-        ),
+        gradient: RadialGradient(colors: [color, Colors.transparent]),
       ),
     );
   }
@@ -451,15 +449,12 @@ class _ActionButtonState extends State<_ActionButton> {
 // ─── Match overlay ────────────────────────────────────────────────────────────
 
 class _MatchOverlay extends StatelessWidget {
-  const _MatchOverlay({
-    required this.matchedUser,
-    required this.onDismiss,
-  });
+  const _MatchOverlay({required this.matchedUser, required this.onDismiss});
 
   final UserModel matchedUser;
   final VoidCallback onDismiss;
 
-    @override
+  @override
   Widget build(BuildContext context) {
     final currentUser = context.read<AuthProvider>().currentUser;
 
@@ -469,9 +464,7 @@ class _MatchOverlay extends StatelessWidget {
         // Ensure the background covers the entire stack
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.9),
-        ),
+        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.9)),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -510,16 +503,21 @@ class _MatchOverlay extends StatelessWidget {
                             child: ElevatedButton(
                               onPressed: () {
                                 onDismiss();
-                                context.read<NavigationNotifier>().switchToMatches();
+                                context
+                                    .read<NavigationNotifier>()
+                                    .switchToMatches();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
                               ),
-                              child: const Text('Send a message',
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              child: const Text(
+                                'Send a message',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -530,12 +528,18 @@ class _MatchOverlay extends StatelessWidget {
                               onPressed: onDismiss,
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.white,
-                                side: const BorderSide(color: Colors.white, width: 2),
+                                side: const BorderSide(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
                               ),
-                              child: const Text('Keep Swiping',
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              child: const Text(
+                                'Keep Swiping',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
                         ],
@@ -552,24 +556,15 @@ class _MatchOverlay extends StatelessWidget {
   }
 
   Widget _circularAvatar(String? url, double offsetX) {
-    final hasAvatar = url != null && url.trim().isNotEmpty;
-
     return Transform.translate(
       offset: Offset(offsetX, 0),
-      child: Container(
-        width: 120,
-        height: 120,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 4),
-          image: hasAvatar
-              ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover)
-              : null,
-          color: Colors.grey[800],
-        ),
-        child: hasAvatar
-            ? null
-            : const Icon(Icons.person, size: 60, color: Colors.white),
+      child: UserAvatar(
+        size: 120,
+        photoUrl: url,
+        backgroundColor: Colors.grey[800],
+        borderColor: Colors.white,
+        borderWidth: 4,
+        fallback: const Icon(Icons.person, size: 60, color: Colors.white),
       ),
     );
   }

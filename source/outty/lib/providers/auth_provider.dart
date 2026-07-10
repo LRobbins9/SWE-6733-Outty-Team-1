@@ -1,12 +1,17 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/user_model.dart';
 
 /// Handles registration, login, and session persistence using Firebase.
 class AuthProvider extends ChangeNotifier {
   FirebaseAuth? _auth;
   FirebaseFirestore? _db;
+  FirebaseStorage? _storage;
+  final ImagePicker _imagePicker = ImagePicker();
 
   UserModel? _currentUser;
   bool _isLoading = false;
@@ -17,10 +22,11 @@ class AuthProvider extends ChangeNotifier {
   }
 
   bool _ensureFirebaseReady() {
-    if (_auth != null && _db != null) return true;
+    if (_auth != null && _db != null && _storage != null) return true;
     try {
       _auth = FirebaseAuth.instance;
       _db = FirebaseFirestore.instance;
+      _storage = FirebaseStorage.instance;
       return true;
     } catch (_) {
       return false;
@@ -123,7 +129,7 @@ class AuthProvider extends ChangeNotifier {
 
       await _db!.collection('users').doc(uid).set(newUser.toJson());
       _currentUser = newUser;
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -136,10 +142,7 @@ class AuthProvider extends ChangeNotifier {
 
   // ── Login ──────────────────────────────────────────────────────────────────
 
-  Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> login({required String email, required String password}) async {
     if (!_ensureFirebaseReady()) {
       return _fail('Firebase is not initialized.');
     }
@@ -155,7 +158,7 @@ class AuthProvider extends ChangeNotifier {
       );
 
       await _fetchUserProfile(credential.user!.uid);
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -187,6 +190,100 @@ class AuthProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<String?> uploadProfilePhoto() async {
+    if (!_ensureFirebaseReady()) {
+      _errorMessage = 'Firebase is not initialized.';
+      notifyListeners();
+      return null;
+    }
+
+    final user = _currentUser;
+    if (user == null) {
+      _errorMessage = 'No signed-in user is available.';
+      notifyListeners();
+      return null;
+    }
+
+    _clearError();
+
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1280,
+        maxHeight: 1280,
+        imageQuality: 70,
+      );
+
+      if (pickedFile == null) {
+        return null;
+      }
+
+      _isLoading = true;
+      notifyListeners();
+
+      final bytes = await pickedFile.readAsBytes();
+      final photoRef = _storage!.ref().child(
+        'profile_pictures/${user.id}/profile_photo',
+      );
+
+      await photoRef.putData(
+        bytes,
+        SettableMetadata(
+          contentType: pickedFile.mimeType ?? 'image/jpeg',
+          cacheControl: 'public,max-age=3600',
+        ),
+      );
+
+      final photoUrl = await photoRef.getDownloadURL();
+      await _db!.collection('users').doc(user.id).update({
+        'photoUrl': photoUrl,
+      });
+      _currentUser = user.copyWith(photoUrl: photoUrl);
+      return photoUrl;
+    } on PlatformException catch (e) {
+      debugPrint('Image picker error: ${e.code} ${e.message}');
+      _errorMessage = e.message ?? 'Unable to select a photo.';
+      return null;
+    } on FirebaseException catch (e) {
+      debugPrint('Firebase photo upload error: ${e.code} ${e.message}');
+      _errorMessage = e.message ?? 'Unable to upload photo.';
+      return null;
+    } catch (e) {
+      debugPrint('Error uploading profile photo: $e');
+      _errorMessage = 'Unable to upload photo.';
+      return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteProfilePhotosForUser(String uid) async {
+    if (!_ensureFirebaseReady()) {
+      return;
+    }
+
+    try {
+      final folderRef = _storage!.ref().child('profile_pictures/$uid');
+      final result = await folderRef.listAll();
+
+      await Future.wait(
+        result.items.map((item) async {
+          try {
+            await item.delete();
+          } on FirebaseException catch (error) {
+            if (error.code != 'object-not-found') {
+              rethrow;
+            }
+          }
+        }),
+      );
+    } catch (e) {
+      debugPrint('Error deleting profile photos for $uid: $e');
+      rethrow;
+    }
   }
 
   // ── Logout ─────────────────────────────────────────────────────────────────

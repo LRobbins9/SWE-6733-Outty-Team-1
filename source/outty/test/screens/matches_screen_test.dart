@@ -73,9 +73,12 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   @override
   bool feedExhausted = false;
 
+  // Add this map to store users for lookup
+  final Map<String, UserModel> _users = {};
+
   @override
   Future<UserModel?> getUserById(String id) async {
-    return null;
+    return _users[id];
   }
 
   @override
@@ -119,8 +122,77 @@ void main() {
 
       await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    },
-  );
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('MatchesScreen shows filtered matches based on search input', (tester) async {
+    final authProvider = FakeAuthProvider(
+      currentUser: UserModel(
+        id: '1',
+        name: 'Test User',
+        age: 25,
+        bio: 'This is a test bio',
+        adventureTypes: ['Hiking', 'Camping'],
+        skillLevel: 'Intermediate',
+        email: 'test@example.com',
+      ),
+    );
+    final matchProvider = FakeMatchProvider();
+    final fakeMatch1 = UserModel(
+          id: '2',
+          name: 'Ivana Partner',
+          age: 28,
+          bio: 'This is Ivana\'s bio',
+          adventureTypes: ['Hiking', 'Camping'],
+          skillLevel: 'Advanced',
+          email: 'ivana@example.com',
+        );
+    final fakeMatch2 = UserModel(
+          id: '3',
+          name: 'Another Partner',
+          age: 30,
+          bio: 'This is another partner\'s bio',
+          adventureTypes: ['Skiing', 'Kayaking'],
+          skillLevel: 'Advanced',
+          email: 'another@example.com',
+        );
+    matchProvider._users['2'] = fakeMatch1;
+    matchProvider._users['3'] = fakeMatch2;
+
+    matchProvider.matches = [
+      MatchModel(
+        id: '2_1',
+        userId1: authProvider.currentUser!.id,
+        userId2: fakeMatch1.id,
+        lastMessage: 'Hello!',
+      ),
+      MatchModel(
+        id: '3_1',
+        userId1: authProvider.currentUser!.id,
+        userId2: fakeMatch2.id,
+        lastMessage: 'Hi there!',
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+          ChangeNotifierProvider<MatchProvider>.value(value: matchProvider),
+        ],
+        child: const MaterialApp(home: MatchesScreen()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    //When the user provides a search filter, the results should react accordingly
+    await tester.enterText(find.byType(TextField), 'Ivana');
+    await tester.pumpAndSettle();
+
+    // After searching for "Ivana"
+    expect(find.text('Ivana Partner, 28'), findsOneWidget);  // In Messages section
+    expect(find.text('Another Partner'), findsNothing);  // Filtered out
+  });
 }

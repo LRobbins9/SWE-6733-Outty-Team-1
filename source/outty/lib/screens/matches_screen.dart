@@ -8,12 +8,38 @@ import '../utils/constants.dart';
 import '../widgets/user_avatar.dart';
 import 'chat_screen.dart';
 
-class MatchesScreen extends StatelessWidget {
+class MatchesScreen extends StatefulWidget {
   const MatchesScreen({super.key});
 
-  static const _loadingBody = Center(
-    child: CircularProgressIndicator(color: AppColors.primary),
-  );
+  @override
+  State<MatchesScreen> createState() => _MatchesScreenState();
+}
+
+class _MatchesScreenState extends State<MatchesScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  bool _matchesSearchQuery(UserModel user, String query) {
+    final normalizedQuery = query.trim().toLowerCase();
+    if (normalizedQuery.isEmpty) return true;
+    return user.name.toLowerCase().contains(normalizedQuery);
+  }
+
+  void _showProfile(BuildContext context, UserModel other) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _ProfilePreviewSheet(user: other),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +63,15 @@ class MatchesScreen extends StatelessWidget {
         centerTitle: false,
       ),
       body: currentUser == null
-          ? _loadingBody
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: TextField(
+                    controller: _searchController,
                     decoration: InputDecoration(
                       hintText: 'Search for partners',
                       prefixIcon: const Icon(Icons.search),
@@ -53,6 +82,12 @@ class MatchesScreen extends StatelessWidget {
                         borderSide: BorderSide.none,
                       ),
                     ),
+                    onChanged: (value) {
+                      setState(() => _searchQuery = value);
+                    },
+                    onSubmitted: (value) {
+                      setState(() => _searchQuery = value);
+                    },
                   ),
                 ),
                 if (matches.isEmpty)
@@ -62,10 +97,7 @@ class MatchesScreen extends StatelessWidget {
                     child: ListView(
                       children: [
                         const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           child: Text(
                             'Matches',
                             style: TextStyle(
@@ -82,17 +114,23 @@ class MatchesScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             itemCount: matches.length,
                             itemBuilder: (ctx, i) {
-                              final otherId = matches[i].otherUserId(
-                                currentUser.id,
-                              );
+                              final otherId = matches[i].otherUserId(currentUser.id);
                               return FutureBuilder<UserModel?>(
                                 future: matchProv.getUserById(otherId),
                                 builder: (context, snapshot) {
-                                  if (!snapshot.hasData ||
-                                      snapshot.data == null) {
+                                  if (!snapshot.hasData || snapshot.data == null) {
                                     return const SizedBox.shrink();
                                   }
-                                  return _NewMatchCircle(user: snapshot.data!);
+
+                                  final otherUser = snapshot.data!;
+                                  if (!_matchesSearchQuery(otherUser, _searchQuery)) {
+                                    return const SizedBox.shrink();
+                                  }
+
+                                  return GestureDetector(
+                                    onTap: () => _showProfile(context, otherUser),
+                                    child: _NewMatchCircle(user: otherUser),
+                                  );
                                 },
                               );
                             },
@@ -120,14 +158,16 @@ class MatchesScreen extends StatelessWidget {
                             return FutureBuilder<UserModel?>(
                               future: matchProv.getUserById(otherId),
                               builder: (context, snapshot) {
-                                if (!snapshot.hasData ||
-                                    snapshot.data == null) {
+                                if (!snapshot.hasData || snapshot.data == null) {
                                   return const SizedBox.shrink();
                                 }
-                                return _MatchTile(
-                                  match: match,
-                                  other: snapshot.data!,
-                                );
+
+                                final otherUser = snapshot.data!;
+                                if (!_matchesSearchQuery(otherUser, _searchQuery)) {
+                                  return const SizedBox.shrink();
+                                }
+
+                                return _MatchTile(match: match, other: otherUser);
                               },
                             );
                           },
@@ -148,10 +188,15 @@ class MatchesScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.message_outlined, size: 72, color: Colors.grey[300]),
+            Icon(Icons.message_outlined, size: 72, color: Colors.grey[300]),
             const SizedBox(height: 16),
             const Text(
               'No messages yet',
               style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
+              ),
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black54,
@@ -286,5 +331,76 @@ class _MatchTile extends StatelessWidget {
     if (diff.inHours < 1) return '${diff.inMinutes}m';
     if (diff.inDays < 1) return '${diff.inHours}h';
     return '${diff.inDays}d';
+  }
+}
+
+class _ProfilePreviewSheet extends StatelessWidget {
+  const _ProfilePreviewSheet({required this.user});
+  final UserModel user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey.withAlpha(80),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Text(
+            '${user.name}, ${user.age}',
+            style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary),
+          ),
+          if (user.location != null) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.location_on,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 4),
+                Text(user.location!,
+                    style: TextStyle(
+                        color: AppColors.textSecondary, fontSize: 13)),
+              ],
+            ),
+          ],
+          const SizedBox(height: 10),
+          Text(user.bio,
+              style: TextStyle(
+                  color: AppColors.textSecondary, fontSize: 14)),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: user.adventureTypes
+                .map((a) => Chip(
+                      label: Text(a,
+                          style: const TextStyle(
+                              color: AppColors.primary, fontSize: 12)),
+                      backgroundColor:
+                          AppColors.primary.withAlpha(20),
+                      side: BorderSide(
+                          color: AppColors.primary.withAlpha(60)),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
   }
 }

@@ -40,7 +40,15 @@ class FakeAuthProvider extends ChangeNotifier implements AuthProvider {
   Future<void> logout() async {}
 
   @override
+  Future<void> deleteProfilePhotosForUser(String uid) async {}
+
+  @override
   Future<void> tryRestoreSession() async {}
+
+  @override
+  Future<String?> uploadProfilePhoto() async {
+    return null;
+  }
 
   @override
   Future<void> updateCurrentUser(UserModel updated) async {
@@ -77,7 +85,10 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   Future<void> resetFeed(UserModel currentUser) async {}
 
   @override
-  Future<MatchModel?> swipeRight(UserModel currentUser, UserModel candidate) async {
+  Future<MatchModel?> swipeRight(
+    UserModel currentUser,
+    UserModel candidate,
+  ) async {
     return null;
   }
 
@@ -106,7 +117,9 @@ UserModel createTestUser() {
 }
 
 void main() {
-  testWidgets('edit mode allows navigating back to the previous step', (tester) async {
+  testWidgets('edit mode allows navigating back to the previous step', (
+    tester,
+  ) async {
     final authProvider = FakeAuthProvider(currentUser: createTestUser());
     final matchProvider = FakeMatchProvider();
 
@@ -116,9 +129,7 @@ void main() {
           ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
           ChangeNotifierProvider<MatchProvider>.value(value: matchProvider),
         ],
-        child: const MaterialApp(
-          home: ProfileSetupScreen(isEditing: true),
-        ),
+        child: const MaterialApp(home: ProfileSetupScreen(isEditing: true)),
       ),
     );
 

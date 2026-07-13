@@ -5,6 +5,7 @@ import '../providers/match_provider.dart';
 import '../utils/constants.dart';
 import '../widgets/centered_content.dart';
 import '../widgets/adventure_chip.dart';
+import '../widgets/user_avatar.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({
@@ -36,6 +37,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   String? _interestedIn;
   final Set<String> _selectedAdventures = {};
   bool _saving = false;
+  bool _uploadingPhoto = false;
 
   @override
   void initState() {
@@ -73,7 +75,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   void _nextPage() {
     if (_currentStep < 2) {
       _pageCtrl.nextPage(
-          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     } else {
       _save();
     }
@@ -134,6 +138,26 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
 
     Navigator.pushReplacementNamed(context, AppRoutes.home);
+  }
+
+  Future<void> _uploadPhoto() async {
+    setState(() => _uploadingPhoto = true);
+
+    final photoUrl = await context.read<AuthProvider>().uploadProfilePhoto();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() => _uploadingPhoto = false);
+    if (photoUrl == null) {
+      final message = context.read<AuthProvider>().errorMessage;
+      if (message != null && message.isNotEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      }
+    }
   }
 
   @override
@@ -228,13 +252,61 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   Widget _buildStep1() {
+    final user = context.watch<AuthProvider>().currentUser;
+    final hasPhoto = user?.photoUrl?.trim().isNotEmpty ?? false;
+    final initial = (user?.name.trim().isNotEmpty ?? false)
+        ? user!.name.trim().substring(0, 1).toUpperCase()
+        : '?';
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Adventurer Essentials', 
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const Text(
+            'Adventurer Essentials',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
+          Center(
+            child: Column(
+              children: [
+                UserAvatar(
+                  size: 104,
+                  photoUrl: hasPhoto ? user!.photoUrl : null,
+                  backgroundColor: AppColors.primary.withAlpha(180),
+                  fallback: Text(
+                    initial,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: _uploadingPhoto || _saving ? null : _uploadPhoto,
+                  icon: _uploadingPhoto
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.upload),
+                  label: Text(hasPhoto ? 'Change Photo' : 'Upload Photo'),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Optional. One compressed photo only.',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 32),
           _underlineField(_firstNameCtrl, 'First Name'),
           const SizedBox(height: 24),
@@ -256,14 +328,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Identity & Preferences', 
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const Text(
+            'Identity & Preferences',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          const Text('Tell us about yourself and who you are looking for.', 
-            style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+          const Text(
+            'Tell us about yourself and who you are looking for.',
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          ),
           const SizedBox(height: 32),
-          const Text('My Gender Identity', 
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            'My Gender Identity',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           _buildSelectionGrid(
             options: ['Male', 'Female', 'Non-Binary', 'Other'],
@@ -271,8 +349,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             onSelected: (val) => setState(() => _gender = val),
           ),
           const SizedBox(height: 32),
-          const Text('Interested In', 
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            'Interested In',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           _buildSelectionGrid(
             options: ['Male', 'Female', 'Non-Binary', 'Other', 'Any'],
@@ -292,24 +372,36 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Target Age Range', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text('$_targetAgeStart - $_targetAgeEnd', 
-                      style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
-                  ],
-                ),
-                RangeSlider(
-                  values: RangeValues(_targetAgeStart.toDouble(), _targetAgeEnd.toDouble()),
-                  min: 18,
-                  max: 75,
-                  divisions: 57,
-                  activeColor: AppColors.primary,
-                  inactiveColor: Colors.grey[200],
-                  onChanged: (range) => setState(() {
-                    _targetAgeStart = range.start.toInt();
-                    _targetAgeEnd = range.end.toInt();
-                  }),
-                ),
+          children: [
+            const Text(
+              'Target Age Range',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              '$_targetAgeStart - $_targetAgeEnd',
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        RangeSlider(
+          values: RangeValues(
+            _targetAgeStart.toDouble(),
+            _targetAgeEnd.toDouble(),
+          ),
+          min: 18,
+          max: 75,
+          divisions: 57,
+          activeColor: AppColors.primary,
+          inactiveColor: Colors.grey[200],
+          onChanged: (range) => setState(() {
+            _targetAgeStart = range.start.toInt();
+            _targetAgeEnd = range.end.toInt();
+          }),
+        ),
       ],
     );
   }
@@ -355,11 +447,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Adventure Style', 
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const Text(
+            'Adventure Style',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          const Text('What gets your heart racing?', 
-            style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+          const Text(
+            'What gets your heart racing?',
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          ),
           const SizedBox(height: 32),
           Wrap(
             spacing: 12,
@@ -386,7 +482,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 
-  Widget _underlineField(TextEditingController ctrl, String label, {int? maxLines = 1}) {
+  Widget _underlineField(
+    TextEditingController ctrl,
+    String label, {
+    int? maxLines = 1,
+  }) {
     return TextFormField(
       controller: ctrl,
       maxLines: maxLines,
@@ -410,8 +510,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Age', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
-            Text('$_age', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              'Age',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+            ),
+            Text(
+              '$_age',
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
           ],
         ),
         Slider(
@@ -462,13 +572,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
                 child: _saving
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
                         _currentStep == 2 ? 'FINISH' : 'NEXT',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
               ),
             ),
@@ -478,4 +593,3 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 }
-

@@ -1,20 +1,26 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 import '../widgets/centered_content.dart';
 
 class AccountManagementScreen extends StatefulWidget {
-  const AccountManagementScreen({super.key, required this.user, this.profileData});
+  const AccountManagementScreen({
+    super.key,
+    required this.user,
+    this.profileData,
+  });
 
   final User user;
   final Map<String, dynamic>? profileData;
 
   @override
-  State<AccountManagementScreen> createState() => _AccountManagementScreenState();
+  State<AccountManagementScreen> createState() =>
+      _AccountManagementScreenState();
 }
 
 class _AccountManagementScreenState extends State<AccountManagementScreen> {
@@ -86,21 +92,37 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
 
       if (_emailController.text.trim() != (user.email ?? '')) {
         if (_currentPasswordController.text.isEmpty) {
-          throw FirebaseAuthException(code: 'reauth-required', message: 'Enter your current password before changing your email.');
+          throw FirebaseAuthException(
+            code: 'reauth-required',
+            message: 'Enter your current password before changing your email.',
+          );
         }
-        final credential = EmailAuthProvider.credential(email: user.email ?? '', password: _currentPasswordController.text);
+        final credential = EmailAuthProvider.credential(
+          email: user.email ?? '',
+          password: _currentPasswordController.text,
+        );
         await user.reauthenticateWithCredential(credential);
         await user.verifyBeforeUpdateEmail(_emailController.text.trim());
       }
 
       if (_passwordController.text.isNotEmpty) {
         if (_passwordController.text != _confirmPasswordController.text) {
-          throw FirebaseAuthException(code: 'password-mismatch', message: 'New passwords do not match.');
+          throw FirebaseAuthException(
+            code: 'password-mismatch',
+            message: 'New passwords do not match.',
+          );
         }
         if (_currentPasswordController.text.isEmpty) {
-          throw FirebaseAuthException(code: 'reauth-required', message: 'Enter your current password before changing your password.');
+          throw FirebaseAuthException(
+            code: 'reauth-required',
+            message:
+                'Enter your current password before changing your password.',
+          );
         }
-        final credential = EmailAuthProvider.credential(email: user.email ?? '', password: _currentPasswordController.text);
+        final credential = EmailAuthProvider.credential(
+          email: user.email ?? '',
+          password: _currentPasswordController.text,
+        );
         await user.reauthenticateWithCredential(credential);
         changes.add(user.updatePassword(_passwordController.text));
       }
@@ -141,9 +163,14 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete account?'),
-        content: const Text('This will permanently remove your account and profile data.'),
+        content: const Text(
+          'This will permanently remove your account and profile data.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
@@ -161,13 +188,18 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
 
     try {
       final user = widget.user;
-      final credential = EmailAuthProvider.credential(email: user.email ?? '', password: _deletePasswordController.text);
-      await user.reauthenticateWithCredential(credential).timeout(
-        const Duration(seconds: 12),
+      final credential = EmailAuthProvider.credential(
+        email: user.email ?? '',
+        password: _deletePasswordController.text,
       );
+      await user
+          .reauthenticateWithCredential(credential)
+          .timeout(const Duration(seconds: 12));
 
-      // Best-effort cleanup for profile pictures should not block account deletion.
-      unawaited(_deleteProfilePicturesBestEffort(user.uid));
+      await context
+          .read<AuthProvider>()
+          .deleteProfilePhotosForUser(user.uid)
+          .timeout(const Duration(seconds: 8));
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -192,29 +224,13 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     }
   }
 
-  Future<void> _deleteProfilePicturesBestEffort(String uid) async {
-    try {
-      final profilePictures =
-          FirebaseStorage.instance.ref().child('profile_pictures/$uid');
-      final result = await profilePictures
-          .listAll()
-          .timeout(const Duration(seconds: 4));
-
-      await Future.wait(
-        result.items.map(
-          (item) => item.delete().timeout(const Duration(seconds: 4)),
-        ),
-      );
-    } catch (_) {
-      // Ignore cleanup failures so account deletion can still complete quickly.
-    }
-  }
-
   void _showMessage(String message) {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -246,23 +262,62 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Signed in as', style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Signed in as',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 4),
-                      Text(widget.user.email ?? 'No email', style: Theme.of(context).textTheme.bodyLarge),
+                      Text(
+                        widget.user.email ?? 'No email',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
                       const SizedBox(height: 16),
-                      TextField(controller: _displayNameController, decoration: const InputDecoration(labelText: 'name')),
+                      TextField(
+                        controller: _displayNameController,
+                        decoration: const InputDecoration(labelText: 'name'),
+                      ),
                       const SizedBox(height: 12),
-                      TextField(controller: _emailController, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
+                      TextField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(labelText: 'Email'),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
                       const SizedBox(height: 12),
-                      TextField(controller: _currentPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Current password (required for changes)')),
+                      TextField(
+                        controller: _currentPasswordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Current password (required for changes)',
+                        ),
+                      ),
                       const SizedBox(height: 12),
-                      TextField(controller: _passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'New password')),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'New password',
+                        ),
+                      ),
                       const SizedBox(height: 12),
-                      TextField(controller: _confirmPasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Confirm new password')),
+                      TextField(
+                        controller: _confirmPasswordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Confirm new password',
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       FilledButton.icon(
                         onPressed: _isSaving ? null : _saveAccount,
-                        icon: _isSaving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
+                        icon: _isSaving
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.save),
                         label: const Text('Save changes'),
                       ),
                     ],
@@ -276,16 +331,37 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Delete account', style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Delete account',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 8),
-                      const Text('This permanently removes your Outty account and all profile data.'),
+                      const Text(
+                        'This permanently removes your Outty account and all profile data.',
+                      ),
                       const SizedBox(height: 12),
-                      TextField(controller: _deletePasswordController, obscureText: true, decoration: const InputDecoration(labelText: 'Password to confirm deletion')),
+                      TextField(
+                        controller: _deletePasswordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Password to confirm deletion',
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       OutlinedButton.icon(
                         onPressed: _isDeleting ? null : _deleteAccount,
-                        icon: _isDeleting ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.delete_forever),
-                        style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent),
+                        icon: _isDeleting
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.delete_forever),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.redAccent,
+                        ),
                         label: const Text('Delete account'),
                       ),
                     ],

@@ -44,7 +44,15 @@ class FakeAuthProvider extends ChangeNotifier implements AuthProvider {
   }
 
   @override
+  Future<void> deleteProfilePhotosForUser(String uid) async {}
+
+  @override
   Future<void> tryRestoreSession() async {}
+
+  @override
+  Future<String?> uploadProfilePhoto() async {
+    return null;
+  }
 
   @override
   Future<void> updateCurrentUser(UserModel updated) async {
@@ -84,10 +92,17 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   }
 
   @override
-  Future<MatchModel?> swipeRight(UserModel currentUser, UserModel candidate) async {
+  Future<MatchModel?> swipeRight(
+    UserModel currentUser,
+    UserModel candidate,
+  ) async {
     feed.removeWhere((item) => item.id == candidate.id);
     notifyListeners();
-    return MatchModel(id: 'match-1', userId1: currentUser.id, userId2: candidate.id);
+    return MatchModel(
+      id: 'match-1',
+      userId1: currentUser.id,
+      userId2: candidate.id,
+    );
   }
 
   @override
@@ -112,58 +127,60 @@ class FakeNavigationNotifier extends ChangeNotifier
 }
 
 void main() {
-  testWidgets('DiscoverScreen handles empty candidate names and blank avatars',
-      (tester) async {
-    final authProvider = FakeAuthProvider(
-      currentUser: UserModel(
-        id: 'current-user',
-        name: 'Current User',
-        age: 29,
-        bio: 'Bio',
-        email: 'current@outty.app',
-        adventureTypes: ['Hiking'],
-        skillLevel: 'Beginner',
-        photoUrl: '',
-      ),
-    );
-    final matchProvider = FakeMatchProvider()
-      ..feed = [
-        UserModel(
-          id: 'candidate-1',
-          name: '   ',
-          age: 30,
-          bio: 'Ready to explore.',
-          email: 'candidate@outty.app',
-          adventureTypes: ['Camping'],
-          skillLevel: 'Intermediate',
+  testWidgets(
+    'DiscoverScreen handles empty candidate names and blank avatars',
+    (tester) async {
+      final authProvider = FakeAuthProvider(
+        currentUser: UserModel(
+          id: 'current-user',
+          name: 'Current User',
+          age: 29,
+          bio: 'Bio',
+          email: 'current@outty.app',
+          adventureTypes: ['Hiking'],
+          skillLevel: 'Beginner',
           photoUrl: '',
         ),
-      ];
-    final navigationNotifier = FakeNavigationNotifier();
-
-    await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
-          ChangeNotifierProvider<MatchProvider>.value(value: matchProvider),
-          ChangeNotifierProvider<NavigationNotifier>.value(
-            value: navigationNotifier,
+      );
+      final matchProvider = FakeMatchProvider()
+        ..feed = [
+          UserModel(
+            id: 'candidate-1',
+            name: '   ',
+            age: 30,
+            bio: 'Ready to explore.',
+            email: 'candidate@outty.app',
+            adventureTypes: ['Camping'],
+            skillLevel: 'Intermediate',
+            photoUrl: '',
           ),
-        ],
-        child: const MaterialApp(home: DiscoverScreen()),
-      ),
-    );
+        ];
+      final navigationNotifier = FakeNavigationNotifier();
 
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+            ChangeNotifierProvider<MatchProvider>.value(value: matchProvider),
+            ChangeNotifierProvider<NavigationNotifier>.value(
+              value: navigationNotifier,
+            ),
+          ],
+          child: const MaterialApp(home: DiscoverScreen()),
+        ),
+      );
 
-    expect(find.text('Adventurer, 30'), findsOneWidget);
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.favorite));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-    await tester.pumpAndSettle();
+      expect(find.text('Adventurer, 30'), findsOneWidget);
 
-    expect(find.text("It's a Match!"), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+      await tester.tap(find.byIcon(Icons.favorite));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+
+      expect(find.text("It's a Match!"), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

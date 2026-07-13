@@ -30,10 +30,7 @@ class FakeAuthProvider extends ChangeNotifier implements AuthProvider {
   }
 
   @override
-  Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> login({required String email, required String password}) async {
     return true;
   }
 
@@ -41,7 +38,15 @@ class FakeAuthProvider extends ChangeNotifier implements AuthProvider {
   Future<void> logout() async {}
 
   @override
+  Future<void> deleteProfilePhotosForUser(String uid) async {}
+
+  @override
   Future<void> tryRestoreSession() async {}
+
+  @override
+  Future<String?> uploadProfilePhoto() async {
+    return null;
+  }
 
   @override
   void clearError() {}
@@ -53,13 +58,13 @@ class FakeAuthProvider extends ChangeNotifier implements AuthProvider {
 class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   @override
   List<MatchModel> matches = [];
-  
+
   @override
   List<UserModel> feed = [];
-  
+
   @override
   bool isLoading = false;
-  
+
   @override
   bool feedExhausted = false;
 
@@ -67,7 +72,10 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   Future<void> load(UserModel user) async {}
 
   @override
-  Future<MatchModel?> swipeRight(UserModel currentUser, UserModel candidate) async {
+  Future<MatchModel?> swipeRight(
+    UserModel currentUser,
+    UserModel candidate,
+  ) async {
     return null;
   }
 
@@ -138,32 +146,31 @@ void main() {
     Widget createWidgetUnderTest() {
       return MultiProvider(
         providers: [
-          ChangeNotifierProvider<AuthProvider>.value(
-              value: fakeAuthProvider),
-          ChangeNotifierProvider<MatchProvider>.value(
-              value: fakeMatchProvider),
+          ChangeNotifierProvider<AuthProvider>.value(value: fakeAuthProvider),
+          ChangeNotifierProvider<MatchProvider>.value(value: fakeMatchProvider),
           ChangeNotifierProvider<NavigationNotifier>.value(
-              value: fakeNavigationNotifier),
+            value: fakeNavigationNotifier,
+          ),
         ],
-        child: const MaterialApp(
-          home: HomeScreen(),
-        ),
+        child: const MaterialApp(home: HomeScreen()),
       );
     }
 
     testWidgets(
-        'HomeScreen renders correctly and shows DiscoverScreen by default',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      'HomeScreen renders correctly and shows DiscoverScreen by default',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(createWidgetUnderTest());
+        await tester.pumpAndSettle();
 
-      expect(find.text('Discover'), findsWidgets);
-          expect(find.text('Matches'), findsWidgets);
-          expect(find.text('Profile'), findsWidgets);
-    });
+        expect(find.text('Discover'), findsWidgets);
+        expect(find.text('Matches'), findsWidgets);
+        expect(find.text('Profile'), findsWidgets);
+      },
+    );
 
-    testWidgets('bottom navigation bar displays match count badge',
-        (WidgetTester tester) async {
+    testWidgets('bottom navigation bar displays match count badge', (
+      WidgetTester tester,
+    ) async {
       fakeMatchProvider.matches = [
         MatchModel(id: 'match1', userId1: 'user1', userId2: 'user2'),
         MatchModel(id: 'match2', userId1: 'user1', userId2: 'user3'),
@@ -177,7 +184,9 @@ void main() {
       expect(find.text('2'), findsOneWidget);
     });
 
-    testWidgets('tapping navigation bar switches pages', (WidgetTester tester) async {
+    testWidgets('tapping navigation bar switches pages', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
@@ -195,8 +204,9 @@ void main() {
       expect(fakeNavigationNotifier.currentIndex, 2);
     });
 
-    testWidgets('shows a loading state when auth user becomes null',
-        (WidgetTester tester) async {
+    testWidgets('shows a loading state when auth user becomes null', (
+      WidgetTester tester,
+    ) async {
       fakeAuthProvider.currentUser = null;
       fakeAuthProvider.notifyListeners();
 

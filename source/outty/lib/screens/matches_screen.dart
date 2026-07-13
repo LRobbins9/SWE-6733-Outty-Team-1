@@ -154,7 +154,6 @@ class _MatchesScreenState extends State<MatchesScreen> {
                           itemBuilder: (ctx, i) {
                             final match = matches[i];
                             final otherId = match.otherUserId(currentUser.id);
-
                             return FutureBuilder<UserModel?>(
                               future: matchProv.getUserById(otherId),
                               builder: (context, snapshot) {
@@ -308,7 +307,7 @@ class _MatchTile extends StatelessWidget {
               color: AppColors.textSecondary,
             ),
           ),
-          if (match.hasUnreadMessages) ...[
+          if (match.hasUnreadMessages || match.lastMessage == null) ...[
             const SizedBox(height: 4),
             Container(
               width: 10,

@@ -53,6 +53,9 @@ class HomeScreenState extends State<HomeScreen> {
     // Check for unread messages: messages from other users that current user hasn't read
     final hasUnreadMessages = matches.any((match) {
       final messages = chatProvider.getMessages(match.id);
+      // If there's not even a seeded message for this match, then noone has viewed it yet
+      // In this case, we consider it as having unread messages.
+      if (messages.isEmpty) return true;
       return messages.any((msg) => 
           msg.senderId != currentUser?.id && 
           msg.isRead == false);

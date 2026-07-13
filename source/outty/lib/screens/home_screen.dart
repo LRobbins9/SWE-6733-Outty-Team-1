@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/chat_provider.dart';
 import '../providers/match_provider.dart';
 import '../providers/navigation_notifier.dart';
 import '../utils/constants.dart';
@@ -32,15 +33,31 @@ class HomeScreenState extends State<HomeScreen> {
     final user = context.read<AuthProvider>().currentUser;
     if (user != null) {
       await context.read<MatchProvider>().load(user);
+      // Start listening to messages for all matches
+      final matches = context.read<MatchProvider>().matches;
+      final chatProvider = context.read<ChatProvider>();
+      for (final match in matches) {
+        chatProvider.listenToMessages(match.id);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final currentUser = context.watch<AuthProvider>().currentUser;
-    final matchCount = context.watch<MatchProvider>().matches.length;
+    final matches = context.watch<MatchProvider>().matches;
+    final chatProvider = context.watch<ChatProvider>();
     final navNotifier = context.watch<NavigationNotifier>();
     final currentIndex = navNotifier.currentIndex;
+
+    // Check for unread messages: messages from other users that current user hasn't read
+    final hasUnreadMessages = matches.any((match) {
+      final messages = chatProvider.getMessages(match.id);
+      return messages.any((msg) => 
+          msg.senderId != currentUser?.id && 
+          msg.isRead == false);
+    });
+    
 
     if (currentUser == null) {
       return const Scaffold(
@@ -70,13 +87,11 @@ class HomeScreenState extends State<HomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Badge(
-              isLabelVisible: matchCount > 0,
-              label: Text('$matchCount'),
+              isLabelVisible: hasUnreadMessages,
               child: const Icon(Icons.favorite_border),
             ),
             activeIcon: Badge(
-              isLabelVisible: matchCount > 0,
-              label: Text('$matchCount'),
+              isLabelVisible: hasUnreadMessages,
               child: const Icon(Icons.favorite),
             ),
             label: 'Matches',

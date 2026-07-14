@@ -1,4 +1,4 @@
-# Sprint 2 Retrospective
+# Sprint 3 Retrospective
 
 ## What went well
 -
@@ -10,7 +10,7 @@
 -
 -
 
-## Action Items for next Sprint
+## Final Thoughts
 -
 -
 -

@@ -25,10 +25,14 @@ class _ChatScreenState extends State<ChatScreen> {
   late final ChatProvider _chatProvider;
   late final AuthProvider _authProvider;
   late final MatchProvider _matchProvider;
+  bool _didInitDependencies = false;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didInitDependencies) return;
+    _didInitDependencies = true;
+
     _chatProvider = context.read<ChatProvider>();
     _authProvider = context.read<AuthProvider>();
     _matchProvider = context.read<MatchProvider>();
@@ -49,6 +53,11 @@ class _ChatScreenState extends State<ChatScreen> {
       fromUserId: widget.otherUser.id,
       fromUserName: widget.otherUser.name,
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override

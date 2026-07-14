@@ -48,7 +48,7 @@ void main() {
       final matchSnapshot =
           await fakeFirestore.collection('matches').doc(matchId).get();
       expect(matchSnapshot.data()?['lastMessage'], content);
-      expect(matchSnapshot.data()?['hasUnreadMessages'], true);
+      expect(matchSnapshot.data()?['readBy'], contains(userId1));
     });
 
     test('seedMatchMessage should add a greeting if no messages exist',
@@ -93,13 +93,13 @@ void main() {
       expect(finalSnapshot.docs.length, 1);
     });
 
-    test('markRead should update hasUnreadMessages and message statuses',
+    test('markRead should update readBy and message statuses',
         () async {
       // Set match as unread
       await fakeFirestore
           .collection('matches')
           .doc(matchId)
-          .update({'hasUnreadMessages': true});
+          .update({'readBy': [userId1]});
 
       // Add an unread message from the other user
       final messageRef = await fakeFirestore
@@ -118,7 +118,7 @@ void main() {
       // Verify match is now marked as read
       final matchDoc =
           await fakeFirestore.collection('matches').doc(matchId).get();
-      expect(matchDoc['hasUnreadMessages'], false);
+      expect(matchDoc['readBy'], contains(userId1));
 
       // Verify the message is now marked as read
       final messageDoc = await messageRef.get();

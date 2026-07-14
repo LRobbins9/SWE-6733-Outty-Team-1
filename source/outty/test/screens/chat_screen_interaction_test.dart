@@ -60,11 +60,10 @@ void main() {
       fromUserId: anyNamed('fromUserId'),
       fromUserName: anyNamed('fromUserName'),
     )).thenAnswer((_) async {});
-    when(mockMatchProvider.updateLastMessage(any, any))
-        .thenAnswer((_) async {});
+    when(mockMatchProvider.markAsRead(match.id, currentUser.id)).thenAnswer((_) async {});
   });
 
-  Widget createChatScreen() {
+  Widget createChatScreen({required MatchModel match}) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>.value(value: mockAuthProvider),
@@ -85,7 +84,7 @@ void main() {
       content: anyNamed('content'),
     )).thenAnswer((_) async => true);
 
-    await tester.pumpWidget(createChatScreen());
+    await tester.pumpWidget(createChatScreen(match: match));
 
     // Verify initial state
     expect(find.text('Message Other User...'), findsOneWidget);
@@ -102,17 +101,13 @@ void main() {
       content: 'Hello there!',
     )).called(1);
 
-    // Verify that updateLastMessage was called
-    verify(mockMatchProvider.updateLastMessage('match-1', 'Hello there!'))
-        .called(1);
-
     // Verify the text field is cleared
     expect(find.text('Hello there!'), findsNothing);
   });
 
   testWidgets('app bar shows other user name and info',
       (WidgetTester tester) async {
-    await tester.pumpWidget(createChatScreen());
+    await tester.pumpWidget(createChatScreen(match: match));
 
     expect(find.text('Other User'), findsOneWidget);
     expect(find.text('Intermediate'), findsOneWidget);
@@ -122,7 +117,7 @@ void main() {
       (WidgetTester tester) async {
     when(mockChatProvider.getMessages(any)).thenReturn([]);
 
-    await tester.pumpWidget(createChatScreen());
+    await tester.pumpWidget(createChatScreen(match: match));
     await tester.pump(); // Let the widget tree build
 
     expect(find.text('Say hello to Other User!'), findsOneWidget);
@@ -149,7 +144,7 @@ void main() {
 
     when(mockChatProvider.getMessages(any)).thenReturn(messages);
 
-    await tester.pumpWidget(createChatScreen());
+    await tester.pumpWidget(createChatScreen(match: match));
     await tester.pump();
 
     expect(find.byType(MessageBubble), findsNWidgets(2));
@@ -157,9 +152,25 @@ void main() {
     expect(find.text('Hello!'), findsOneWidget);
   });
 
+  testWidgets('marks match as read for current user',
+      (WidgetTester tester) async {
+    final unreadMatch = MatchModel(
+      id: 'match-1',
+      userId1: 'user-1',
+      userId2: 'user-2',
+      readBy: [], // No one has read it
+    );
+
+    await tester.pumpWidget(createChatScreen(match: unreadMatch));
+
+    // Verify that markAsRead was called for the current user
+    verify(mockMatchProvider.markAsRead('match-1', 'user-1')).called(1);
+  });
+
+
   testWidgets('tapping info icon shows profile preview sheet',
       (WidgetTester tester) async {
-    await tester.pumpWidget(createChatScreen());
+    await tester.pumpWidget(createChatScreen(match: match));
 
     await tester.tap(find.byIcon(Icons.info_outline));
     await tester.pumpAndSettle();

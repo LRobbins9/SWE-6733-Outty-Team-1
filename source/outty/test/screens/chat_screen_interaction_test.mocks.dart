@@ -335,9 +335,16 @@ class MockMatchProvider extends _i1.Mock implements _i8.MatchProvider {
           as _i3.Future<_i4.UserModel?>);
 
   @override
-  _i3.Future<void> updateLastMessage(String? matchId, String? message) =>
+  void updateLastMessage(String? matchId, String? message) =>
+      super.noSuchMethod(
+        Invocation.method(#updateLastMessage, [matchId, message]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i3.Future<void> markAsRead(String? matchId, String? userId) =>
       (super.noSuchMethod(
-            Invocation.method(#updateLastMessage, [matchId, message]),
+            Invocation.method(#markAsRead, [matchId, userId]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )

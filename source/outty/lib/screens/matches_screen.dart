@@ -127,9 +127,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
                                     return const SizedBox.shrink();
                                   }
 
-                                  return GestureDetector(
+                                  return _NewMatchCircle(
+                                    user: otherUser,
                                     onTap: () => _showProfile(context, otherUser),
-                                    child: _NewMatchCircle(user: otherUser),
                                   );
                                 },
                               );
@@ -204,35 +204,65 @@ class _MatchesScreenState extends State<MatchesScreen> {
   }
 }
 
-class _NewMatchCircle extends StatelessWidget {
-  const _NewMatchCircle({required this.user});
+class _NewMatchCircle extends StatefulWidget {
+  const _NewMatchCircle({required this.user, required this.onTap});
+
   final UserModel user;
+  final VoidCallback onTap;
+
+  @override
+  State<_NewMatchCircle> createState() => _NewMatchCircleState();
+}
+
+class _NewMatchCircleState extends State<_NewMatchCircle> {
+  bool _isHovered = false;
 
   String get _displayName {
-    final trimmedName = user.name.trim();
+    final trimmedName = widget.user.name.trim();
     return trimmedName.isEmpty ? 'Adventurer' : trimmedName;
   }
 
-  bool get _hasAvatar => (user.avatarUrl?.trim().isNotEmpty ?? false);
+  bool get _hasAvatar => (widget.user.avatarUrl?.trim().isNotEmpty ?? false);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        children: [
-          UserAvatar(
-            size: 64,
-            photoUrl: _hasAvatar ? user.avatarUrl : null,
-            backgroundColor: Colors.grey[200],
-            fallback: const Icon(Icons.person, color: Colors.white),
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: _isHovered
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.25),
+                      blurRadius: 20,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : [],
           ),
-          const SizedBox(height: 4),
-          Text(
-            _displayName.split(' ')[0],
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+          child: Column(
+            children: [
+              UserAvatar(
+                size: 64,
+                photoUrl: _hasAvatar ? widget.user.avatarUrl : null,
+                backgroundColor: Colors.grey[200],
+                fallback: const Icon(Icons.person, color: Colors.white),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _displayName.split(' ')[0],
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -255,66 +285,93 @@ class _MatchTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final lastMsg = match.lastMessage ?? 'Say hello!';
 
-    return ListTile(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ChatScreen(match: match, otherUser: other),
-          ),
-        );
-      },
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      leading: UserAvatar(
-        size: 60,
-        photoUrl: _hasAvatar ? other.avatarUrl : null,
-        backgroundColor: Colors.grey[200],
-        fallback: const Icon(Icons.person, color: Colors.white),
-      ),
-      title: Text(
-        '$_displayName, ${other.age}',
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-        ),
-      ),
-      subtitle: Text(
-        lastMsg,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: match.lastMessage == null
-              ? AppColors.primary
-              : AppColors.textSecondary,
-          fontStyle: match.lastMessage == null
-              ? FontStyle.italic
-              : FontStyle.normal,
-          fontSize: 13,
-        ),
-      ),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            _formatTime(match.lastMessageAt ?? match.matchedAt),
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          if (match.hasUnreadMessages || match.lastMessage == null) ...[
-            const SizedBox(height: 4),
-            Container(
-              width: 10,
-              height: 10,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Material(
+        color: Colors.white,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ChatScreen(match: match, otherUser: other),
               ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: UserAvatar(
+                    size: 64,
+                    photoUrl: _hasAvatar ? other.avatarUrl : null,
+                    backgroundColor: Colors.grey[200],
+                    fallback: const Icon(Icons.person, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$_displayName, ${other.age}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        lastMsg,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: match.lastMessage == null
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
+                          fontStyle: match.lastMessage == null
+                              ? FontStyle.italic
+                              : FontStyle.normal,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      _formatTime(match.lastMessageAt ?? match.matchedAt),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    if (match.hasUnreadMessages || match.lastMessage == null) ...[
+                      const SizedBox(height: 4),
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
             ),
-          ],
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -332,6 +389,7 @@ class _MatchTile extends StatelessWidget {
 class _ProfilePreviewSheet extends StatelessWidget {
   const _ProfilePreviewSheet({required this.user});
   final UserModel user;
+  bool get _hasAvatar => (user.avatarUrl?.trim().isNotEmpty ?? false);
 
   @override
   Widget build(BuildContext context) {
@@ -352,26 +410,42 @@ class _ProfilePreviewSheet extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            '${user.name}, ${user.age}',
-            style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary),
+          Row(
+            children: [
+              
+              UserAvatar(
+                size: 64,
+                photoUrl: _hasAvatar ? user.avatarUrl : null,
+                backgroundColor: Colors.grey[200],
+                fallback: const Icon(Icons.person, color: Colors.white),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${user.name}, ${user.age}',
+                      style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary),
+                    ),
+                    if (user.location != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        user.location!,
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 13
+                        )
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
-          if (user.location != null) ...[
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.location_on,
-                    size: 14, color: AppColors.textSecondary),
-                const SizedBox(width: 4),
-                Text(user.location!,
-                    style: TextStyle(
-                        color: AppColors.textSecondary, fontSize: 13)),
-              ],
-            ),
-          ],
           const SizedBox(height: 10),
           Text(user.bio,
               style: TextStyle(

@@ -126,6 +126,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       gender: _gender,
       interestedIn: _interestedIn,
       bio: _bioCtrl.text.trim(),
+      instagramHandle: _instagramCtrl.text.trim().isEmpty
+        ? null
+        : _instagramCtrl.text.trim(),
       location: _locationCtrl.text.trim().isEmpty
           ? null
           : _locationCtrl.text.trim(),

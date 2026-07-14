@@ -154,4 +154,35 @@ void main() {
     expect(find.text('Adventurer Essentials'), findsOneWidget);
     expect(find.text('Identity & Preferences'), findsNothing);
   });
+
+  testWidgets('finish saves instagram handle to updated user', (tester) async {
+    final authProvider = FakeAuthProvider(currentUser: createTestUser());
+    final matchProvider = FakeMatchProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+          ChangeNotifierProvider<MatchProvider>.value(value: matchProvider),
+        ],
+        child: const MaterialApp(home: ProfileSetupScreen(isEditing: true)),
+      ),
+    );
+
+    final instagramField = find.bySemanticsLabel('Instagram Handle');
+
+    expect(instagramField, findsOneWidget);
+
+    await tester.enterText(instagramField, '  @summit.alex  ');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('NEXT'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('NEXT'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('FINISH'));
+    await tester.pumpAndSettle();
+
+    expect(authProvider.currentUser?.instagramHandle, '@summit.alex');
+  });
 }

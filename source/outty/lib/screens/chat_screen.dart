@@ -37,6 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Mark messages as read
     _chatProvider.markRead(widget.match.id, _authProvider.currentUser!.id);
+    _matchProvider.markAsRead(widget.match.id, _authProvider.currentUser!.id);
 
     // Seed the match with an icebreaker if chat is empty
     _seedIfNeeded();
@@ -75,7 +76,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!mounted) return;
 
     // Update last message preview in matches list
-    _matchProvider.updateLastMessage(widget.match.id, text);
+    // _matchProvider.updateLastMessage(widget.match.id, text);
 
     _scrollToBottom();
   }

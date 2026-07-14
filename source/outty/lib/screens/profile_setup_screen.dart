@@ -29,6 +29,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _lastNameCtrl = TextEditingController();
   final _locationCtrl = TextEditingController();
   final _bioCtrl = TextEditingController();
+  final _instagramCtrl = TextEditingController();
+  String _skillLevel = kSkillLevels.first;
 
   int _age = 25;
   int _targetAgeStart = 18;
@@ -59,6 +61,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       _gender = user.gender;
       _interestedIn = user.interestedIn;
       _selectedAdventures.addAll(user.adventureTypes);
+      _instagramCtrl.text = user.instagramHandle ?? '';
+      _skillLevel = kSkillLevels.contains(user.skillLevel)
+          ? user.skillLevel
+          : kSkillLevels.first;
     }
   }
 
@@ -69,6 +75,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     _lastNameCtrl.dispose();
     _locationCtrl.dispose();
     _bioCtrl.dispose();
+    _instagramCtrl.dispose();
     super.dispose();
   }
 
@@ -123,6 +130,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           ? null
           : _locationCtrl.text.trim(),
       adventureTypes: _selectedAdventures.toList(),
+      skillLevel: _skillLevel,
     );
 
     await auth.updateCurrentUser(updated);
@@ -316,6 +324,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           const SizedBox(height: 24),
           _underlineField(_locationCtrl, 'Location'),
           const SizedBox(height: 24),
+          _underlineField(_instagramCtrl, 'Instagram Handle'),
+          const SizedBox(height: 24),
+          _buildDropdownField(
+            label: 'Skill Level',
+            value: _skillLevel,
+            options: kSkillLevels,
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _skillLevel = value);
+              }
+            },
+          ),
+          const SizedBox(height: 24),
           _underlineField(_bioCtrl, 'Bio', maxLines: 4),
         ],
       ),
@@ -500,6 +521,36 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           borderSide: BorderSide(color: AppColors.primary, width: 2),
         ),
       ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required List<String> options,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
+        ),
+      ),
+      items: options
+          .map(
+            (option) => DropdownMenuItem(
+              value: option,
+              child: Text(option),
+            ),
+          )
+          .toList(),
+      onChanged: onChanged,
     );
   }
 

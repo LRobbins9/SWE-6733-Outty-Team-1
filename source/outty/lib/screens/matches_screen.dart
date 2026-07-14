@@ -163,14 +163,21 @@ class _MatchesScreenState extends State<MatchesScreen> {
 
                                 final otherUser = snapshot.data!;
                                 if (!_matchesSearchQuery(otherUser, _searchQuery)) {
-                                  return const SizedBox.shrink();
-                                }
+                  return const SizedBox.shrink();
+                }
 
-                                return _MatchTile(match: match, other: otherUser);
-                              },
-                            );
-                          },
-                        ),
+                final bool hasUnread = match.lastMessage != null &&
+                    !match.readBy.contains(currentUser.id);
+
+                return _MatchTile(
+                  match: match,
+                  other: otherUser,
+                  hasUnread: hasUnread,
+                );
+              },
+            );
+          },
+        ),
                       ],
                     ),
                   ),
@@ -269,10 +276,15 @@ class _NewMatchCircleState extends State<_NewMatchCircle> {
 }
 
 class _MatchTile extends StatelessWidget {
-  const _MatchTile({required this.match, required this.other});
+  const _MatchTile({
+    required this.match,
+    required this.other,
+    required this.hasUnread,
+  });
 
   final MatchModel match;
   final UserModel other;
+  final bool hasUnread;
 
   String get _displayName {
     final trimmedName = other.name.trim();
@@ -355,7 +367,7 @@ class _MatchTile extends StatelessWidget {
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    if (match.hasUnreadMessages || match.lastMessage == null) ...[
+                    if (hasUnread) ...[
                       const SizedBox(height: 4),
                       Container(
                         width: 10,

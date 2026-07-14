@@ -8,10 +8,7 @@ For the CI/CD pipeline, team 1 chose to utilize GitHub actions and Firebase Host
 <img width="1842" height="642" alt="image" src="https://github.com/user-attachments/assets/65eb5876-2604-45a4-b27e-7edf7fae0425" />
 
 ## Pull Request Pipeline
-
-<img width="1882" height="917" alt="image" src="https://github.com/user-attachments/assets/8cac5d25-634f-484a-b8ae-d999a05c0033" />
-
-<img width="1060" height="532" alt="image" src="https://github.com/user-attachments/assets/62b6aab4-6aba-4ab9-a06e-2f4fd4b1e09a" />
+(show a sprint 3 build)
 
 ## Merging Pipeline 
 The production deployment is found here -> https://outty-app-team-1.firebaseapp.com/

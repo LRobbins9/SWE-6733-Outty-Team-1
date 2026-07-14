@@ -173,23 +173,34 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> updateCurrentUser(UserModel updated) async {
     if (!_ensureFirebaseReady()) {
+      _errorMessage = 'Firebase is not initialized.';
       _isLoading = false;
       notifyListeners();
       return;
     }
 
+    _clearError();
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _db!.collection('users').doc(updated.id).update(updated.toJson());
+      await _db!.collection('users').doc(updated.id).set(
+        updated.toJson(),
+        SetOptions(merge: true),
+      );
       _currentUser = updated;
+    } on FirebaseException catch (e) {
+      _errorMessage = e.message ?? 'Unable to save profile changes.';
+      debugPrint('Error updating profile: ${e.code} ${e.message}');
+      rethrow;
     } catch (e) {
+      _errorMessage = 'Unable to save profile changes.';
       debugPrint('Error updating profile: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<String?> uploadProfilePhoto() async {

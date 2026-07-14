@@ -136,19 +136,34 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       skillLevel: _skillLevel,
     );
 
-    await auth.updateCurrentUser(updated);
+    try {
+      await auth.updateCurrentUser(updated);
 
-    if (!mounted) return;
-    await context.read<MatchProvider>().load(updated);
+      if (!mounted) return;
+      await context.read<MatchProvider>().load(updated);
 
-    if (!mounted) return;
-    setState(() => _saving = false);
-    if (widget.isEditing) {
-      Navigator.pop(context);
-      return;
+      if (!mounted) return;
+      if (widget.isEditing) {
+        Navigator.pop(context);
+        return;
+      }
+
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            auth.errorMessage ?? 'Unable to save your profile right now.',
+          ),
+          backgroundColor: AppColors.pass,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _saving = false);
+      }
     }
-
-    Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
   Future<void> _uploadPhoto() async {

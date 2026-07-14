@@ -118,6 +118,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     setState(() => _saving = true);
 
     final auth = context.read<AuthProvider>();
+    final trimmedInstagramHandle = _instagramCtrl.text.trim();
     final updated = auth.currentUser!.copyWith(
       name: '${_firstNameCtrl.text} ${_lastNameCtrl.text}'.trim(),
       age: _age,
@@ -126,9 +127,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       gender: _gender,
       interestedIn: _interestedIn,
       bio: _bioCtrl.text.trim(),
-      instagramHandle: _instagramCtrl.text.trim().isEmpty
-        ? null
-        : _instagramCtrl.text.trim(),
+      instagramHandle: trimmedInstagramHandle.isEmpty
+          ? null
+          : trimmedInstagramHandle.replaceFirst(RegExp(r'^@+'), ''),
       location: _locationCtrl.text.trim().isEmpty
           ? null
           : _locationCtrl.text.trim(),

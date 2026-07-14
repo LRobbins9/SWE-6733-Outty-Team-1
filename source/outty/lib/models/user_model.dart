@@ -1,4 +1,6 @@
 class UserModel {
+  static const Object _noChange = Object();
+
   final String id;
   String name;
   int age;
@@ -50,7 +52,7 @@ class UserModel {
     List<String>? adventureTypes,
     String? skillLevel,
     int? maxDistance,
-    String? instagramHandle,
+    Object? instagramHandle = _noChange,
   }) {
     return UserModel(
       id: id,
@@ -66,7 +68,9 @@ class UserModel {
       adventureTypes: adventureTypes ?? List.from(this.adventureTypes),
       skillLevel: skillLevel ?? this.skillLevel,
       maxDistance: maxDistance ?? this.maxDistance,
-      instagramHandle: instagramHandle ?? this.instagramHandle,
+      instagramHandle: identical(instagramHandle, _noChange)
+          ? this.instagramHandle
+          : instagramHandle as String?,
       email: email,
       createdAt: createdAt,
     );

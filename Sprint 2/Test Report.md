@@ -1,11 +1,8 @@
 # Sprint 2 Test Report
 
 ## Sprint 2 Tests
-The following testing was developed and run during sprint 2. 
+The following testing was developed and run during sprint 2. In total, 1 new BDD test was added as well as an additional 23 unit tests. 
 
-(add applicable test and supporting images)
-
-(replace){
 <b> BDD Test Cases </b>: 4 Files with 32 Test Cases.
 - auth_feature_test.dart
 - onBoarding_feature_test.dart
@@ -31,4 +28,6 @@ These tests verify and validate all features implemented in sprint 2. Those test
 
 
 There is a <b> passing </b> result for all 71 test cases. 
+
+<img width="552" height="32" alt="image" src="https://github.com/user-attachments/assets/f0ba5754-87df-44af-a7e7-a2cc0b0d0e41" />
 

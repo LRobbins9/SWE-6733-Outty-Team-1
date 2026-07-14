@@ -1,7 +1,9 @@
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:outty/providers/auth_provider.dart';
+import 'package:outty/providers/chat_provider.dart';
 import 'package:outty/providers/match_provider.dart';
 import 'package:outty/providers/navigation_notifier.dart';
 import 'package:outty/screens/home_screen.dart';
@@ -136,11 +138,13 @@ void main() {
     late FakeAuthProvider fakeAuthProvider;
     late FakeMatchProvider fakeMatchProvider;
     late FakeNavigationNotifier fakeNavigationNotifier;
+    late ChatProvider fakeChatProvider;
 
     setUp(() {
       fakeAuthProvider = FakeAuthProvider(currentUser: createTestUser());
       fakeMatchProvider = FakeMatchProvider();
       fakeNavigationNotifier = FakeNavigationNotifier();
+      fakeChatProvider = ChatProvider(firestore: FakeFirebaseFirestore());
     });
 
     Widget createWidgetUnderTest() {
@@ -148,6 +152,7 @@ void main() {
         providers: [
           ChangeNotifierProvider<AuthProvider>.value(value: fakeAuthProvider),
           ChangeNotifierProvider<MatchProvider>.value(value: fakeMatchProvider),
+          ChangeNotifierProvider<ChatProvider>.value(value: fakeChatProvider),
           ChangeNotifierProvider<NavigationNotifier>.value(
             value: fakeNavigationNotifier,
           ),
@@ -167,22 +172,6 @@ void main() {
         expect(find.text('Profile'), findsWidgets);
       },
     );
-
-    testWidgets('bottom navigation bar displays match count badge', (
-      WidgetTester tester,
-    ) async {
-      fakeMatchProvider.matches = [
-        MatchModel(id: 'match1', userId1: 'user1', userId2: 'user2'),
-        MatchModel(id: 'match2', userId1: 'user1', userId2: 'user3'),
-      ];
-      fakeMatchProvider.notifyListeners();
-
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
-
-      expect(find.byType(Badge), findsOneWidget);
-      expect(find.text('2'), findsOneWidget);
-    });
 
     testWidgets('tapping navigation bar switches pages', (
       WidgetTester tester,

@@ -52,8 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    // Unsubscribe from Firestore
-    _chatProvider.stopListening(widget.match.id);
+    // Keep listening to messages for the home screen badge to work
     _msgCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();

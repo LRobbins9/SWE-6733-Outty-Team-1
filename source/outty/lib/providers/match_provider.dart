@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/match_model.dart';
@@ -12,6 +13,11 @@ class MatchProvider extends ChangeNotifier {
   final Set<String> _swipedIds = {};
   List<UserModel> _feed = [];
   bool _isLoading = false;
+  final List<StreamSubscription> _matchSubscriptions = [];
+  
+  // Track matches from each listener to avoid conflicts
+  final Map<String, MatchModel> _userId1Matches = {};
+  final Map<String, MatchModel> _userId2Matches = {};
 
   List<MatchModel> get matches => List.unmodifiable(_matches);
   List<UserModel> get feed => List.unmodifiable(_feed);
@@ -71,6 +77,9 @@ class MatchProvider extends ChangeNotifier {
           .toList();
 
       _feed = rankCandidates(currentUser, candidates);
+      
+      // Set up real-time listener for match updates
+      _listenToMatches(currentUser.id);
     } catch (e) {
       debugPrint('Error loading matches/feed: $e');
     }
@@ -79,7 +88,73 @@ class MatchProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Swipe ──────────────────────────────────────────────────────────────────
+  /// Listens for real-time updates to matches (e.g., hasUnreadMessages changes).
+  void _listenToMatches(String currentUserId) {
+    // Cancel existing subscriptions
+    for (var sub in _matchSubscriptions) {
+      sub.cancel();
+    }
+    _matchSubscriptions.clear();
+    
+    // Listen to matches where current user is userId1
+    _matchSubscriptions.add(
+      _db
+          .collection('matches')
+          .where('userId1', isEqualTo: currentUserId)
+          .snapshots()
+          .listen((snapshot1) {
+        _updateMatchesForQuery(snapshot1.docs, _userId1Matches);
+      }),
+    );
+    
+    // Also listen for matches where current user is userId2
+    _matchSubscriptions.add(
+      _db
+          .collection('matches')
+          .where('userId2', isEqualTo: currentUserId)
+          .snapshots()
+          .listen((snapshot2) {
+        _updateMatchesForQuery(snapshot2.docs, _userId2Matches);
+      }),
+    );
+  }
+
+  void _updateMatchesForQuery(List<QueryDocumentSnapshot> docs, Map<String, MatchModel> matchMap) {
+    matchMap.clear();
+    
+    // Update the map with new docs
+    for (var doc in docs) {
+      final match = MatchModel.fromJson(doc.data() as Map<String, dynamic>);
+      matchMap[match.id] = match;
+    }
+    
+    // Merge both maps and update _matches
+    _rebuildMatches();
+  }
+
+  void _rebuildMatches() {
+    _matches.clear();
+    final seenIds = <String>{};
+    
+    // Merge matches from both query results
+    for (var match in [..._userId1Matches.values, ..._userId2Matches.values]) {
+      if (!seenIds.contains(match.id)) {
+        _matches.add(match);
+        seenIds.add(match.id);
+      }
+    }
+    
+    _matches.sort((a, b) => b.matchedAt.compareTo(a.matchedAt));
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    for (var sub in _matchSubscriptions) {
+      sub.cancel();
+    }
+    super.dispose();
+  }
 
   /// Returns the newly created [MatchModel] if a match occurred, else null.
   Future<MatchModel?> swipeRight(

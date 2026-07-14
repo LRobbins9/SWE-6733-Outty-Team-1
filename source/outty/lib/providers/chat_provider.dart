@@ -145,6 +145,7 @@ class ChatProvider extends ChangeNotifier {
       }
 
       await batch.commit();
+      notifyListeners();
     } catch (e) {
       debugPrint('Error marking messages as read: $e');
     }

@@ -33,6 +33,7 @@ class HomeScreenState extends State<HomeScreen> {
     final user = context.read<AuthProvider>().currentUser;
     if (user != null) {
       await context.read<MatchProvider>().load(user);
+      if (!mounted) return;
       // Start listening to messages for all matches
       final matches = context.read<MatchProvider>().matches;
       final chatProvider = context.read<ChatProvider>();

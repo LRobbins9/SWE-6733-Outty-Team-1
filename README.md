@@ -30,3 +30,5 @@ Used for tab-completion code suggestions, 'Ask' mode for providing stack traces 
 - UI color scheming
 - Matching Algorithm
 - BDD Test Suite with Unit Tests (currently have 48 unit tests)
+- Photo upload
+- In-app messaging

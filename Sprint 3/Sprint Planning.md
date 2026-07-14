@@ -15,4 +15,4 @@ Clicking on each user story will show the subtasks that can also be clicked on a
 
 ## Sprint 3 Kanban Board
 
-## Sprint Goal  
+## Sprint 3 Goal  

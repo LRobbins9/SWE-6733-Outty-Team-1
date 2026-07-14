@@ -71,6 +71,9 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   bool isLoading = false;
 
   @override
+  Future<void> markAsRead(String matchId, String userId) async {}
+
+  @override
   bool feedExhausted = false;
 
   @override
@@ -116,6 +119,19 @@ UserModel createTestUser() {
   );
 }
 
+Finder findInstagramField() {
+  return find.bySemanticsLabel('Instagram Handle');
+}
+
+Future<void> completeProfileSetupFlow(WidgetTester tester) async {
+  await tester.tap(find.text('NEXT'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('NEXT'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('FINISH'));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('edit mode allows navigating back to the previous step', (
     tester,
@@ -150,5 +166,79 @@ void main() {
 
     expect(find.text('Adventurer Essentials'), findsOneWidget);
     expect(find.text('Identity & Preferences'), findsNothing);
+  });
+
+  testWidgets('finish saves instagram handle to updated user', (tester) async {
+    final authProvider = FakeAuthProvider(currentUser: createTestUser());
+    final matchProvider = FakeMatchProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+          ChangeNotifierProvider<MatchProvider>.value(value: matchProvider),
+        ],
+        child: const MaterialApp(home: ProfileSetupScreen(isEditing: true)),
+      ),
+    );
+
+    final instagramField = findInstagramField();
+
+    expect(instagramField, findsOneWidget);
+
+    await tester.enterText(instagramField, '  @summit.alex  ');
+    await tester.pumpAndSettle();
+
+    await completeProfileSetupFlow(tester);
+
+    expect(authProvider.currentUser?.instagramHandle, 'summit.alex');
+  });
+
+  testWidgets('finish updates an existing instagram handle', (tester) async {
+    final authProvider = FakeAuthProvider(
+      currentUser: createTestUser().copyWith(instagramHandle: 'old.handle'),
+    );
+    final matchProvider = FakeMatchProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+          ChangeNotifierProvider<MatchProvider>.value(value: matchProvider),
+        ],
+        child: const MaterialApp(home: ProfileSetupScreen(isEditing: true)),
+      ),
+    );
+
+    await tester.enterText(findInstagramField(), 'new.handle');
+    await tester.pumpAndSettle();
+
+    await completeProfileSetupFlow(tester);
+
+    expect(authProvider.currentUser?.instagramHandle, 'new.handle');
+  });
+
+  testWidgets('finish clears an existing instagram handle', (tester) async {
+    final authProvider = FakeAuthProvider(
+      currentUser: createTestUser().copyWith(instagramHandle: 'old.handle'),
+    );
+    final matchProvider = FakeMatchProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+          ChangeNotifierProvider<MatchProvider>.value(value: matchProvider),
+        ],
+        child: const MaterialApp(home: ProfileSetupScreen(isEditing: true)),
+      ),
+    );
+
+    await tester.enterText(findInstagramField(), '');
+    await tester.pumpAndSettle();
+
+    await completeProfileSetupFlow(tester);
+
+    expect(authProvider.currentUser?.instagramHandle, isNull);
   });
 }

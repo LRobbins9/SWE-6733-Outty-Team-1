@@ -108,6 +108,9 @@ class _PhotoFeatureMatchProvider extends ChangeNotifier
 
   @override
   Future<void> updateLastMessage(String matchId, String message) async {}
+
+  @override
+  Future<void> markAsRead(String matchId, String userId) async {}
 }
 
 UserModel _buildUser({String? photoUrl}) {

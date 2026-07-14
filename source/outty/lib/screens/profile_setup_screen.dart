@@ -29,6 +29,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _lastNameCtrl = TextEditingController();
   final _locationCtrl = TextEditingController();
   final _bioCtrl = TextEditingController();
+  final _instagramCtrl = TextEditingController();
+  String _skillLevel = kSkillLevels.first;
 
   int _age = 25;
   int _targetAgeStart = 18;
@@ -59,6 +61,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       _gender = user.gender;
       _interestedIn = user.interestedIn;
       _selectedAdventures.addAll(user.adventureTypes);
+      _instagramCtrl.text = user.instagramHandle ?? '';
+      _skillLevel = kSkillLevels.contains(user.skillLevel)
+          ? user.skillLevel
+          : kSkillLevels.first;
     }
   }
 
@@ -69,6 +75,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     _lastNameCtrl.dispose();
     _locationCtrl.dispose();
     _bioCtrl.dispose();
+    _instagramCtrl.dispose();
     super.dispose();
   }
 
@@ -111,6 +118,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     setState(() => _saving = true);
 
     final auth = context.read<AuthProvider>();
+    final trimmedInstagramHandle = _instagramCtrl.text.trim();
     final updated = auth.currentUser!.copyWith(
       name: '${_firstNameCtrl.text} ${_lastNameCtrl.text}'.trim(),
       age: _age,
@@ -119,25 +127,44 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       gender: _gender,
       interestedIn: _interestedIn,
       bio: _bioCtrl.text.trim(),
+      instagramHandle: trimmedInstagramHandle.isEmpty
+          ? null
+          : trimmedInstagramHandle.replaceFirst(RegExp(r'^@+'), ''),
       location: _locationCtrl.text.trim().isEmpty
           ? null
           : _locationCtrl.text.trim(),
       adventureTypes: _selectedAdventures.toList(),
+      skillLevel: _skillLevel,
     );
 
-    await auth.updateCurrentUser(updated);
+    try {
+      await auth.updateCurrentUser(updated);
 
-    if (!mounted) return;
-    await context.read<MatchProvider>().load(updated);
+      if (!mounted) return;
+      await context.read<MatchProvider>().load(updated);
 
-    if (!mounted) return;
-    setState(() => _saving = false);
-    if (widget.isEditing) {
-      Navigator.pop(context);
-      return;
+      if (!mounted) return;
+      if (widget.isEditing) {
+        Navigator.pop(context);
+        return;
+      }
+
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            auth.errorMessage ?? 'Unable to save your profile right now.',
+          ),
+          backgroundColor: AppColors.pass,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _saving = false);
+      }
     }
-
-    Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
   Future<void> _uploadPhoto() async {
@@ -315,6 +342,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           _buildAgeRow(),
           const SizedBox(height: 24),
           _underlineField(_locationCtrl, 'Location'),
+          const SizedBox(height: 24),
+          _underlineField(_instagramCtrl, 'Instagram Handle'),
+          const SizedBox(height: 24),
+          _buildDropdownField(
+            label: 'Skill Level',
+            value: _skillLevel,
+            options: kSkillLevels,
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _skillLevel = value);
+              }
+            },
+          ),
           const SizedBox(height: 24),
           _underlineField(_bioCtrl, 'Bio', maxLines: 4),
         ],
@@ -500,6 +540,36 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           borderSide: BorderSide(color: AppColors.primary, width: 2),
         ),
       ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required List<String> options,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
+        ),
+      ),
+      items: options
+          .map(
+            (option) => DropdownMenuItem(
+              value: option,
+              child: Text(option),
+            ),
+          )
+          .toList(),
+      onChanged: onChanged,
     );
   }
 

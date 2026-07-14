@@ -246,22 +246,20 @@ class MatchProvider extends ChangeNotifier {
     return null;
   }
 
-  Future<void> updateLastMessage(String matchId, String message) async {
-    final idx = _matches.indexWhere((m) => m.id == matchId);
-    if (idx >= 0) {
-      final now = DateTime.now();
-      _matches[idx].lastMessage = message;
-      _matches[idx].lastMessageAt = now;
-      
-      try {
-        await _db.collection('matches').doc(matchId).update({
-          'lastMessage': message,
-          'lastMessageAt': now.toIso8601String(),
-        });
-      } catch (e) {
-        debugPrint('Error updating last message: $e');
-      }
-      
+  void updateLastMessage(String matchId, String message) {
+    final match = _matches.firstWhere((m) => m.id == matchId);
+    match.lastMessage = message;
+    match.lastMessageAt = DateTime.now();
+    notifyListeners();
+  }
+
+  Future<void> markAsRead(String matchId, String userId) async {
+    final match = _matches.firstWhere((m) => m.id == matchId);
+    if (!match.readBy.contains(userId)) {
+      match.readBy.add(userId);
+      await _db.collection('matches').doc(matchId).update({
+        'readBy': FieldValue.arrayUnion([userId]),
+      });
       notifyListeners();
     }
   }

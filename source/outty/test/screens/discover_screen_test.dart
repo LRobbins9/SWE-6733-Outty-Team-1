@@ -69,6 +69,9 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   List<UserModel> feed = [];
 
   @override
+  Future<void> markAsRead(String matchId, String userId) async {}
+
+  @override
   bool isLoading = false;
 
   @override

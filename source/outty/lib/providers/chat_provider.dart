@@ -73,13 +73,22 @@ class ChatProvider extends ChangeNotifier {
     );
 
     try {
+      // Add to local cache immediately for snappy UI
+      if (_messages.containsKey(matchId)) {
+        _messages[matchId]!.add(msg);
+      } else {
+        _messages[matchId] = [msg];
+      }
+      notifyListeners();
+
+      // Persist to Firestore
       await docRef.set(msg.toJson());
-      
+
       // Update last message in match document
       await _db.collection('matches').doc(matchId).update({
         'lastMessage': msg.content,
         'lastMessageAt': msg.sentAt.toIso8601String(),
-        'hasUnreadMessages': true,
+        'readBy': [senderId],
       });
     } catch (e) {
       debugPrint('Error sending message: $e');
@@ -125,10 +134,6 @@ class ChatProvider extends ChangeNotifier {
 
   Future<void> markRead(String matchId, String currentUserId) async {
     try {
-      // Update hasUnreadMessages on the match document
-      await _db.collection('matches').doc(matchId).update({
-        'hasUnreadMessages': false,
-      });
 
       final snapshot = await _db
           .collection('matches')

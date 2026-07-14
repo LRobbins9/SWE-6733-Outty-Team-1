@@ -6,6 +6,7 @@ class MatchModel {
   bool hasUnreadMessages;
   String? lastMessage;
   DateTime? lastMessageAt;
+  List<String> readBy;
 
   MatchModel({
     required this.id,
@@ -15,6 +16,7 @@ class MatchModel {
     this.hasUnreadMessages = false,
     this.lastMessage,
     this.lastMessageAt,
+    this.readBy = const [],
   }) : matchedAt = matchedAt ?? DateTime.now();
 
   String otherUserId(String currentUserId) =>
@@ -28,6 +30,7 @@ class MatchModel {
         'hasUnreadMessages': hasUnreadMessages,
         'lastMessage': lastMessage,
         'lastMessageAt': lastMessageAt?.toIso8601String(),
+        'readBy': readBy,
       };
 
   factory MatchModel.fromJson(Map<String, dynamic> json) {
@@ -51,6 +54,9 @@ class MatchModel {
       lastMessageAt: json['lastMessageAt'] != null
           ? parseDate(json['lastMessageAt'])
           : null,
+      readBy:
+          (json['readBy'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              [],
     );
   }
 }

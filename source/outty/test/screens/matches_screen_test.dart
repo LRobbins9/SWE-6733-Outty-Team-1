@@ -71,6 +71,9 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   bool isLoading = false;
 
   @override
+  Future<void> markAsRead(String matchId, String userId) async {}
+
+  @override
   bool feedExhausted = false;
 
   // Add this map to store users for lookup

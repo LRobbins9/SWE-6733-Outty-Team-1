@@ -34,5 +34,5 @@ Clicking on each user story will show the subtasks that can also be clicked on a
 <img width="1906" height="766" alt="image" src="https://github.com/user-attachments/assets/89d9c89c-90cc-4ba4-92ed-9e690b9355b8" />
 
 
-## Sprint Goal
+## Sprint 2 Goal
 The goal of sprint 2 is to implement the features that allow the user to upload a profile picture as well as allow them to message their matches. Additionally, the CI/CD pipeline will be setup so that every build triggers the pipeline and that includes checking for merge conflicts, running all unit tests and deploying to the Firebase frontend.

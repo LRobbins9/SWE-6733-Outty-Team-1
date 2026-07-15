@@ -5,6 +5,7 @@ import '../models/user_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/match_provider.dart';
+import '../providers/block_provider.dart';
 import '../utils/constants.dart';
 import '../widgets/user_avatar.dart';
 import '../widgets/message_bubble.dart';
@@ -25,6 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late final ChatProvider _chatProvider;
   late final AuthProvider _authProvider;
   late final MatchProvider _matchProvider;
+  late final BlockProvider _blockProvider;
   bool _didInitDependencies = false;
 
   @override
@@ -36,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _chatProvider = context.read<ChatProvider>();
     _authProvider = context.read<AuthProvider>();
     _matchProvider = context.read<MatchProvider>();
+    _blockProvider = context.read<BlockProvider>();
     // Start listening to Firestore
     _chatProvider.listenToMessages(widget.match.id);
 
@@ -138,6 +141,21 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.block),
+            onPressed: () async {
+              final currentUser = _authProvider.currentUser!;
+              await _blockProvider.blockUser(currentUser.id, other.id, widget.match.id);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('User has been blocked.'),
+                ),
+              );
+            },
+            tooltip: 'Block user. Permanently deletes all messages, '
+                'unmatches you, and prevents further interaction. CANNOT BE UNDONE.',
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () => _showProfile(context, other),

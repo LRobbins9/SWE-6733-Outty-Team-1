@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'block_provider.dart';
 import '../models/match_model.dart';
 import '../models/user_model.dart';
+import '../models/block_model.dart';
 import '../utils/matching_engine.dart';
 
 /// Manages the discovery feed, swipe actions, and matches using Firestore.
 class MatchProvider extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final BlockProvider blockProvider = BlockProvider();
 
   final List<MatchModel> _matches = [];
+  final List<BlockModel> _blocks = [];
   final Set<String> _swipedIds = {};
   List<UserModel> _feed = [];
   bool _isLoading = false;
@@ -23,6 +27,7 @@ class MatchProvider extends ChangeNotifier {
   List<UserModel> get feed => List.unmodifiable(_feed);
   bool get isLoading => _isLoading;
   bool get feedExhausted => _feed.isEmpty;
+  List<BlockModel> get blocks => List.unmodifiable(_blocks);
 
   // ── Init ───────────────────────────────────────────────────────────────────
 
@@ -54,11 +59,22 @@ class MatchProvider extends ChangeNotifier {
           .where('userId2', isEqualTo: currentUser.id)
           .get();
 
+      // 3. Retrieve blocks from Firestore
+      final blocks = await blockProvider.getBlocks(currentUser.id);
+
+      _blocks.clear();
+      _blocks.addAll(blocks);
+
       _matches.clear();
+      _userId1Matches.clear();
+      _userId2Matches.clear();
+
       final allMatchDocs = [...matchesQuery1.docs, ...matchesQuery2.docs];
-      
+
       for (var doc in allMatchDocs) {
-        _matches.add(MatchModel.fromJson(doc.data()));
+        final match = _matchFromDoc(doc);
+        if (match == null) continue;
+        _matches.add(match);
       }
       _matches.sort((a, b) => b.matchedAt.compareTo(a.matchedAt));
 
@@ -73,7 +89,12 @@ class MatchProvider extends ChangeNotifier {
           .where((u) =>
               u.id != currentUser.id &&
               !_swipedIds.contains(u.id) &&
-              !matchedIds.contains(u.id))
+              !matchedIds.contains(u.id) &&
+            !_blocks.any((block) =>
+              (block.blockerUserId == currentUser.id &&
+                block.blockedUserId == u.id) ||
+              (block.blockedUserId == currentUser.id &&
+                block.blockerUserId == u.id)))
           .toList();
 
       _feed = rankCandidates(currentUser, candidates);
@@ -119,17 +140,36 @@ class MatchProvider extends ChangeNotifier {
     );
   }
 
-  void _updateMatchesForQuery(List<QueryDocumentSnapshot> docs, Map<String, MatchModel> matchMap) {
-    matchMap.clear();
-    
-    // Update the map with new docs
+  void _updateMatchesForQuery(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+    Map<String, MatchModel> matchMap,
+  ) {
+    final nextMatches = <String, MatchModel>{};
+
+    // Build the next state first so a single bad doc never clears all matches.
     for (var doc in docs) {
-      final match = MatchModel.fromJson(doc.data() as Map<String, dynamic>);
-      matchMap[match.id] = match;
+      final match = _matchFromDoc(doc);
+      if (match == null) continue;
+      nextMatches[match.id] = match;
     }
-    
+
+    matchMap
+      ..clear()
+      ..addAll(nextMatches);
+
     // Merge both maps and update _matches
     _rebuildMatches();
+  }
+
+  MatchModel? _matchFromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+    try {
+      final data = Map<String, dynamic>.from(doc.data());
+      data['id'] = data['id'] ?? doc.id;
+      return MatchModel.fromJson(data);
+    } catch (e) {
+      debugPrint('Skipping invalid match doc ${doc.id}: $e');
+      return null;
+    }
   }
 
   void _rebuildMatches() {
@@ -264,7 +304,7 @@ class MatchProvider extends ChangeNotifier {
     }
   }
 
-  /// Resets all swipe history (useful for demo / testing).
+  /// Resets all swipe history (useful for demo / testing, need a better algorithm for production).
   Future<void> resetFeed(UserModel currentUser) async {
     _isLoading = true;
     notifyListeners();

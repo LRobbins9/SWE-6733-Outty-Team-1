@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:outty/models/match_model.dart';
 import 'package:outty/models/user_model.dart';
+import 'package:outty/models/block_model.dart';
 import 'package:outty/providers/auth_provider.dart';
+import 'package:outty/providers/block_provider.dart';
 import 'package:outty/providers/match_provider.dart';
 import 'package:outty/screens/profile_screen.dart';
 import 'package:outty/widgets/user_avatar.dart';
@@ -69,6 +71,9 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   List<MatchModel> matches = [];
 
   @override
+  List<BlockModel> blocks = [];
+
+  @override
   List<UserModel> feed = [];
 
   @override
@@ -104,6 +109,11 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
 
   @override
   Future<void> updateLastMessage(String matchId, String message) async {}
+
+    @override
+    BlockProvider get blockProvider {
+      throw UnimplementedError();
+  }
 }
 
 void main() {

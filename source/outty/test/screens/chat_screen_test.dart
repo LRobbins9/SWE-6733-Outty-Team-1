@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:outty/models/match_model.dart';
 import 'package:outty/models/user_model.dart';
+import 'package:outty/models/block_model.dart';
 import 'package:outty/providers/auth_provider.dart';
+import 'package:outty/providers/block_provider.dart';
 import 'package:outty/providers/chat_provider.dart';
 import 'package:outty/providers/match_provider.dart';
 import 'package:outty/screens/chat_screen.dart';
@@ -70,6 +72,9 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
   List<UserModel> feed = [];
 
   @override
+  List<BlockModel> blocks = [];
+
+  @override
   bool isLoading = false;
 
   @override
@@ -102,6 +107,11 @@ class FakeMatchProvider extends ChangeNotifier implements MatchProvider {
 
   @override
   Future<void> updateLastMessage(String matchId, String message) async {}
+
+    @override
+  BlockProvider get blockProvider {
+    throw UnimplementedError();
+  }
 }
 
 void main() {
@@ -130,6 +140,7 @@ void main() {
       ),
     );
     final chatProvider = ChatProvider(firestore: fakeFirestore);
+    final blockProvider = BlockProvider(firestore: fakeFirestore);
     final matchProvider = FakeMatchProvider();
     final match = MatchModel(id: matchId, userId1: 'user-1', userId2: 'user-2');
     final otherUser = UserModel(
@@ -148,6 +159,7 @@ void main() {
           ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
           ChangeNotifierProvider<ChatProvider>.value(value: chatProvider),
           ChangeNotifierProvider<MatchProvider>.value(value: matchProvider),
+          ChangeNotifierProvider<BlockProvider>.value(value: blockProvider),
         ],
         child: MaterialApp(
           home: ChatScreen(match: match, otherUser: otherUser),

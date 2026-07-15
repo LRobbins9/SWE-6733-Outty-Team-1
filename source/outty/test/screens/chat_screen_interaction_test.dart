@@ -6,11 +6,13 @@ import 'package:outty/models/match_model.dart';
 import 'package:outty/models/message_model.dart';
 import 'package:outty/models/user_model.dart';
 import 'package:outty/providers/auth_provider.dart';
+import 'package:outty/providers/block_provider.dart';
 import 'package:outty/providers/chat_provider.dart';
 import 'package:outty/providers/match_provider.dart';
 import 'package:outty/screens/chat_screen.dart';
 import 'package:outty/widgets/message_bubble.dart';
 import 'package:provider/provider.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 
 import 'chat_screen_interaction_test.mocks.dart';
 
@@ -19,6 +21,7 @@ void main() {
   late MockAuthProvider mockAuthProvider;
   late MockChatProvider mockChatProvider;
   late MockMatchProvider mockMatchProvider;
+  late BlockProvider blockProvider;
   late UserModel currentUser;
   late UserModel otherUser;
   late MatchModel match;
@@ -27,6 +30,7 @@ void main() {
     mockAuthProvider = MockAuthProvider();
     mockChatProvider = MockChatProvider();
     mockMatchProvider = MockMatchProvider();
+    blockProvider = BlockProvider(firestore: FakeFirebaseFirestore());
 
     currentUser = UserModel(
       id: 'user-1',
@@ -69,6 +73,7 @@ void main() {
         ChangeNotifierProvider<AuthProvider>.value(value: mockAuthProvider),
         ChangeNotifierProvider<ChatProvider>.value(value: mockChatProvider),
         ChangeNotifierProvider<MatchProvider>.value(value: mockMatchProvider),
+        ChangeNotifierProvider<BlockProvider>.value(value: blockProvider),
       ],
       child: MaterialApp(
         home: ChatScreen(match: match, otherUser: otherUser),

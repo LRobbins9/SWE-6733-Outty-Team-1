@@ -7,12 +7,13 @@ July 13th 2026 - July 18th 2026
 During sprint 2, the team forecasts a completion of <b> 8 story points </b>. Sprint 2 is a one-week-long sprint; therefore, the team will need to utilize their time wisely whilst also maintaining and upholding the priority of important story points.
 
 This table shows the availability of the five team members during the one-week Sprint 2. It helps the team evaluate its overall capacity and create a realistic story-point forecast.
-Team member	          Availability	Planned absence	Expected capacity
-Lauren Robbins	      100%	        None	          1.6 story points
-Jeffrey McGurk	      100%	        None	          1.6 story points
-Angel Arnold  	      100%	        None	          1.6 story points
-Kennedy Hemphill	    100%	        None	          1.6 story points
-Ricardo Hernandez	    100%	        None	          1.6 story points
+| Team Member        | Availability | Planned Absence | Expected Capacity |
+|--------------------|--------------|-----------------|-------------------|
+| Lauren Robbins     | 100%         | None            | 1.6 story points  |
+| Jeffrey McGurk     | 100%         | None            | 1.6 story points  |
+| Angel Arnold       | 100%         | None            | 1.6 story points  |
+| Kennedy Hemphill   | 100%         | None            | 1.6 story points  |
+| Ricardo Hernandez  | 100%         | None            | 1.6 story points  |
 
 ## Sprint 2 User Stories and respective SubTasks
 - SCRUM-18 (2 Story Points)   

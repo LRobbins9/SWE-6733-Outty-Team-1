@@ -4,7 +4,7 @@
 The goal of sprint 2 is to implement the features that allow the user to upload a profile picture as well as allow them to message their matches. Additionally, the CI/CD pipeline will be setup so that every build triggers the pipeline and that includes checking for merge conflicts, running all unit tests and deploying to the Firebase frontend.
 
 ## Sprint 2 User Story Additions
-No additional user stories were added during sprint 2. There was a subtask (SCRUM-64) added to an existing user story that allows the user to block a match withing their messages. 
+No additional user stories were added during sprint 2. There was a subtask (SCRUM-64) added to an existing user story that allows the user to block a match within their messages. 
 
 ## Sprint 2 User Story Removals
 No user stories were removed during sprint 2.  

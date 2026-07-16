@@ -29,6 +29,6 @@ Used for tab-completion code suggestions, 'Ask' mode for providing stack traces 
 - Profile feature (which includes the selection of specific adventure parameters)
 - UI color scheming
 - Matching Algorithm
-- BDD Test Suite with Unit Tests (currently have 71 unit tests)
+- BDD Test Suite with Unit Tests (currently have 73 unit tests)
 - Photo upload
 - In-app messaging

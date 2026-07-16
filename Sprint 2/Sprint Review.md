@@ -20,12 +20,17 @@ No user stories were removed during sprint 2.
 ## Sprint 2 Demo
 ### Photo Upload 
 
-<img width="800" height="553" alt="image" src="https://github.com/user-attachments/assets/ce572e30-f1d1-4429-9b7f-dde5a35a23be" />
+<img width="866" height="592" alt="image" src="https://github.com/user-attachments/assets/d44e2da7-3f2f-4432-bf91-18d3b0092d8f" />
+
 
 ### In-App Messaging
 
+<img width="307" height="667" alt="image" src="https://github.com/user-attachments/assets/dedf1f02-a426-4bb4-a477-a51e04534b90" />
+
 
 ### Blocking Matches 
+
+<img width="330" height="672" alt="image" src="https://github.com/user-attachments/assets/aecc5104-be46-4ebe-b8c2-118bef605ba8" />
 
 
 ### Outty Prototype (Figma)

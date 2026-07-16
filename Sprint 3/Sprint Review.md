@@ -1,6 +1,7 @@
 # Sprint 3 Review
 
 ## Sprint 3 Goal
+The goal of sprint 3 is to implement the social media linking and single sign-on features. Additionally, this sprint will focus on the creation of manual test cases to increase the verification and validation of all project requirements and ensure the final implemented features align with the product vision.
 
 ## Sprint 3 (add specified modification)
 (describe specified modification)

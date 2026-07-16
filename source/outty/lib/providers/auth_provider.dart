@@ -33,6 +33,88 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+
+  Future<UserCredential> signInWithGoogle() async {
+    if (!_ensureFirebaseReady()) {
+      throw FirebaseAuthException(
+        code: 'firebase-not-initialized',
+        message: 'Firebase is not initialized.',
+      );
+    }
+
+    _clearError();
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final googleProvider = GoogleAuthProvider();
+      googleProvider.addScope('email');
+      googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+
+      final credential = await _auth!.signInWithPopup(googleProvider);
+      final firebaseUser = credential.user;
+      if (firebaseUser == null) {
+        throw FirebaseAuthException(
+          code: 'user-not-found',
+          message: 'Google sign-in did not return a user.',
+        );
+      }
+
+      final userRef = _db!.collection('users').doc(firebaseUser.uid);
+      final userDoc = await userRef.get();
+
+      if (!userDoc.exists) {
+        final newUser = UserModel(
+          id: firebaseUser.uid,
+          name: firebaseUser.displayName?.trim().isNotEmpty == true
+              ? firebaseUser.displayName!.trim()
+              : (firebaseUser.email?.split('@').first ?? 'Outty User'),
+          age: 0,
+          bio: '',
+          email: (firebaseUser.email ?? '').trim().toLowerCase(),
+          adventureTypes: [],
+          skillLevel: 'Beginner',
+          photoUrl: firebaseUser.photoURL,
+        );
+
+        await userRef.set(newUser.toJson());
+      } else {
+        final data = userDoc.data() ?? <String, dynamic>{};
+        final needsBackfill = data['id'] == null || data['email'] == null;
+
+        if (needsBackfill) {
+          await userRef.set({
+            'id': firebaseUser.uid,
+            'email': (firebaseUser.email ?? '').trim().toLowerCase(),
+            'name': (data['name'] as String?)?.trim().isNotEmpty == true
+                ? (data['name'] as String).trim()
+                : (firebaseUser.displayName?.trim().isNotEmpty == true
+                    ? firebaseUser.displayName!.trim()
+                    : (firebaseUser.email?.split('@').first ?? 'Outty User')),
+            'age': data['age'] ?? 0,
+            'bio': data['bio'] ?? '',
+            'adventureTypes': data['adventureTypes'] ?? <String>[],
+            'skillLevel': data['skillLevel'] ?? 'Beginner',
+            'photoUrl': data['photoUrl'] ?? firebaseUser.photoURL,
+            'createdAt': data['createdAt'] ?? DateTime.now().toIso8601String(),
+          }, SetOptions(merge: true));
+        }
+      }
+
+      await _fetchUserProfile(firebaseUser.uid);
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = e.message ?? 'Google sign-in failed.';
+      rethrow;
+    } catch (_) {
+      _errorMessage = 'Google sign-in failed.';
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   // ── Getters ────────────────────────────────────────────────────────────────
 
   UserModel? get currentUser => _currentUser;

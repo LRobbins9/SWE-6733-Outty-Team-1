@@ -126,6 +126,36 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _loginWithGoogle() async {
+    final auth = context.read<AuthProvider>();
+
+    try {
+      await auth.signInWithGoogle();
+    } catch (_) {
+      if (!mounted) return;
+      final message = auth.errorMessage ?? 'Google sign-in failed.';
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
+
+    if (!mounted) return;
+    final user = auth.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to load your profile. Try again.')),
+      );
+      return;
+    }
+
+    if (user.age == 0 || user.adventureTypes.isEmpty) {
+      Navigator.pushReplacementNamed(context, AppRoutes.profileSetup);
+    } else {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -239,6 +269,62 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    // Separator
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: AppColors.textSecondary.withAlpha(100),
+                            thickness: 1,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'OR',
+                          style: TextStyle(
+                            color: AppColors.textSecondary.withAlpha(150),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Divider(
+                            color: AppColors.textSecondary.withAlpha(100),
+                            thickness: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: auth.isLoading ? null : _loginWithGoogle,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: auth.isLoading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Sign in with Google',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -288,6 +374,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _obscurePassword = true;
+
+  Future<void> _loginWithGoogle() async {
+    final auth = context.read<AuthProvider>();
+
+    try {
+      await auth.signInWithGoogle();
+    } catch (_) {
+      if (!mounted) return;
+      final message = auth.errorMessage ?? 'Google sign-in failed.';
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
+
+    if (!mounted) return;
+    final user = auth.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to load your profile. Try again.')),
+      );
+      return;
+    }
+
+    if (user.age == 0 || user.adventureTypes.isEmpty) {
+      Navigator.pushReplacementNamed(context, AppRoutes.profileSetup);
+    } else {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    }
+  }
+
 
   @override
   void dispose() {
@@ -432,7 +549,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
               ),
-
+              const SizedBox(height: 16),
+              // Separator
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(
+                      color: AppColors.textSecondary.withAlpha(100),
+                      thickness: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'OR',
+                    style: TextStyle(
+                      color: AppColors.textSecondary.withAlpha(150),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Divider(
+                      color: AppColors.textSecondary.withAlpha(100),
+                      thickness: 1,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: auth.isLoading ? null : _loginWithGoogle,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: auth.isLoading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Sign in with Google',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ),
               const SizedBox(height: 20),
               Center(
                 child: Row(

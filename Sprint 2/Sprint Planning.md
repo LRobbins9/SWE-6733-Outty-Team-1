@@ -33,15 +33,14 @@ This table shows the availability of the five team members during the one-week S
 ## Sprint 2 Backlog
 A screenshot of the Sprint 2 backlog can be seen below. Note the icons in the highlighted red box are subtasks/child work items for that user story.  
 
-<img width="1530" height="290" alt="image" src="https://github.com/user-attachments/assets/07971626-0ffc-41a9-b239-e881ea36310c" />
+<img width="1857" height="312" alt="image" src="https://github.com/user-attachments/assets/51764f15-fcdf-427d-8ce0-f6de15cc903b" />
 
 Clicking on each user story will show the subtasks that can also be clicked on and viewed.
 
-<img width="777" height="702" alt="image" src="https://github.com/user-attachments/assets/57f75ca1-d5aa-4b5b-9c7a-784492e9e9a2" />
-<img width="777" height="786" alt="image" src="https://github.com/user-attachments/assets/aea39e50-8064-48b2-b4a6-0079bf486a32" />
+<img width="783" height="960" alt="image" src="https://github.com/user-attachments/assets/7d094103-ecbe-4bc2-883a-1f3acbbc3eb6" />
 
 ## Sprint 2 Kanban Board
-<img width="1917" height="676" alt="image" src="https://github.com/user-attachments/assets/86322b82-502c-4cc4-bcaf-9d249f12d987" />
+<img width="1906" height="766" alt="image" src="https://github.com/user-attachments/assets/a92c7444-09c2-4900-a520-8e0dcddc5818" />
 
 ## Sprint 2 Goal
 The goal of sprint 2 is to implement the features that allow the user to upload a profile picture as well as allow them to message their matches. Additionally, the CI/CD pipeline will be setup so that every build triggers the pipeline and that includes checking for merge conflicts, running all unit tests and deploying to the Firebase frontend.

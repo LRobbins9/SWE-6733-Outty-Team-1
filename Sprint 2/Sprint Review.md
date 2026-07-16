@@ -3,25 +3,35 @@
 ## Sprint 2 Goal
 The goal of sprint 2 is to implement the features that allow the user to upload a profile picture as well as allow them to message their matches. Additionally, the CI/CD pipeline will be setup so that every build triggers the pipeline and that includes checking for merge conflicts, running all unit tests and deploying to the Firebase frontend.
 
-## Sprint 2 (add specified modification)
-(describe specified modification)
+## Sprint 2 User Story Additions
+No additional user stories were added during sprint 2. There was a subtask (SCRUM-64) added to an existing user story that allows the user to block a match withing their messages. 
 
-## Sprint 2 User Story Removals (add specified modification)
-(describe specified modification)
+## Sprint 2 User Story Removals
+No user stories were removed during sprint 2.  
 
 ## Sprint 2 Status
-(add completed items)
+- Photo Upload feature design diagram.
+- In-app messaging feature design diagram.
+- Implementation of the Photo Upload feature.
+- Implementation of the in-app messaging feature.
+- Additional BDD Test and Unit Tests.  
 (add screenshots)
 
 ## Sprint 2 Demo
-(add new prototypes if applicable)
+### Photo Upload 
+
+<img width="800" height="553" alt="image" src="https://github.com/user-attachments/assets/ce572e30-f1d1-4429-9b7f-dde5a35a23be" />
+
+### In-App Messaging
+
+
+### Blocking Matches 
+
 
 ### Outty Prototype (Figma)
-(make sure link is updated)
 https://www.figma.com/proto/9USRvux9izOHhfWNX1edFw/OUTTY-Prototype?node-id=5-6&t=0L8tyzrC7nBwPTHH-1
 
 ### Outty Website Link
-(add updated link for sprint 2 feature addition)
 This link will direct you to the working deployed version of all the features implemented in sprint 2.  
 
 https://outty-app-team-1.firebaseapp.com/

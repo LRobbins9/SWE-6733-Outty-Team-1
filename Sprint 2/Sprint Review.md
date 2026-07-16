@@ -15,7 +15,15 @@ No user stories were removed during sprint 2.
 - Implementation of the Photo Upload feature.
 - Implementation of the in-app messaging feature.
 - Additional BDD Test and Unit Tests.  
-(add screenshots)
+
+Screenshots showing the completion of sprint 2 are shown below. Additionally, the sprint 2 report can be viewed here -> [Sprint 2 Report](https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/reports/burndown?source=overview)
+
+<img width="1856" height="312" alt="image" src="https://github.com/user-attachments/assets/95c2cbd4-46d3-4990-9918-dbb13bd5347a" />
+
+<img width="1471" height="777" alt="image" src="https://github.com/user-attachments/assets/123e384d-52bc-4a1d-a523-dc5f88ca896c" />
+
+<img width="1882" height="275" alt="image" src="https://github.com/user-attachments/assets/ed819f15-7f84-48d5-b6bd-60ee175a3300" />
+
 
 ## Sprint 2 Demo
 ### Photo Upload 
@@ -42,7 +50,10 @@ This link will direct you to the working deployed version of all the features im
 https://outty-app-team-1.firebaseapp.com/
 
 ## Sprint 2 Statistics   
-(add updated stats)
+Team 1 did a much better job this sprint in not expanding the scope and causing scope creep. The team was able to complete all user stories in a reasonable amount of time at a solid pace. The sprint 2 burndown chart can be seen below.
+
+<img width="1877" height="786" alt="image" src="https://github.com/user-attachments/assets/0c44e1a7-d0b6-4367-be3a-2bd0af7077d6" />
+
 
 ## Sprint 2 Collaboration
 During the AI assisted development of the user profile picture upload, paired/mob programming was conducted via teams chat to full test out the feature as well as discuss the constraints and implementation designs of the photo upload feature. This session resulted in a passing manual test of the feature and a confirmation to merge the code into main. 

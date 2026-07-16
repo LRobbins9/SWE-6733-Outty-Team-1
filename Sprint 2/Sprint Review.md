@@ -10,6 +10,7 @@ No additional user stories were added during sprint 2. There was a subtask (SCRU
 No user stories were removed during sprint 2.  
 
 ## Sprint 2 Status
+The team was able to accomplish all user stories in sprint 2 a day early making the final sprint duration July 13th - July 17th. This efficiency was due to increased daily communication and each team member completing their tasks early. The following was completed during sprint 2. 
 - Photo Upload feature design diagram.
 - In-app messaging feature design diagram.
 - Implementation of the Photo Upload feature.

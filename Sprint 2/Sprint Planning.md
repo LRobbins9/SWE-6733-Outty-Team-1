@@ -16,9 +16,21 @@ This table shows the availability of the five team members during the one-week S
 | Ricardo Hernandez  | 100%         | None            | 1.6 story points  |
 
 ## Sprint 2 Velocity
-Sprint 1 weekly velocity = Completed Story Points /  Sprint Duration in Weeks
-17 / 2 = 8.5 story points per week
-Sprint 2 was rounded down to 8 points to provide a capacity buffer. 
+$$
+\text{Weekly Velocity} =
+\frac{\text{Completed Story Points}}
+{\text{Sprint Duration in Weeks}}
+$$
+
+$$
+\text{Sprint 1 weekly velocity} =
+\frac{\text{17}}
+{\text{2}}
+$$
+
+Sprint 1 weekly velocity = 8.5 story points
+
+Sprint 2 was rounded down to 8 story points to provide a capacity buffer.
 
 ## Sprint 2 User Stories and respective SubTasks
 - SCRUM-18 (2 Story Points)   

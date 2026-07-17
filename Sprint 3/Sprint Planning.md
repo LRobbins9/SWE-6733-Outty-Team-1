@@ -15,6 +15,23 @@ This table shows the availability of the five team members during the one-week S
 | Kennedy Hemphill   | 100%         | None            | 1.6 story points  |
 | Ricardo Hernandez  | 100%         | None            | 1.6 story points  |
 
+## Sprint 3 Velocity
+$$
+\text{Weekly Velocity} =
+\frac{\text{Completed Story Points}}
+{\text{Sprint Duration in Weeks}}
+$$
+
+$$
+\text{Sprint 1 - 2 weekly velocity} =
+\frac{\text{25}}
+{\text{3}}
+$$
+
+Sprint 1 - 2 weekly velocity = 8.33 story points
+
+Sprint 3 was rounded down to 8 story points to provide a capacity buffer
+
 ## Sprint 3 User Stories and respective SubTasks
 - SCRUM-32 (3 Story Points)   
   - SCRUM-45

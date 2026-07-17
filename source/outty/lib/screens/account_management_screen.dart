@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
@@ -33,6 +34,12 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
   String _initialName = '';
   bool _isSaving = false;
   bool _isDeleting = false;
+
+    bool get _usesPasswordSignIn =>
+      widget.user.providerData.any((p) => p.providerId == 'password');
+
+    bool get _usesGoogleSignIn =>
+      widget.user.providerData.any((p) => p.providerId == 'google.com');
 
   @override
   void initState() {
@@ -83,6 +90,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     try {
       final user = widget.user;
       final changes = <Future<void>>[];
+      final canChangeCredentials = _usesPasswordSignIn;
 
       final trimmedName = _displayNameController.text.trim();
       if (trimmedName != _initialName) {
@@ -90,7 +98,8 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
         changes.add(user.updateDisplayName(trimmedName));
       }
 
-      if (_emailController.text.trim() != (user.email ?? '')) {
+      if (canChangeCredentials &&
+          _emailController.text.trim() != (user.email ?? '')) {
         if (_currentPasswordController.text.isEmpty) {
           throw FirebaseAuthException(
             code: 'reauth-required',
@@ -105,7 +114,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
         await user.verifyBeforeUpdateEmail(_emailController.text.trim());
       }
 
-      if (_passwordController.text.isNotEmpty) {
+      if (canChangeCredentials && _passwordController.text.isNotEmpty) {
         if (_passwordController.text != _confirmPasswordController.text) {
           throw FirebaseAuthException(
             code: 'password-mismatch',
@@ -127,10 +136,24 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
         changes.add(user.updatePassword(_passwordController.text));
       }
 
+      if (!canChangeCredentials &&
+          ((_emailController.text.trim() != (user.email ?? '')) ||
+              _passwordController.text.isNotEmpty ||
+              _confirmPasswordController.text.isNotEmpty ||
+              _currentPasswordController.text.isNotEmpty)) {
+        throw FirebaseAuthException(
+          code: 'unsupported-provider-action',
+          message:
+              'Email and password changes are not available for Google sign-in accounts.',
+        );
+      }
+
       await Future.wait(changes);
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'name': trimmedName,
-        'email': _emailController.text.trim(),
+        'email': canChangeCredentials
+            ? _emailController.text.trim()
+            : (user.email ?? '').trim(),
         'onboardingComplete': true,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -154,7 +177,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
   }
 
   Future<void> _deleteAccount() async {
-    if (_deletePasswordController.text.isEmpty) {
+    if (_usesPasswordSignIn && _deletePasswordController.text.isEmpty) {
       _showMessage('Enter your password to delete your account.');
       return;
     }
@@ -188,13 +211,29 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
 
     try {
       final user = widget.user;
-      final credential = EmailAuthProvider.credential(
-        email: user.email ?? '',
-        password: _deletePasswordController.text,
-      );
-      await user
-          .reauthenticateWithCredential(credential)
-          .timeout(const Duration(seconds: 12));
+      if (_usesPasswordSignIn) {
+        final credential = EmailAuthProvider.credential(
+          email: user.email ?? '',
+          password: _deletePasswordController.text,
+        );
+        await user
+            .reauthenticateWithCredential(credential)
+            .timeout(const Duration(seconds: 12));
+      } else if (_usesGoogleSignIn) {
+        // Web supports popup reauth for OAuth providers. Some platforms throw
+        // unimplemented for reauthenticateWithProvider with Google.
+        if (kIsWeb) {
+          final provider = GoogleAuthProvider();
+          provider.setCustomParameters({'prompt': 'select_account'});
+          await user
+              .reauthenticateWithPopup(provider)
+              .timeout(const Duration(seconds: 20));
+        } else {
+          await user
+              .reauthenticateWithProvider(GoogleAuthProvider())
+              .timeout(const Duration(seconds: 20));
+        }
+      }
 
       await context
           .read<AuthProvider>()
@@ -243,6 +282,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
           IconButton(
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
+              Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (_) => false);
             },
             icon: const Icon(Icons.logout),
             tooltip: 'Sign out',
@@ -279,33 +319,43 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                       const SizedBox(height: 12),
                       TextField(
                         controller: _emailController,
+                        readOnly: !_usesPasswordSignIn,
                         decoration: const InputDecoration(labelText: 'Email'),
                         keyboardType: TextInputType.emailAddress,
                       ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _currentPasswordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Current password (required for changes)',
+                      if (_usesPasswordSignIn) ...[
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _currentPasswordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText:
+                                'Current password (required for changes)',
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'New password',
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'New password',
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _confirmPasswordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Confirm new password',
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _confirmPasswordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Confirm new password',
+                          ),
                         ),
-                      ),
+                      ] else ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'Email and password are managed by your Google account.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
                       const SizedBox(height: 16),
                       FilledButton.icon(
                         onPressed: _isSaving ? null : _saveAccount,
@@ -339,14 +389,22 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                       const Text(
                         'This permanently removes your Outty account and all profile data.',
                       ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _deletePasswordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Password to confirm deletion',
+                      if (_usesPasswordSignIn) ...[
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _deletePasswordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Password to confirm deletion',
+                          ),
                         ),
-                      ),
+                      ] else if (_usesGoogleSignIn) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'You will confirm deletion with your Google account.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
                       const SizedBox(height: 16),
                       OutlinedButton.icon(
                         onPressed: _isDeleting ? null : _deleteAccount,

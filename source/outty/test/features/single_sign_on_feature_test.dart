@@ -35,7 +35,6 @@ class _SsoAuthProvider extends ChangeNotifier implements AuthProvider {
   bool shouldThrowOnGoogleSignIn;
 
   _SsoAuthProvider({
-    this.currentUser,
     this.userAfterGoogle,
     this.shouldThrowOnGoogleSignIn = false,
   });

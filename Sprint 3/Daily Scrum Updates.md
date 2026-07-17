@@ -2,6 +2,7 @@
 Below are high-level progress notes for each day of sprint 3.
 
 ## Friday, July 17th
+Design flow was discussed for social media linking and single sign-on. Jeffrey Implemented both features and Lauren added additional BDD test cases to verify and validate the functionality.  
 
 ## Saturday, July 18th
 

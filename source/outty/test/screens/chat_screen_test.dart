@@ -1,6 +1,7 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:firebase_auth/firebase_auth.dart' show UserCredential;
 import 'package:outty/models/match_model.dart';
 import 'package:outty/models/user_model.dart';
 import 'package:outty/models/block_model.dart';
@@ -36,6 +37,11 @@ class FakeAuthProvider extends ChangeNotifier implements AuthProvider {
 
   @override
   Future<void> logout() async {}
+
+  @override
+  Future<UserCredential> signInWithGoogle() async {
+    throw UnimplementedError();
+  }
 
   @override
   Future<bool> register({

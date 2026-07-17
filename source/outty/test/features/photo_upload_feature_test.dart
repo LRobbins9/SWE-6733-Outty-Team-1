@@ -8,6 +8,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:firebase_auth/firebase_auth.dart' show UserCredential;
 import 'package:outty/models/match_model.dart';
 import 'package:outty/models/user_model.dart';
 import 'package:outty/models/block_model.dart';
@@ -47,6 +48,11 @@ class _PhotoFeatureAuthProvider extends ChangeNotifier implements AuthProvider {
 
   @override
   Future<void> logout() async {}
+
+  @override
+  Future<UserCredential> signInWithGoogle() async {
+    throw UnimplementedError();
+  }
 
   @override
   Future<bool> register({

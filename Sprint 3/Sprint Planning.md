@@ -47,9 +47,15 @@ Sprint 3 was rounded down to 8 story points to provide a capacity buffer
 ## Sprint 3 Backlog
 A screenshot of the Sprint 3 backlog can be seen below. Note the icons in the highlighted red box are subtasks/child work items for that user story.  
 
+<img width="1888" height="263" alt="image" src="https://github.com/user-attachments/assets/700213c6-f79b-486c-bfe2-8c50428fd41a" />
+
 Clicking on each user story will show the subtasks that can also be clicked on and viewed.
 
+<img width="614" height="734" alt="image" src="https://github.com/user-attachments/assets/3df93ff9-48fa-4523-9784-a2e4288d9b25" />
+
 ## Sprint 3 Kanban Board
+
+<img width="1633" height="827" alt="image" src="https://github.com/user-attachments/assets/e1e05bae-2794-44c9-a88b-cf8286da135d" />
 
 ## Sprint 3 Goal  
 The goal of sprint 3 is to implement the social media linking and single sign-on features. Additionally, this sprint will focus on the creation of manual test cases to increase the verification and validation of all project requirements and ensure the final implemented features align with the product vision. 

@@ -17,7 +17,8 @@ The team was able to accomplish all user stories in sprint 2 a day early making 
 - Implementation of the in-app messaging feature.
 - Additional BDD Test and Unit Tests.  
 
-Screenshots showing the completion of sprint 2 are shown below. Additionally, the sprint 2 report can be viewed here -> [Sprint 2 Report](https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/reports/burndown?source=overview&atlOrigin=eyJpIjoiNGFiMGQ3NDY0OTlkNDFmZGIwODg0NzZlZjEzMmEyOTUiLCJwIjoiaiJ9)
+Screenshots showing the completion of sprint 2 are shown below. Additionally, the sprint 2 report can be viewed here -> [Sprint 2 Report](https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/reports/burndown?source=overview&atlOrigin=eyJpIjoiNGFiMGQ3NDY0OTlkNDFmZGIwODg0NzZlZjEzMmEyOTUiLCJwIjoiaiJ9)  
+*just to note, the link may open to sprint 3 since it's already been started, if so, navigate to the top left sprint dropdown and select "SCRUM Sprint 2"*
 
 <img width="1856" height="312" alt="image" src="https://github.com/user-attachments/assets/95c2cbd4-46d3-4990-9918-dbb13bd5347a" />
 

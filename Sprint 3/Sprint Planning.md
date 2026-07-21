@@ -33,16 +33,16 @@ Sprint 1 - 2 weekly velocity = 8.33 story points
 Sprint 3 was rounded down to 8 story points to provide a capacity buffer
 
 ## Sprint 3 User Stories and respective SubTasks
-- SCRUM-32 (3 Story Points)   
-  - SCRUM-45
-- SCRUM-14 (3 Story Points)
-  - SCRUM-65
-  - SCRUM-66
-  - SCRUM-67
-- SCRUM-20 (2 Story Points)
-  - SCRUM-68
-  - SCRUM-69
-  - SCRUM-70
+- <b> SCRUM-32 </b>: As a developer, I want to create thorough test cases, so that I can ensure the desired/intended functionality for stakeholders. (3 Story Points)   
+  - <b> SCRUM-45 </b>: Determine the user/behavior flow for the manual test cases.  
+- <b> SCRUM-14 </b>: As a user, I want to be able to use single sign-on to login to the Outty app, so I can reduce the frequency of having to enter in my username and password. (3 Story Points)
+  - <b> SCRUM-65 </b>: Create the design diagram for the single sign-on feature.  
+  - <b> SCRUM-66 </b>: Implement the single sign-on feature.  
+  - <b> SCRUM-67 </b>: Create unit test to cover the single sign-on feature.  
+- <b> SCRUM-20 </b>: As a user, I want to be able to connect and link my social media accounts to my Outty profile, so that I can keep in touch with friends and possible matches. (2 Story Points)
+  - <b> SCRUM-68 </b>: Create the design diagram for the social media linking feature.  
+  - <b> SCRUM-69 </b>: Implement the social media linking feature.  
+  - <b> SCRUM-70 </b>: Create unit test to cover the social media linking feature.  
 
 ## Sprint 3 Backlog
 A screenshot of the Sprint 3 backlog can be seen below. Note the icons in the highlighted red box are subtasks/child work items for that user story.  

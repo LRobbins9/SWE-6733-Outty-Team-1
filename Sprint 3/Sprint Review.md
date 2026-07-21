@@ -3,6 +3,13 @@
 ## Sprint 3 Goal
 The goal of sprint 3 is to implement the social media linking and single sign-on features. Additionally, this sprint will focus on the creation of manual test cases to increase the verification and validation of all project requirements and ensure the final implemented features align with the product vision.
 
+## Sprint 3 Review Attendees
+- Lauren Robbins  
+- Angel Arnold  
+- Kennedy Hemphill  
+- Jeffrey McGurk  
+- Ricardo Hernandez  
+  
 ## Sprint 3 User Story Additions
 No new user stories were added during sprint 3.  
 
@@ -50,8 +57,14 @@ This link will direct you to the working deployed version of all the features im
 
 https://outty-app-team-1.firebaseapp.com/
 
+## Sprint 3 Stakeholder Feedback
+Very strong technical work and progress being made. All implemented features, account/profile management, matching algorithm, photo uploading, in-app messaging, adventure parameter selection, social media linking, single sign-on, and blocking work according to design and align with the product vision. The app is in stable working condition and being deployed to the website. Overall, the final product has met all required feature requirements plus additional nice to have features such as allowing the user to block matches that deliver the promised product vision to stakeholders.   
+
 ## Sprint 3 Statistics   
 (add updated stats)
+
+## Sprint 3 Decisions Moving Forward
+As the project concludes, team 1 reflects on the effort and time put into developing the Outty app as well as learning to navigate the Scrum/Agile process. Communication will need to remain constant and frequent in order to meed the final deadline. Moving forward in the near future, with the Outty application complete, team 1 will begin to wrap up all final deliverables, presentations and demos to be delivered to the stakeholder.  
 
 ## Sprint 3 Collaboration
 During sprint 3 the the main feature that required paired programming was testing the single sign-on and getting feedback on final BDD tests for the features created. This paired programming was again conducted via teams chat between two members of team 1. During this session running commands were given to test the single sign-on properly as well as final sign off on new test cases added for the single sign-on feature and the social media linking feature. This session resulted in positive test results and a successful pull request merge for the newly added test cases. 

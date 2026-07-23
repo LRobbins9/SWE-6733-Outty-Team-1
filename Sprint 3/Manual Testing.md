@@ -35,10 +35,10 @@ The purpose of manual testing is to allow developers to act as users in order to
 <br />
 <img width="459" height="170" alt="image" src="https://github.com/user-attachments/assets/e0df948d-3b30-43c0-9f69-b565d9a78416" />
 <br />
-<img width="458" height="316" alt="image" src="https://github.com/user-attachments/assets/8759f079-3252-460c-8ab7-5622378eac1d" />
+<img width="459" height="328" alt="image" src="https://github.com/user-attachments/assets/3e64b01a-3104-4443-91fc-6e7685fba3ea" />
 <br />
-<img width="458" height="295" alt="image" src="https://github.com/user-attachments/assets/a5387655-d021-46e6-9448-e10bff2e0261" />
+<img width="461" height="291" alt="image" src="https://github.com/user-attachments/assets/18ba30ce-6245-440e-baed-37a0cb917cda" />
 <br />
-<img width="461" height="234" alt="image" src="https://github.com/user-attachments/assets/1760d1bc-9da3-48a5-a57a-1549267f0b73" />
+<img width="460" height="163" alt="image" src="https://github.com/user-attachments/assets/3616771a-7a41-4fca-943c-5cc2d5e0f394" />
 
 

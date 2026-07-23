@@ -28,7 +28,12 @@ The team was able to accomplish all user stories planned for sprint 3. Additiona
 
 Screenshots showing the completion of sprint 3 are shown below. Additionally, the sprint 3 report can be viewed here -> [Sprint 3 Report](https://swe-6733-outty-team-1.atlassian.net/jira/software/projects/SCRUM/boards/1/reports/burndown?source=overview)
 
-(insert screenshots)
+<img width="1892" height="202" alt="image" src="https://github.com/user-attachments/assets/83fde2e4-aeca-4512-aa75-a70f3630ed4f" />
+
+<img width="1262" height="646" alt="image" src="https://github.com/user-attachments/assets/7303adb0-dc84-408d-b801-5f95c6b41b83" />
+
+<img width="1867" height="330" alt="image" src="https://github.com/user-attachments/assets/a2d11162-5239-4bd2-9676-8eca481375a5" />
+
 
 ## Sprint 3 Demo
 ### Single Sign-on
@@ -61,7 +66,8 @@ https://outty-app-team-1.firebaseapp.com/
 Very strong technical work and progress being made. All implemented features, account/profile management, matching algorithm, photo uploading, in-app messaging, adventure parameter selection, social media linking, single sign-on, and blocking work according to design and align with the product vision. The app is in stable working condition and being deployed to the website. Overall, the final product has met all required feature requirements plus additional nice to have features such as allowing the user to block matches that deliver the promised product vision to stakeholders.   
 
 ## Sprint 3 Statistics   
-(add updated stats)
+<img width="1867" height="731" alt="image" src="https://github.com/user-attachments/assets/750cf374-6287-4876-8180-e5b2940a122c" />
+
 
 ## Sprint 3 Decisions Moving Forward
 As the project concludes, team 1 reflects on the effort and time put into developing the Outty app as well as learning to navigate the Scrum/Agile process. Communication will need to remain constant and frequent in order to meed the final deadline. Moving forward in the near future, with the Outty application complete, team 1 will begin to wrap up all final deliverables, presentations and demos to be delivered to the stakeholder.  

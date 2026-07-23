@@ -10,3 +10,5 @@ Below is a snapshot of all the completed user stories for sprints 1, 2 and 3.
 <img width="1871" height="312" alt="image" src="https://github.com/user-attachments/assets/5d2e9f1c-a2ec-4278-a854-5f37ff3a0a70" />
 
 ## Sprint 3
+
+<img width="1896" height="280" alt="image" src="https://github.com/user-attachments/assets/058a3714-be24-459c-9bfb-2af0ceb21a18" />

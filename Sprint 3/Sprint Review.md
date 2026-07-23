@@ -66,6 +66,8 @@ https://outty-app-team-1.firebaseapp.com/
 Very strong technical work and progress being made. All implemented features, account/profile management, matching algorithm, photo uploading, in-app messaging, adventure parameter selection, social media linking, single sign-on, and blocking work according to design and align with the product vision. The app is in stable working condition and being deployed to the website. Overall, the final product has met all required feature requirements plus additional nice to have features such as allowing the user to block matches that deliver the promised product vision to stakeholders.   
 
 ## Sprint 3 Statistics   
+The team was able to complete all user stories in a reasonable amount of time at a solid pace, the final coding features were implemented during the beginning of the sprint and in parallel and once that finished then the manual testing began. The sprint 3 burndown chart can be seen below.
+
 <img width="1867" height="731" alt="image" src="https://github.com/user-attachments/assets/750cf374-6287-4876-8180-e5b2940a122c" />
 
 
